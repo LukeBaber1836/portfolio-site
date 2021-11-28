@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: /luke-1.jpeg
+heroImage: /portfolio-site/luke-1.jpeg
 tagline: 
 actionText: View Portfolio
 actionLink: /about/introduction
