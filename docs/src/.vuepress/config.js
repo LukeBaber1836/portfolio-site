@@ -4,11 +4,11 @@ module.exports = {
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#title
    */
-  title: 'Vuepress Docs Boilerplate',
+  title: 'Portfolio',
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#description
    */
-  description: description,
+  description: "Luke Baber",
   base: "/portfolio-site/",
 
   /**
@@ -35,30 +35,43 @@ module.exports = {
     lastUpdated: false,
     nav: [
       {
-        text: 'Guide',
-        link: '/guide/',
-      },
-      {
-        text: 'Config',
-        link: '/config/'
-      },
-      {
-        text: 'VuePress',
-        link: 'https://v1.vuepress.vuejs.org'
+        text: 'About',
+        link: '/about/introduction',
       }
     ],
     sidebar: {
-      '/guide/': [
-        {
-          title: 'Guide',
-          collapsable: false,
-          children: [
-            '',
-            'using-vue',
-          ]
+            '/': [
+                {
+                    title: 'About',
+                    collapsable: false,
+                    children: [
+                        'about/introduction',
+                        'about/education'
+                    ]
+                },
+                {
+                    title: 'CAD Projects',
+                    collapsable: false,
+                    children: [
+                        'cad/door-lock'
+                    ]
+                },
+                {
+                    title: 'Code Projects',
+                    collapsable: false,
+                    children: [
+                        'code/seam-carving',
+                    ]
+                },
+                {
+                    title: 'Electronic Projects',
+                    collapsable: false,
+                    children: [
+                        'electronics/rgb-lights',
+                    ]
+                }
+            ],
         }
-      ],
-    }
   },
 
   /**

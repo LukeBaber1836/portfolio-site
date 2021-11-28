@@ -1,15 +1,15 @@
 ---
 home: true
-heroImage: https://v1.vuepress.vuejs.org/hero.png
+heroImage: /luke-1.jpeg
 tagline: 
-actionText: Quick Start →
-actionLink: /guide/
+actionText: View Portfolio
+actionLink: /about/introduction
 features:
-- title: Feature 1 Title
-  details: Feature 1 Description
-- title: Feature 2 Title
+- title: Electronic Projects
+  details: askdjaldkfalfka;jf;kj
+- title: Code Projects
   details: Feature 2 Description
-- title: Feature 3 Title
+- title: CAD Projects
   details: Feature 3 Description
-footer: Made by  with ❤️
+footer: Made by Luke Baber
 ---
