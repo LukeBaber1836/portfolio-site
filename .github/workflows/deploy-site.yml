@@ -1,0 +1,16 @@
+name: Build and Deploy
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Build and Deploy
+      uses: rreichel3/vuepress-github-actions-deploy@master
+      env:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BUILD_DIR: docs/src/.vuepress/dist # The folder, the action should deploy.
+        BUILD_SCRIPT: cd docs && npm install && npm run build # The build script the action should run prior to deploying.
+        PAGES_CNAME: rj3.me
