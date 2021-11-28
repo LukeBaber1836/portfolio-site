@@ -4,16 +4,17 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@master
-      
-    - name: Open docs directory
-      run: cd docs
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2.3.1
 
-    - name: Build and Deploy
-      uses: rreichel3/vuepress-github-actions-deploy@master
-      env:
-        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        BUILD_DIR: docs/src/.vuepress/dist # The folder, the action should deploy.
-        BUILD_SCRIPT: npm install && npm run build # The build script the action should run prior to deploying.
-        #PAGES_CNAME: rj3.me
+      - name: Install and Build 🔧 # This example project is built using npm and outputs the result to the 'build' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
+        run: |
+          cd docs
+          npm install
+          npm run build
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.7
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: src/.vuepress/dist # The folder the action should deploy.
