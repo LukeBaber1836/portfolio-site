@@ -1,21 +1,14 @@
-import * as React from 'react';
-import Button from '@mui/joy/Button';
-import Card from '@mui/joy/Card';
+import React from "react"
+import Navbar from "./Components/Partials/Navbar"
+import Footer from "./Components/Partials/Footer"
 
-// Components
-import NavBar from './components/Partials/Navbar';
-import Homehero from './components/HomeHero';
-
-
-const App = () => {
-
+export default function App() {
   return (
     <>
-    <NavBar/>
-    <h1>This is my Website</h1>
-    <Homehero/>
+    <Navbar/>
+    <div className="container m-2 h-dvh">
+    </div>
+    <Footer/>
     </>
-  );
+  )
 }
-
-export default App;
