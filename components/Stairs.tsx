@@ -1,6 +1,5 @@
 import React from 'react'
-import { animate, motion } from 'framer-motion'
-import { exit } from 'process'
+import { motion } from 'framer-motion'
 
 const stairAnimation = {
     initial: {
@@ -42,7 +41,7 @@ const Stairs = () => {
                         ease: "easeInOut",
                         delay: reverseIndex(index) * 0.1
                     }}
-                    className='h-full w-full bg-white relative'
+                    className='h-full w-full bg-black relative'
                 />
             )
         })}
