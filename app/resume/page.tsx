@@ -341,7 +341,7 @@ const Resume = () => {
                   <ul className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:gap-[30px]'>
                     {skills.items.map((skill, index) => {
                       return <li key={index} className='flex items-center gap-2'>
-                        <TooltipProvider>
+                        <TooltipProvider delayDuration={100}>
                           <Tooltip>
                             <TooltipTrigger className='w-full mt-3 h-[125px] bg-[#232329] rounded-xl flex justify-center items-center group aspect-square'>
                               <div className={`text-6xl ${skill.color} transition-all duration-300`}>

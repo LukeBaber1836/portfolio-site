@@ -24,7 +24,7 @@ const Photo = () => {
                         src="/images/Headshot_example.png"
                         priority
                         quality={100}
-                        fill
+                        fill={true}
                         alt="Luke Baber headshot"
                         className='object-contain rounded-full'
                     />
@@ -37,25 +37,35 @@ const Photo = () => {
                     viewBox='0 0 506 506'
                     xmlns='http://www.w3.org/2000/svg'
                 >
+                    <defs>
+                        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
                     <motion.circle
                         cx='253' 
                         cy='253'
                         r='250'
-                        stroke='#00ff99' 
+                        stroke='white'
                         strokeWidth='3'
                         strokeLinecap='round'
                         strokeLinejoin='round'
                         initial={{ strokeDasharray: "24 10 0 0"}}
                         animate={{
                             strokeDasharray: ["15 120 25 25", "16 25 92 72", "4 250 22 22"],
-                            rotate: ["120, 360"],
+                            rotate: [60, 200]
                         }}
                         transition={{
-                            duration: 20,
+                            duration: 30,
                             repeat: Infinity,
                             repeatType: "reverse",
                             ease: "easeInOut"
                         }}
+                        style={{ filter: "url(#glow)" }}
                     />
                 </motion.svg>
             </motion.div>

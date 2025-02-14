@@ -6,6 +6,8 @@
 @layer base {
   body {
     @apply font-primary bg-primary text-white leading-loose;
+    background-image: url('/public/svg/grainy.svg');
+    background-size: cover;
   }
   .h1 {
     @apply text-[48px] xl:text-[80px] leading-[1.1] font-semibold;
@@ -20,10 +22,6 @@
     -webkit-text-stroke:  1px #ffffff;
   }
   .text-outline-hover{
-    -webkit-text-stroke:  1px #00ff99;
+    -webkit-text-stroke:  1px #00c6dc;
   }
-}
-
-.bg-noise {
-  background-image: linear-gradient(90deg, #f5f5dc 25%, transparent 25%, transparent 75%, #dadada 75%);
 }
