@@ -78,18 +78,7 @@ const Work = () => {
   }
 
   return (
-    <motion.section
-      initial={{ opacity: 0 }}
-      animate={{ 
-        opacity: 1,
-        transition: { 
-          delay: 2.4,
-          duration: 0.4,
-          ease: "easeIn"
-        }
-      }}
-      className='min-h-[80hvh] flex flex-col justify-center py-12 xl:px-0'
-    >
+    <div className='min-h-[80hvh] flex flex-col justify-center py-12 xl:px-0'>
       <div className='container mx-auto'>
         <div className='flex flex-col xl:flex-row xl:gap-[30px]'>
           <div className='w-full xl:w-1/2 xl:h-[460px] flex flex-col xl:justify-between order-2 xl:order-none'>
@@ -160,7 +149,7 @@ const Work = () => {
                   <SwiperSlide key={i} className='w-full'>
                     <div className='h-[460px] relative group flex justify-center items-center'>
                       {/* Image */}
-                      <div className='relative w-full h-full'>
+                      <div className='relative w-full h-full rounded-lg overflow-clip'>
                         <Image
                           fill={true}
                           className='rounded-xl hover:cursor-grab active:cursor-grabbing'
@@ -181,7 +170,7 @@ const Work = () => {
           </div>
         </div>
       </div>
-    </motion.section>
+    </div>
   )
 }
 

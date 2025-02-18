@@ -242,18 +242,7 @@ const skills = {
 
 const Resume = () => {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ 
-        opacity: 1,
-        transition: {
-          delay: 2.4,
-          duration: 0.4,
-          ease: 'easeIn'
-        }
-      }}
-      className='min-h-[80hv] flex items-center bg-tea justify-center py-12 xl-py-0 text-yellow'
-    >
+    <div className='min-h-[80hv] flex items-center bg-tea justify-center py-12 xl-py-0 text-yellow'>
       <div className='container mx-auto'>
         <Tabs 
           defaultValue='experience' 
@@ -391,7 +380,7 @@ const Resume = () => {
         </Tabs>
       </div>
       
-    </motion.div>
+    </div>
   )
 }
 
