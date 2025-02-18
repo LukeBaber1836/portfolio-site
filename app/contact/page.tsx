@@ -23,7 +23,7 @@ const info = [
   {
     icon: <FaPhoneAlt />,
     title: "Phone",
-    description: "+1 234 567 890"
+    description: "903-253-7363"
   },
   {
     icon: <FaEnvelope />,
@@ -111,7 +111,6 @@ const Contact = () => {
                       {item.title}
                     </p>
                     <div>
-                      <p>{item.title}</p>
                       <h3 className='text-xl'>{item.description}</h3>
                     </div>
                   </div>
