@@ -9,13 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-cyan-500 to-blue-500 text-primary hover:bg-linear-to-r hover:from-blue-500 hover:to-cyan-500",
+        default: "bg-gradient-to-r from-cyan-500 to-blue-500 text-primary hover:bg-linear-to-r hover:from-blue-500 hover:to-cyan-500 ring-1 ring-accent",
         primary: "bg-primary text-white",
         outline: "border border-accent bg-transparent text-accent hover:bg-accent hover:text-primary",
       },
       size: {
         default: "h-[44px] px-6",
         sm: "h-[48px] px-6",
+        md: "h-[52px] px-6",
         lg: "h-[57px] px-8 text-sm uppercase tracking-[2px]",
         icon: "h-10 w-10",
       },
