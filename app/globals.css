@@ -19,9 +19,22 @@
     @apply text-[20px] xl:text-[24px] leading-[1.1] font-semibold;
   }
   .text-outline {
-    -webkit-text-stroke:  1px #ffffff;
+    -webkit-text-stroke:  1px #ccffcc;
   }
   .text-outline-hover{
-    -webkit-text-stroke:  1px #00c6dc;
+    -webkit-text-stroke:  1px #ccffcc;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
 }

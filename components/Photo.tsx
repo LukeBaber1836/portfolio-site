@@ -12,14 +12,25 @@ const Photo = () => {
         animate={{
           opacity: 1,
           transition: {
-            delay: 1,
+            delay: 0.5,
             duration: 0.5,
             ease: "easeInOut",
           },
         }}
       >
         {/* image */}
-        <div className="w-[298px] h-[298px] xl:w-[500px] xl:h-[500px] mix-blend-lighten absolute rounded-full">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{
+            opacity: 1,
+            transition: {
+              delay: 0.5,
+              duration: 1.5,
+              ease: "easeInOut",
+            },
+          }}
+          className="w-[298px] h-[298px] xl:w-[500px] xl:h-[500px] mix-blend-lighten absolute rounded-full"
+        >
           <Image
             src="/images/headshot.png"
             priority
@@ -28,11 +39,11 @@ const Photo = () => {
             alt="Luke Baber headshot"
             className="object-contain rounded-full"
           />
-        </div>
+        </motion.div>
 
         {/* circle */}
         <motion.svg
-          className="w-[300px] h-[300px] xl:w-[506px] xl:h-[506px]"
+          className="w-[300px] h-[300px] xl:w-[506px] xl:h-[506px] z-50"
           fill="transparent"
           viewBox="0 0 506 506"
           xmlns="http://www.w3.org/2000/svg"
