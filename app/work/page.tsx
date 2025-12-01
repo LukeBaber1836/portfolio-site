@@ -85,7 +85,7 @@ const projects = [
               rel="noopener noreferrer"
               className="text-accent hover:underline"
             >
-              Xometry's
+              Xometry&apos;s
             </Link>{" "}
             website and noticed their seamless checkout experience. How did they
             do it? How were they generating manufacturing quotes on the fly?
@@ -189,8 +189,8 @@ const projects = [
             </Link>
             , with active users testing its features and giving valuable
             feedback. The lessons learned along the way have been the real
-            reward. The project is still evolving, and I'm excited to see where
-            it goes and what more I'll learn.
+            reward. The project is still evolving, and I&apos;m excited to see where
+            it goes and what more I&apos;ll learn.
           </p>
         </div>
       </div>
@@ -220,7 +220,7 @@ const projects = [
               rel="noopener noreferrer"
               className="text-accent hover:underline"
             >
-              Stripe's API
+              Stripe&apos;s API
             </Link>{" "}
             for customer onboarding and billing.
           </p>
@@ -323,7 +323,7 @@ const projects = [
           <p className="text-white/90 leading-relaxed">
             Working with Cowgirl Beef was a one-of-a-kind project. The client
             wanted a website that felt modern, while still carrying the rustic
-            character you'd expect from Texas ranching and premium beef. To
+            character you&apos;d expect from Texas ranching and premium beef. To
             capture that balance, I explored multiple color palettes before
             settling on a deep burgundy paired with light tan and subtle gray
             accents. The result feels warm, grounded, and unmistakably Texan.
@@ -355,14 +355,14 @@ const projects = [
               rel="noopener noreferrer"
               className="text-accent hover:underline"
             >
-              "Cowstimator"
+              &quot;Cowstimator&quot;
             </Link>
             , a dynamic tool that lets visitors calculate the cost of their
             custom beef package.
           </p>
           <p className="text-white/90 leading-relaxed">
             Whether I perfectly nailed the look or landed a little off target,
-            I'll let you be the judge. What I can say is that this design
+            I&apos;ll let you be the judge. What I can say is that this design
             challenge pushed me to expand my creative approach and sharpen my
             web-design instincts in a very different way.
           </p>
@@ -374,7 +374,7 @@ const projects = [
 
 const Work = () => {
   const [project, setProject] = useState(projects[0]);
-  const handleSlideChange = (swiper: any) => {
+  const handleSlideChange = (swiper: { activeIndex: number }) => {
     // get current slide index
     const currentIndex = swiper.activeIndex;
     // update project state

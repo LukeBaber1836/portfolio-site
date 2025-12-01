@@ -20,7 +20,8 @@ const Home = () => {
               Lifelong learner &amp; tech builder
             </span>
             <h1 className="h1">
-              Hello I'm <br /> <span className="text-accent">Luke Baber</span>
+              Hello I&quot;m <br />{" "}
+              <span className="text-accent">Luke Baber</span>
             </h1>
             <p className="max-w-[500px] mb-9 text-white/80">
               I excel at packaging complex technology into clear solutions
