@@ -76,9 +76,7 @@ const Contact = () => {
                 placeholder="Type your message here"
               />
               {/* button */}
-              <Button size="md" className="max-w-40 shadow-xl">
-                Send Message
-              </Button>
+              <Button className="max-w-40 shadow-xl">Send Message</Button>
             </form>
           </div>
           {/* info */}

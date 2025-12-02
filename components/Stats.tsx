@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import CountUp from "react-countup";
 
 const calculateYears = (startDate: string): number => {
@@ -11,26 +11,43 @@ const calculateYears = (startDate: string): number => {
   return diffYears;
 };
 
-const stats = [
-  {
-    num: calculateYears("2023-07-01"),
-    text: "Years of Experience",
-  },
-  {
-    num: 3,
-    text: "Projects completed",
-  },
-  {
-    num: 3,
-    text: "Of product sold",
-  },
-  {
-    num: 500,
-    text: "Code commits",
-  },
-];
-
 const Stats = () => {
+  const [totalCommits, setTotalCommits] = useState(500); // Default fallback
+
+  useEffect(() => {
+    // Fetch GitHub commit count from API
+    fetch("/api/github-stats")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.commits) {
+          setTotalCommits(data.commits);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch GitHub stats:", error);
+        // Keep fallback value
+      });
+  }, []);
+
+  const stats = [
+    {
+      num: calculateYears("2023-07-01"),
+      text: "Years of Experience",
+    },
+    {
+      num: 3,
+      text: "Projects completed",
+    },
+    {
+      num: 26,
+      text: "Proven skills",
+    },
+    {
+      num: totalCommits + 80, // Additional commits from Bryan Hess
+      text: "Code commits",
+    },
+  ];
+
   return (
     <section className="pt-4 pb-12 xl:pt-0 xl:pb-0">
       <div className="container mx-auto">
@@ -41,18 +58,12 @@ const Stats = () => {
                 className="flex-1 flex gap-4 items-center justify-center xl:justify-start"
                 key={index}
               >
-                <div className="text-4xl md:text-6xl font-extrabold">
-                  {index === 2 ? "$" : ""}
-                </div>
                 <CountUp
                   end={item.num}
                   duration={5}
                   delay={2}
                   className="text-4xl md:text-6xl font-extrabold"
                 />
-                <div className="text-4xl md:text-6xl font-extrabold">
-                  {index === 2 ? "M" : ""} {index === 0 ? "+" : ""}
-                </div>
                 <p
                   className={`${
                     item.text.length < 15 ? "max-w-[100px]" : "max-w-[150px]"

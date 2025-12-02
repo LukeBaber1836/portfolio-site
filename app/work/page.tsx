@@ -189,8 +189,8 @@ const projects = [
             </Link>
             , with active users testing its features and giving valuable
             feedback. The lessons learned along the way have been the real
-            reward. The project is still evolving, and I&apos;m excited to see where
-            it goes and what more I&apos;ll learn.
+            reward. The project is still evolving, and I&apos;m excited to see
+            where it goes and what more I&apos;ll learn.
           </p>
         </div>
       </div>
@@ -476,16 +476,18 @@ const Work = () => {
                             <p>More Details</p>
                           </TooltipContent>
                           <AlertDialogContent className="bg-primary max-w-3xl max-h-[80vh] overflow-y-auto scrollbar-hide">
-                            <AlertDialogCancel className="absolute right-4 top-4 rounded-full bg-transparent h-auto w-auto p-0 border-none hover:cursor-pointer hover:bg-red-500/10">
-                              <BsX className="size-10 text-red-500" />
-                              <span className="sr-only">Close</span>
+                            <AlertDialogCancel className="flex justify-end rounded-full bg-transparent h-auto w-full p-0 border-none">
+                              <div className="hover:cursor-pointer hover:bg-red-500/10 rounded-full">
+                                <BsX className="size-10 text-red-500" />
+                                <span className="sr-only">Close</span>
+                              </div>
                             </AlertDialogCancel>
                             <AlertDialogHeader>
                               <AlertDialogTitle className="text-2xl text-white">
                                 {project.title}
                               </AlertDialogTitle>
                               <AlertDialogDescription asChild>
-                                <div className="text-white/80">
+                                <div className="text-white/80 text-left">
                                   {project.details}
                                 </div>
                               </AlertDialogDescription>
@@ -513,7 +515,7 @@ const Work = () => {
             >
               {projects.map((project, i) => (
                 <SwiperSlide key={i} className="w-full">
-                  <div className="h-[460px] relative group flex justify-center items-center">
+                  <div className="sm:h-[460px] h-full relative group flex justify-center items-center">
                     {/* Image */}
                     <div className="relative flex justify-center items-center w-full h-full rounded-lg overflow-clip">
                       <Image
