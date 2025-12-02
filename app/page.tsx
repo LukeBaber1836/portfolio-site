@@ -18,7 +18,9 @@ const Home = () => {
           <div className="text-center xl:text-left order-2 xl:order-none">
             <h1 className="h1">
               Hello I&apos;m <br />{" "}
-              <span className="gold-text">Luke Baber</span>
+              <span className="bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-gold-d2 via-gold-l2 to-gold-d2 bg-clip-text text-transparent">
+                Luke Baber
+              </span>
             </h1>
             <p className="max-w-[500px] mb-9 text-white/80">
               I excel at packaging complex technology into clear solutions
@@ -36,7 +38,7 @@ const Home = () => {
                   href="/files/resume_lukebaber_2025.pdf"
                   download={true}
                   target="_blank"
-                  className="uppercase flex items-center rounded-full px-5 py-2 gap-2 border border-accent bg-transparent text-accent hover:text-primary hover:bg-gradient-to-br hover:from-amber-600 hover:via-yellow-100 hover:to-amber-600  hover:shadow-lg hover:shadow-accent/40 transition-all duration-300 ease-in-out"
+                  className="uppercase flex items-center rounded-full px-5 py-2 gap-2 border border-accent bg-transparent text-accent hover:text-primary hover:bg-gradient-to-br hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2  hover:shadow-lg hover:shadow-accent/40 transition-all duration-300 ease-in-out"
                 >
                   <span>Download CV</span>
                   <FiDownload className="text-xl" />
@@ -45,7 +47,7 @@ const Home = () => {
               <div className="mb-8 xl:mb-0">
                 <Socials
                   containerStyles="flex gap-6"
-                  iconStyles="w-9 h-9 border border-accent rounded-full flex justify-center items-center text-accent text-base hover:bg-gradient-to-bl hover:from-amber-600 hover:via-yellow-100 hover:to-amber-600 hover:text-primary hover:transition-all duration-500 ease-in-out"
+                  iconStyles="w-9 h-9 border border-accent rounded-full flex justify-center items-center text-accent text-base hover:bg-gradient-to-tr hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2 hover:text-primary hover:transition-all duration-500 ease-in-out"
                 />
               </div>
             </div>

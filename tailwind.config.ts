@@ -24,9 +24,10 @@ export default {
     extend: {
       colors: {
         primary: "#1c1c22",
-        gold_1: "#f59e0b",
-        gold_2: "#fef9c3",
-        gold_3: "#78350f",
+        "gold-l1": "#FCF6BA",
+        "gold-l2": "#FBF5B7",
+        "gold-d1": "#BF953F",
+        "gold-d2": "#AA771C",
 
         accent: {
           DEFAULT: "#f3d076",
