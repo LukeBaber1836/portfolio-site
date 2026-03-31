@@ -9,43 +9,43 @@ const services = [
     num: "01",
     title: "Web Development",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam asperiores unde dolores voluptate, nesciunt maiores blanditiis quod!",
-    href: "",
+      "I build responsive, production-ready websites from the ground up. Clean code, fast load times, and structured to scale as your project grows.",
+    href: "/contact",
   },
   {
     num: "02",
     title: "UI/UX Design",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam asperiores unde dolores voluptate, nesciunt maiores blanditiis quod!",
-    href: "",
+      "I design interfaces that are easy to navigate and pleasant to use. Layouts, color, and interactions built around how real users actually move through a product.",
+    href: "/contact",
   },
   {
     num: "03",
     title: "3D Modeling",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam asperiores unde dolores voluptate, nesciunt maiores blanditiis quod!",
-    href: "",
+      "I create precise 3D models built for engineering.  Have an idea? I can help you design it, optimize it for manufacturing, and get it ready to be made.",
+    href: "/contact",
   },
   {
     num: "04",
-    title: "3D printing",
+    title: "3D Printing",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam asperiores unde dolores voluptate, nesciunt maiores blanditiis quod!",
-    href: "",
+      "I take designs from file to physical object, handling slicing, material selection, and print settings to get you a clean, accurate result the first time.",
+    href: "/contact",
   },
   {
     num: "05",
     title: "App Development",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam asperiores unde dolores voluptate, nesciunt maiores blanditiis quod!",
-    href: "",
+      "I develop cross-platform apps with a focus on reliability and usability, built with the right tools for the job and structured to be maintained and extended over time.",
+    href: "/contact",
   },
   {
     num: "06",
-    title: "Programming",
+    title: "Automation",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam asperiores unde dolores voluptate, nesciunt maiores blanditiis quod!",
-    href: "",
+      "I build automations using n8n and custom scripts to cut out repetitive work, connect your tools together, and keep things running without you having to touch them.",
+    href: "/contact",
   },
 ];
 
