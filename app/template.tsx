@@ -18,7 +18,7 @@ const Layout = ({ children }: LayoutProps) => {
                 initial= {{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{type: 'easeInOut', duration: 0.75 }}
+                transition={{duration: 0.75, ease: 'easeInOut'}}
             >
                 {children}
                 
