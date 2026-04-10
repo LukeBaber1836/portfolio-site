@@ -34,6 +34,7 @@ const Photo = () => {
           <Image
             src="/images/headshot.png"
             priority
+            sizes="(max-width: 768px) 298px, 500px"
             quality={100}
             fill={true}
             alt="Luke Baber headshot"

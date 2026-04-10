@@ -142,6 +142,7 @@ const Contact = () => {
                     <SelectItem value="3d-modeling-printing">3D Modeling/Printing</SelectItem>
                     <SelectItem value="app-development">App Development</SelectItem>
                     <SelectItem value="automation">Automation</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -172,7 +173,7 @@ const Contact = () => {
                 >
                   {loading ? (
                     <>
-                      <LucideLoaderCircle className="animate-spin text-accent" />
+                      <LucideLoaderCircle className="animate-spin text-primary" />
                       Sending...
                     </>
                   ) : (

@@ -247,8 +247,8 @@ const skills = {
 
 const Resume = () => {
   return (
-    <div className="min-h-[80hv] flex items-center bg-tea justify-center py-12 xl-py-0 text-yellow">
-      <div className="container mx-auto">
+    <div className="min-h-[80hv] flex items-center justify-center py-12 xl-py-0 text-yellow">
+      <div className="container mx-auto p-10 rounded-2xl">
         <Tabs
           defaultValue="experience"
           className="flex flex-col xl:flex-row gap-[60px]"
@@ -275,7 +275,7 @@ const Resume = () => {
                       return (
                         <li
                           key={index}
-                          className="bg-[#232329] h-[184px] py-6 px-10 rounded-xl flex flex-col justify-center items-center lg:items-start gap-1"
+                          className="h-[184px] py-6 px-10 rounded-xl flex flex-col justify-center items-center lg:items-start gap-1"
                         >
                           <span>{item.duration}</span>
                           <h3 className="text-xl max-w-[260px] min-h-[60px] text-center lg:text-left">
@@ -325,20 +325,22 @@ const Resume = () => {
             {/* Skills */}
             <TabsContent value="skills" className="w-full h-full">
               <div className="flex flex-col gap-[30px">
-                <div className="flex flex-col gap-[30px] text-center xl:text-left bg-primary mb-5">
+                <div className="flex flex-col gap-[30px] text-center xl:text-left mb-5">
                   <h3 className="text-4xl font-bold">{skills.title}</h3>
                   <p className="max-w-[600px] text-white/60 mx-auto xl:mx-0">
                     {skills.description}
                   </p>
                 </div>
-                <ScrollArea className="h-[400px] px-3">
+                <ScrollArea className="relative h-[400px] px-3">
+                  <div className="absolute bottom-0 w-full h-[20px] z- bg-gradient-to-b from-transparent to-primary" />
+                  <div className="absolute top-0 w-full h-[20px] z-50 bg-gradient-to-t from-transparent to-primary" />
                   <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:gap-[30px]">
                     {skills.items.map((skill, index) => {
                       return (
                         <li key={index} className="flex items-center gap-2">
                           <TooltipProvider delayDuration={100}>
                             <Tooltip>
-                              <TooltipTrigger className="w-full mt-3 h-[125px] bg-[#232329] rounded-xl flex justify-center items-center group aspect-square">
+                              <TooltipTrigger className="w-full mt-3 h-[125px] rounded-xl flex justify-center items-center group aspect-square">
                                 <div
                                   className={`text-6xl ${skill.color} transition-all duration-300`}
                                 >
@@ -346,7 +348,7 @@ const Resume = () => {
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p className="capitalize">{skill.name}</p>
+                                <p className="capitalize z-50">{skill.name}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>

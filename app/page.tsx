@@ -18,7 +18,7 @@ const Home = () => {
           <div className="text-center xl:text-left order-2 xl:order-none">
             <h1 className="h1">
               Hello I&apos;m <br />{" "}
-              <span className="bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-gold-d2 via-gold-l2 to-gold-d2 bg-clip-text text-transparent">
+              <span className="inline-block bg-gradient-to-r from-gold-d1 via-gold-l2 to-gold-d1 bg-clip-text text-transparent">
                 Luke Baber
               </span>
             </h1>
@@ -59,6 +59,9 @@ const Home = () => {
         </div>
       </div>
       <Stats />
+      <div className="absolute -bottom-10 right-0">
+        <p className="w-[200px] text-[8px] text-muted p-1">* squares map to GitHub Activity</p>
+      </div>
     </section>
   );
 };

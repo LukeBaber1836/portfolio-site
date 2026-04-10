@@ -3,6 +3,7 @@ import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 import Header from "@/components/Header";
+import GitHubCommitBG from "@/components/GitHubCommitBG";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -27,9 +28,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${jetbrainsMono.variable} antialiased`}>
-        <Header />
-        {children}
+      <body
+        className={`${jetbrainsMono.className} ${jetbrainsMono.variable} antialiased`}
+      >
+        <GitHubCommitBG />
+        <div className="relative z-10">
+          <Header />
+          {children}
+        </div>
       </body>
     </html>
   );
