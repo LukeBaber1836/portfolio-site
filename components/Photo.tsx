@@ -44,10 +44,11 @@ const Photo = () => {
 
         {/* circle */}
         <motion.svg
-          className="w-[300px] h-[300px] xl:w-[506px] xl:h-[506px] z-50"
+          className="w-[300px] h-[300px] xl:w-[506px] xl:h-[506px] z-50 overflow-visible"
           fill="transparent"
           viewBox="0 0 506 506"
           xmlns="http://www.w3.org/2000/svg"
+          overflow="visible"
         >
           <defs>
             <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
@@ -62,8 +63,8 @@ const Photo = () => {
             cx="253"
             cy="253"
             r="250"
-            stroke="#FCF6BA"
-            strokeWidth="3"
+            stroke="#f6df9e"
+            strokeWidth="4"
             strokeLinecap="round"
             strokeLinejoin="round"
             initial={{ strokeDasharray: "24 10 0 0" }}
