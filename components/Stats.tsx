@@ -31,11 +31,11 @@ const Stats = () => {
 
   const stats = [
     {
-      num: calculateYears("2023-07-01"),
+      num: calculateYears("2023-01-01"),
       text: "Years of Experience",
     },
     {
-      num: 3,
+      num: 5,
       text: "Projects completed",
     },
     {
@@ -65,9 +65,8 @@ const Stats = () => {
                   className="text-4xl md:text-6xl font-extrabold"
                 />
                 <p
-                  className={`${
-                    item.text.length < 15 ? "max-w-[100px]" : "max-w-[150px]"
-                  } leading-snug text-white/80`}
+                  className={`${item.text.length < 15 ? "max-w-[100px]" : "max-w-[150px]"
+                    } leading-snug text-white/80`}
                 >
                   {item.text}
                 </p>
