@@ -11,8 +11,8 @@ import { motion } from "framer-motion";
 
 const Home = () => {
   return (
-    <section className="h-full">
-      <div className="container mx-auto h-full">
+    <section className="min-h-[80vh] flex flex-col justify-center">
+      <div className="container mx-auto">
         <div className="flex flex-col xl:flex-row items-center justify-between xl:pt-8 xl:pb-24">
           {/* text */}
           <div className="text-center xl:text-left order-2 xl:order-none">
