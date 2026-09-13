@@ -75,9 +75,14 @@ const experience = {
     "I have worked in a variety of industries, giving me a well rounded background.",
   items: [
     {
+      company: "PostHog",
+      position: "Technical Customer Success Manager",
+      duration: "June, 2026 - Present",
+    },
+    {
       company: "IBM",
       position: "Technical Sales Engineer",
-      duration: "July, 2023 - Present",
+      duration: "July, 2023 - May, 2025",
     },
     {
       company: "Dematic",
