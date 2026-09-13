@@ -4,12 +4,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-md font-medium ring-offset-background transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "rounded-full text-black bg-gradient-to-bl from-gold-d1 via-gold-l1 to-gold-d2 hover:ring-accent hover:shadow-lg hover:shadow-accent/40 transition-all duration-300",
+          "clay-glow rounded-full text-black bg-gradient-to-bl from-gold-d1 via-gold-l1 to-gold-d2 transition-all duration-300",
+        goldOutline:
+          "clay-glow rounded-full border border-accent bg-transparent text-accent hover:text-primary hover:bg-gradient-to-br hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2 transition-all duration-300 ease-in-out",
+        iconOutline:
+          "clay-glow rounded-full border border-accent bg-transparent text-accent hover:text-primary hover:bg-gradient-to-tr hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2 transition-all duration-300 ease-in-out",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:

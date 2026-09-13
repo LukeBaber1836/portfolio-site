@@ -3,6 +3,7 @@
 import React from "react";
 import { BsArrowDownRight } from "react-icons/bs";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const services = [
   {
@@ -64,11 +65,14 @@ const Services = () => {
                   <div className="text-5xl font-extrabold text-outline-white text-transparent transition-all duration-500 ease-in-out">
                     {service.num}
                   </div>
-                  <Link
-                    href={service.href}
-                    className="size-[50px] rounded-full border border-accent hover:bg-accent text-accent hover:text-black transition-all duration-500 ease-in-out flex justify-center items-center hover:-rotate-45 hover:scale-105"
-                  >
-                    <BsArrowDownRight className="text-3xl" />
+                  <Link href={service.href}>
+                    <Button
+                      variant="iconOutline"
+                      size="icon"
+                      className="size-[50px] hover:-rotate-45 hover:scale-105"
+                    >
+                      <BsArrowDownRight className="text-3xl" />
+                    </Button>
                   </Link>
                 </div>
                 {/* heading */}

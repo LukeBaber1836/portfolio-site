@@ -417,7 +417,7 @@ const Work = () => {
                     <Link href={project.live} target="_blank">
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
-                          <TooltipTrigger className="w-[70px] h-[70px] rounded-full bg-white/5 flex justify-center items-center group hover:cursor-pointer">
+                          <TooltipTrigger className="w-[70px] h-[70px] rounded-full hover:bg-white/5 clay-hover transition-all duration-300 flex justify-center items-center group hover:cursor-pointer">
                             <BsArrowUpRight className="text-white text-3xl group-hover:text-accent" />
                           </TooltipTrigger>
                           <TooltipContent>
@@ -442,7 +442,7 @@ const Work = () => {
                     <Link href={project.github} target="_blank">
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
-                          <TooltipTrigger className="w-[70px] h-[70px] rounded-full bg-white/5 flex justify-center items-center group hover:cursor-pointer">
+                          <TooltipTrigger className="w-[70px] h-[70px] rounded-full hover:bg-white/5 clay-hover transition-all duration-300 flex justify-center items-center group hover:cursor-pointer">
                             <BsGithub className="text-white text-3xl group-hover:text-accent" />
                           </TooltipTrigger>
                           <TooltipContent>
@@ -468,7 +468,7 @@ const Work = () => {
                       <Tooltip>
                         <AlertDialog>
                           <TooltipTrigger asChild>
-                            <AlertDialogTrigger className="w-[70px] h-[70px] rounded-full bg-white/5 flex justify-center items-center group hover:cursor-pointer">
+                            <AlertDialogTrigger className="w-[70px] h-[70px] rounded-full hover:bg-white/5 clay-hover transition-all duration-300 flex justify-center items-center group hover:cursor-pointer">
                               <BsInfoCircle className="text-white text-3xl group-hover:text-accent" />
                             </AlertDialogTrigger>
                           </TooltipTrigger>
@@ -533,8 +533,8 @@ const Work = () => {
               {/* slider buttons */}
               <WorkSliderBtns
                 containerStyles="flex gap-2 absolute right-0 bottom-[calc[50%_-_22px)] xl:bottom-0 z-20 w-full justify-between xl:w-max xl:justify-none"
-                btnStyles="bg-accent group hover:bg-primary text-primary text-[22px] w-[44px] h-[44px] flex justify-center items-center transition-all duration-300 rounded-full hover:cursor-pointer"
-                iconStyles="text-[28px] text-primary group-hover:text-accent"
+                btnStyles="clay bg-primary group hover:bg-accent text-accent hover:text-primary text-[22px] w-[44px] h-[44px] flex justify-center items-center transition-all duration-300 rounded-full hover:cursor-pointer"
+                iconStyles="text-[28px] text-accent group-hover:text-primary"
               />
             </Swiper>
           </div>

@@ -7,6 +7,7 @@ import { FiDownload } from "react-icons/fi";
 import Socials from "@/components/Socials";
 import Photo from "@/components/Photo";
 import Stats from "@/components/Stats";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
 const Home = () => {
@@ -38,16 +39,17 @@ const Home = () => {
                   href="/files/resume_lukebaber_2025.pdf"
                   download={true}
                   target="_blank"
-                  className="uppercase flex items-center rounded-full px-5 py-2 gap-2 border border-accent bg-transparent text-accent hover:text-primary hover:bg-gradient-to-br hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2  hover:shadow-lg hover:shadow-accent/40 transition-all duration-300 ease-in-out"
                 >
-                  <span>Download CV</span>
-                  <FiDownload className="text-xl" />
+                  <Button variant="goldOutline" className="uppercase">
+                    <span>Download CV</span>
+                    <FiDownload className="text-xl" />
+                  </Button>
                 </Link>
               </motion.div>
               <div className="mb-8 xl:mb-0">
                 <Socials
                   containerStyles="flex gap-6"
-                  iconStyles="w-9 h-9 border border-accent rounded-full flex justify-center items-center text-accent text-base hover:bg-gradient-to-tr hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2 hover:text-primary hover:transition-all duration-500 ease-in-out"
+                  iconStyles="w-9 h-9 text-base"
                 />
               </div>
             </div>

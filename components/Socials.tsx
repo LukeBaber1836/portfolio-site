@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 const socials = [
   { icon: <FaGithub />, path: "https://github.com/LukeBaber1836" },
@@ -36,8 +37,10 @@ const Socials = ({
               ease: "easeInOut",
             }}
           >
-            <Link href={item.path} className={iconStyles}>
-              {item.icon}
+            <Link href={item.path}>
+              <Button variant="iconOutline" size="icon" className={iconStyles}>
+                {item.icon}
+              </Button>
             </Link>
           </motion.div>
         );

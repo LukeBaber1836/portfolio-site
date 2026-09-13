@@ -111,6 +111,49 @@
     /* Firefox */
   }
 
+  .clay {
+    box-shadow:
+      6px 6px 16px rgba(0, 0, 0, 0.5),
+      -4px -4px 12px rgba(255, 255, 255, 0.04),
+      inset 1px 1px 2px rgba(255, 255, 255, 0.07),
+      inset -2px -2px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Same puffy elevation as .clay, plus a gold glow layer that fades in/out on
+     hover instead of snapping in (the glow shadow is always present at 0 alpha
+     so the transition has something to interpolate from). No transition is
+     declared here on purpose: every element using this class already carries
+     Tailwind's transition-all, and a second `transition` shorthand here would
+     clobber transition-property to "box-shadow" only, freezing transform/color
+     transitions (e.g. hover rotate) so they snap instead of animating. */
+  .clay-glow {
+    box-shadow:
+      6px 6px 16px rgba(0, 0, 0, 0.5),
+      -4px -4px 12px rgba(255, 255, 255, 0.04),
+      inset 1px 1px 2px rgba(255, 255, 255, 0.07),
+      inset -2px -2px 6px rgba(0, 0, 0, 0.4),
+      0 0 0 0 rgba(243, 208, 118, 0);
+  }
+
+  .clay-glow:hover {
+    box-shadow:
+      6px 6px 16px rgba(0, 0, 0, 0.5),
+      -4px -4px 12px rgba(255, 255, 255, 0.04),
+      inset 1px 1px 2px rgba(255, 255, 255, 0.07),
+      inset -2px -2px 6px rgba(0, 0, 0, 0.4),
+      0 0 24px 6px rgba(243, 208, 118, 0.45);
+  }
+
+  /* No elevation at rest (icon-only) — the puffy shadow appears only on
+     hover. Same no-transition-declared reasoning as .clay-glow above. */
+  .clay-hover:hover {
+    box-shadow:
+      6px 6px 16px rgba(0, 0, 0, 0.5),
+      -4px -4px 12px rgba(255, 255, 255, 0.04),
+      inset 1px 1px 2px rgba(255, 255, 255, 0.07),
+      inset -2px -2px 6px rgba(0, 0, 0, 0.4);
+  }
+
   /* Keep v3-style container behavior with custom breakpoints only. */
   .container {
     width: 100%;
