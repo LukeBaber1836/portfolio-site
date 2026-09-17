@@ -13,7 +13,7 @@ const TabsList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
-    className={cn("inline-flex h-auto rounded-md p-1 text-primary", className)}
+    className={cn("inline-flex h-auto rounded-md p-1 text-primary-foreground", className)}
     {...props}
   />
 ));
@@ -26,7 +26,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center w-full bg-[#27272c] justify-center whitespace-nowrap text-white rounded-xl p-3 text-base ring-offset-white tranistion-all disabled:pointer-events-none disabled:opacity-50 transition-all duration-150 ease-in-out cursor-pointer clay-glow hover:bg-[#27272c99] data-[state=active]:bg-gradient-to-br data-[state=active]:from-gold-d1 data-[state=active]:via-gold-l1 data-[state=active]:to-gold-d2 data-[state=active]:text-primary data-[state=active]:font-bold",
+      "inline-flex items-center w-full bg-[#27272c] justify-center whitespace-nowrap text-white rounded-xl p-3 text-base ring-offset-white disabled:pointer-events-none disabled:opacity-50 transition-all duration-150 ease-in-out cursor-pointer clay-glow hover:bg-[#27272c99] data-[state=active]:bg-gradient-to-br data-[state=active]:from-gold-d1 data-[state=active]:via-gold-l1 data-[state=active]:to-gold-d2 data-[state=active]:text-primary-foreground data-[state=active]:font-bold",
       className
     )}
     {...props}
@@ -41,7 +41,7 @@ const TabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      "min-h-[480px] ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300",
+      "min-h-[480px] ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
       className
     )}
     {...props}

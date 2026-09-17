@@ -1,18 +1,62 @@
 @import "tailwindcss";
+@import "./transitions.css";
 @plugin "tailwindcss-animate";
+
+/* Explicit sources: auto-detection skips bracketed route folders like app/admin/clients/[id]. */
+@source "../app";
+@source "../components";
+@source "../lib";
 
 @theme {
   --font-primary: var(--font-jetbrainsMono);
 
-  --color-primary: #141416;
-  --color-secondary: #232329;
+  /* Brand */
   --color-gold-l1: #fcf6ba;
   --color-gold-l2: #fbf5b7;
   --color-gold-d1: #bf953f;
   --color-gold-d2: #aa771c;
-  --color-accent: #f3d076;
   --color-accent-hover: #00b4c8;
-  --color-muted: #616161;
+
+  /* Semantic (shadcn-compatible) — see styles.md */
+  --color-background: #141416;
+  --color-foreground: #ffffff;
+  --color-card: #27272c;
+  --color-card-foreground: #ffffff;
+  --color-popover: #1b1b1f;
+  --color-popover-foreground: #ffffff;
+  --color-primary: #f3d076;
+  --color-primary-foreground: #141416;
+  --color-secondary: #232329;
+  --color-secondary-foreground: #ffffff;
+  --color-muted: #232329;
+  --color-muted-foreground: rgba(255, 255, 255, 0.6);
+  --color-accent: #f3d076;
+  --color-accent-foreground: #141416;
+  --color-destructive: #fb7185;
+  --color-destructive-foreground: #141416;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-input: rgba(255, 255, 255, 0.1);
+  --color-ring: #f3d076;
+
+  /* Status */
+  --color-success: #34d399;
+  --color-info: #00b4c8;
+  --color-danger: #fb7185;
+
+  /* App shell */
+  --color-sidebar: #18181b;
+  --color-sidebar-foreground: rgba(255, 255, 255, 0.8);
+  --color-sidebar-primary: #f3d076;
+  --color-sidebar-primary-foreground: #141416;
+  --color-sidebar-accent: rgba(255, 255, 255, 0.05);
+  --color-sidebar-accent-foreground: #ffffff;
+  --color-sidebar-border: rgba(255, 255, 255, 0.06);
+  --color-sidebar-ring: #f3d076;
+
+  /* Charts: categorical order, validated for the dark card surface (#27272c)
+     with the dataviz palette validator — see styles.md before adding slots. */
+  --color-chart-1: #b8872c;
+  --color-chart-2: #0098aa;
 
   --breakpoint-sm: 640px;
   --breakpoint-md: 768px;
@@ -26,6 +70,20 @@
 
   --animate-shine: shine 3s ease-out infinite;
   --animate-gradient-flow: gradientFlow 10s ease 0s infinite normal none running;
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
+}
+
+@keyframes caret-blink {
+  0%,
+  70%,
+  100% {
+    opacity: 1;
+  }
+
+  20%,
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes shine {
@@ -57,18 +115,32 @@
 }
 
 :root {
-  --color-primary: #616161;
-  --color-primary: #141416;
   --gradient-lime: #d4ff6a;
   --gradient-ocean: #39c9ff;
   --gradient-wine: #b35cff;
   --gradient-rust: #ff7a45;
+
+  /* Bare aliases for shadcn components that read raw CSS variables */
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --popover: var(--color-popover);
+  --popover-foreground: var(--color-popover-foreground);
+  --border: var(--color-border);
+  --sidebar-accent: var(--color-sidebar-accent);
+  --sidebar-border: var(--color-sidebar-border);
 }
 
 
 @layer base {
   body {
-    @apply font-primary bg-primary text-white leading-loose;
+    @apply font-primary bg-background text-white leading-loose;
+  }
+
+  /* shadcn components rely on a themed default border color */
+  *,
+  ::after,
+  ::before {
+    border-color: var(--color-border);
   }
 
   .h1 {
@@ -154,6 +226,17 @@
       inset -2px -2px 6px rgba(0, 0, 0, 0.4);
   }
 
+  /* Sunken well, carved into a parent .clay card rather than sitting on top of
+     it — no outer shadow (that would read as raised), just a dominant dark
+     inset on the top/left wall and a faint rim light on the bottom/right.
+     Pair with a darker fill (bg-background/60) so it reads as recessed, not
+     just "a card inside a card". */
+  .clay-recessed {
+    box-shadow:
+      inset 3px 3px 8px rgba(0, 0, 0, 0.5),
+      inset -1px -1px 2px rgba(255, 255, 255, 0.04);
+  }
+
   /* Keep v3-style container behavior with custom breakpoints only. */
   .container {
     width: 100%;
@@ -190,5 +273,28 @@
     .container {
       max-width: 1200px;
     }
+  }
+}
+/* App route enter — "page side-by-side" timing from transitions.dev tokens. */
+@keyframes app-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--page-slide-distance));
+    filter: blur(var(--page-blur));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.app-enter {
+  animation: app-enter var(--page-slide-dur) var(--page-slide-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-enter {
+    animation: none !important;
   }
 }

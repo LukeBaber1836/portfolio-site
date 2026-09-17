@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/s
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { CiMenuFries } from 'react-icons/ci'
+import HeaderAuthButton from './HeaderAuthButton'
 
 const links = [
     {
@@ -64,6 +65,9 @@ const MobileNav = () => {
               )
           })}
         </nav>
+        <div className='mt-12 flex justify-center'>
+          <HeaderAuthButton className='w-48' />
+        </div>
       </SheetContent>
     </Sheet>
   )

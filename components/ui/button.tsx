@@ -11,17 +11,17 @@ const buttonVariants = cva(
         default:
           "clay-glow rounded-full text-black bg-gradient-to-bl from-gold-d1 via-gold-l1 to-gold-d2 transition-all duration-300",
         goldOutline:
-          "clay-glow rounded-full border border-accent bg-transparent text-accent hover:text-primary hover:bg-gradient-to-br hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2 transition-all duration-300 ease-in-out",
+          "clay-glow rounded-full border border-accent bg-transparent text-accent hover:text-primary-foreground hover:bg-gradient-to-br hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2 transition-all duration-300 ease-in-out",
         iconOutline:
-          "clay-glow rounded-full border border-accent bg-transparent text-accent hover:text-primary hover:bg-gradient-to-tr hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2 transition-all duration-300 ease-in-out",
+          "clay-glow rounded-full border border-accent bg-transparent text-accent hover:text-primary-foreground hover:bg-gradient-to-tr hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2 transition-all duration-300 ease-in-out",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "rounded-full border border-danger/40 bg-danger/10 text-danger hover:bg-danger hover:text-background transition-all duration-200",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "rounded-full border border-white/10 bg-white/[0.02] text-white hover:border-accent/50 hover:text-accent transition-all duration-200",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "rounded-full bg-secondary text-secondary-foreground hover:bg-white/10 transition-all duration-200",
+        ghost: "text-white/70 hover:bg-white/5 hover:text-accent transition-all duration-200",
+        link: "text-accent underline-offset-4 hover:underline",
       },
       effect: {
         expandIcon: "group gap-0 relative",
@@ -44,9 +44,10 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-10 px-5 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        sm: "h-9 px-4 text-sm",
+        lg: "h-11 px-8",
         icon: "h-10 w-10",
+        "icon-sm": "h-8 w-8 rounded-full",
       },
     },
     defaultVariants: {
