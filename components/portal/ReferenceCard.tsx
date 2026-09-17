@@ -85,8 +85,25 @@ export function ReferenceCard({ reference }: { reference: ProjectReference }) {
         ) : (
           <Thumbnail reference={reference} broken={imgBroken} onError={() => setImgBroken(true)} />
         )}
-        {/* Scrim spans the whole picture so the fade is gradual, not a hard-edged band behind the title. */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+        {/* Fades to black exactly where the caption sits, so the title reads over any screenshot. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black via-black/60 to-transparent" />
+
+        {/* Caption lives inside the picture; pointer-events pass through to the image link except on the title. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-1 p-4">
+          {reference.url ? (
+            <a
+              href={reference.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pointer-events-auto line-clamp-2 font-medium text-white drop-shadow-sm hover:text-accent"
+            >
+              {reference.title}
+            </a>
+          ) : (
+            <p className="line-clamp-2 font-medium text-white drop-shadow-sm">{reference.title}</p>
+          )}
+          {reference.note && <p className="line-clamp-2 text-xs leading-5 text-white/70">{reference.note}</p>}
+        </div>
 
         <TooltipProvider delayDuration={2000}>
           <div className="clay absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-background/85 p-1 backdrop-blur-sm">
@@ -150,50 +167,41 @@ export function ReferenceCard({ reference }: { reference: ProjectReference }) {
         </TooltipProvider>
       </div>
 
-      <div className="relative z-10 -mt-10 flex flex-1 flex-col gap-1.5 p-4 pt-10">
-        {reference.url ? (
-          <a href={reference.url} target="_blank" rel="noopener noreferrer" className="line-clamp-2 font-medium text-white hover:text-accent">
-            {reference.title}
-          </a>
-        ) : (
-          <p className="line-clamp-2 font-medium text-white">{reference.title}</p>
-        )}
-        {reference.note && <p className="line-clamp-2 text-xs leading-5 text-white/45">{reference.note}</p>}
-
-        {editingNote ? (
-          <div className="mt-1 space-y-2">
-            <TextArea
-              autoFocus
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="What do you think? Anything you'd change?"
-              maxLength={2000}
-              className="min-h-20 text-sm"
-            />
-            <div className="flex gap-2">
-              <Button type="button" size="sm" disabled={notePending} onClick={saveNote}>
-                Save
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                disabled={notePending}
-                onClick={() => {
-                  setDraft(reference.responseNote ?? "");
-                  setEditingNote(false);
-                }}
-              >
-                Cancel
-              </Button>
+      {(editingNote || reference.responseNote) && (
+        <div className="p-4">
+          {editingNote ? (
+            <div className="space-y-2">
+              <TextArea
+                autoFocus
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder="What do you think? Anything you'd change?"
+                maxLength={2000}
+                className="min-h-20 text-sm"
+              />
+              <div className="flex gap-2">
+                <Button type="button" size="sm" disabled={notePending} onClick={saveNote}>
+                  Save
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={notePending}
+                  onClick={() => {
+                    setDraft(reference.responseNote ?? "");
+                    setEditingNote(false);
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : (
-          reference.responseNote && (
-            <p className="mt-1 line-clamp-3 border-l-2 border-accent/30 pl-2.5 text-xs leading-5 whitespace-pre-wrap text-white/55">{reference.responseNote}</p>
-          )
-        )}
-      </div>
+          ) : (
+            <p className="line-clamp-3 border-l-2 border-accent/30 pl-2.5 text-xs leading-5 whitespace-pre-wrap text-white/55">{reference.responseNote}</p>
+          )}
+        </div>
+      )}
     </li>
   );
 }

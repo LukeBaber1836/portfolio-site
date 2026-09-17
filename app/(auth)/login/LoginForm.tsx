@@ -47,7 +47,9 @@ export function LoginForm({ next, justReset }: { next?: string; justReset?: bool
       setError(
         error?.status === 429
           ? "Too many attempts. Please wait a minute and try again."
-          : "That email and password don't match. Please try again.",
+          : error && !error.status
+            ? "Couldn't reach the sign-in service. Check your connection and try again."
+            : "That email and password don't match. Please try again.",
       );
       return;
     }
