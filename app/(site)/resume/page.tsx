@@ -11,6 +11,7 @@ import {
   FaDotCircle,
   FaStripe,
   FaJava,
+  FaAws,
 } from "react-icons/fa";
 import {
   SiTailwindcss,
@@ -26,7 +27,6 @@ import {
   SiTerraform,
   SiShadcnui,
   SiBootstrap,
-  SiAmazonwebservices,
   SiVercel,
   SiArduino,
 } from "react-icons/si";
@@ -233,7 +233,7 @@ const skills = {
       color: "group-hover:text-purple-500",
     },
     {
-      icon: <SiAmazonwebservices />,
+      icon: <FaAws />,
       name: "Amazon Web Services",
       color: "group-hover:text-yellow-500",
     },
