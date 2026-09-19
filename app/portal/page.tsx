@@ -55,7 +55,7 @@ export default async function PortalOverview() {
           value={formatMoney(outstandingCents)}
           icon={Wallet}
           tone={overdue ? "danger" : outstandingCents ? "gold" : "success"}
-          hint={outstandingCents ? `${openInvoices.length} open ${openInvoices.length === 1 ? "invoice" : "invoices"}` : "You're all paid up"}
+          hint={outstandingCents ? `${openInvoices.length} open ${openInvoices.length === 1 ? "invoice" : "invoices"}` : undefined}
           action={
             firstOpen && (
               <Button asChild size="sm" className="h-8 px-3 text-xs">

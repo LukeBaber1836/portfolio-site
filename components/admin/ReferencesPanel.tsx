@@ -1,114 +1,21 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Link2, Send, StickyNote, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { Link2, StickyNote, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
 
-import { deleteReferenceAction, sendReferenceAction } from "@/app/admin/_actions/projects";
+import { deleteReferenceAction } from "@/app/admin/_actions/projects";
 import { ActionButton } from "@/components/shared/ActionButton";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { FormField, TextInput } from "@/components/shared/FormField";
-import { SubmitButton } from "@/components/shared/SubmitButton";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { statusBadgeFor } from "@/components/ui/badge";
 import { formatDateTime } from "@/lib/format";
 import { REFERENCE_STATUS } from "@/lib/status";
 import type { ProjectReference } from "@/lib/db/schema";
 
-export function ReferencesPanel({
-  projectId,
-  clientVisible,
-  references,
-}: {
-  projectId: string;
-  clientVisible: boolean;
-  references: ProjectReference[];
-}) {
-  const router = useRouter();
-  const [url, setUrl] = useState("");
-  const [title, setTitle] = useState("");
-  const [note, setNote] = useState("");
-  const [notify, setNotify] = useState(clientVisible);
-  const [state, setState] = useState<"idle" | "pending" | "success">("idle");
-  const [error, setError] = useState<string | null>(null);
-  const [errorKey, setErrorKey] = useState(0);
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setState("pending");
-    setError(null);
-    const res = await sendReferenceAction(projectId, { url, title, note, notify: notify && clientVisible });
-    if (!res.ok) {
-      setState("idle");
-      setError(res.fieldErrors?.url ?? res.error);
-      setErrorKey((k) => k + 1);
-      return;
-    }
-    setState("success");
-    toast.success(res.message);
-    setUrl("");
-    setTitle("");
-    setNote("");
-    setError(null);
-    setTimeout(() => {
-      setState("idle");
-      router.refresh();
-    }, 400);
-  }
+export function ReferencesPanel({ projectId, references }: { projectId: string; references: ProjectReference[] }) {
 
   return (
-    <div className="space-y-4">
-      <form onSubmit={submit} className="space-y-4">
-        <FormField label="Link" htmlFor="ref-url" error={error} errorKey={errorKey} hint="Leave empty to send a text-only note.">
-          <TextInput
-            id="ref-url"
-            type="url"
-            inputMode="url"
-            autoComplete="off"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://example.com/inspiration"
-          />
-        </FormField>
-        <FormField label="Label" htmlFor="ref-title" optional>
-          <TextInput
-            id="ref-title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Defaults to the page title"
-            maxLength={160}
-          />
-        </FormField>
-        <FormField label="Note" htmlFor="ref-note" optional>
-          <TextInput
-            id="ref-note"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Why I'm sending this…"
-            maxLength={500}
-          />
-        </FormField>
-        <div className="flex items-center justify-between gap-3">
-          {clientVisible ? (
-            <div className="flex items-center gap-2">
-              <Switch id="ref-notify" checked={notify} onCheckedChange={setNotify} />
-              <Label htmlFor="ref-notify" className="text-xs font-normal text-white/70">
-                Email the client
-              </Label>
-            </div>
-          ) : (
-            <span className="text-xs text-white/40">This project is hidden from the client portal.</span>
-          )}
-          <SubmitButton state={state} size="sm" pendingLabel="Sending…" successLabel="Sent" disabled={!url.trim() && !note.trim()}>
-            <Send /> Send reference
-          </SubmitButton>
-        </div>
-      </form>
-
+    <div>
       {references.length === 0 ? (
-        <EmptyState compact icon={Link2} title="No references yet" description="Share links or notes for the client to review." />
+        <EmptyState compact icon={Link2} title="No references yet" />
       ) : (
         <ul className="divide-y divide-white/5">
           {references.map((r) => (
@@ -131,7 +38,7 @@ export function ReferencesPanel({
                   ) : (
                     <p className="text-sm font-medium text-white">{r.title}</p>
                   )}
-                  {statusBadgeFor(REFERENCE_STATUS, r.status)}
+                  {statusBadgeFor(REFERENCE_STATUS, r.status, { icon: r.status === "approved" ? ThumbsUp : r.status === "declined" ? ThumbsDown : undefined })}
                 </div>
                 {r.note && <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-white/50">{r.note}</p>}
                 {r.responseNote && (

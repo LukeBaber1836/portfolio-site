@@ -5,19 +5,6 @@ import type { UploadKind } from "@/lib/db/schema";
 
 export const UPLOAD_KIND_FOLDERS: readonly UploadKind[] = ["pictures", "videos", "files"];
 
-/** ASCII, lowercase, dash-separated. Never empty. */
-export function slugify(text: string, fallback = "untitled", max = 48) {
-  const slug = text
-    .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, max)
-    .replace(/-+$/g, "");
-  return slug || fallback;
-}
-
 /**
  * Normalizes an admin-entered storage path ("/clients/Acme Co/") to "clients/Acme Co".
  * Returns null when the path is empty or unsafe (`.`/`..` segments, backslashes, control chars).
@@ -34,13 +21,34 @@ export function normalizeStoragePath(input: string | null | undefined): string |
   return segments.join("/");
 }
 
-export function defaultClientStoragePath(client: { id: string; name: string; company: string | null }, withSuffix = false) {
-  const base = slugify(client.company || client.name, "client");
-  return `clients/${withSuffix ? `${base}-${client.id.slice(0, 6)}` : base}`;
+/**
+ * A readable folder name: keeps spaces and capitals (matching the folders Luke
+ * creates by hand) while dropping anything that would break a path.
+ */
+export function safeFolderName(raw: string, fallback = "untitled", max = 60) {
+  const cleaned = Array.from(raw)
+    .filter((c) => c.charCodeAt(0) >= 32 && c.charCodeAt(0) !== 127)
+    .join("")
+    .replace(/[\\/:*?"<>|]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^\.+|\.+$/g, "")
+    .trim()
+    .slice(0, max)
+    .trim();
+  return cleaned || fallback;
 }
 
-export function projectFolderName(project: { id: string; name: string }) {
-  return `${slugify(project.name, "project", 40)}-${project.id.slice(0, 6)}`;
+/** Client folders sit at the top of the service account's scope, named for the client. */
+export function defaultClientStoragePath(client: { id: string; name: string; company: string | null }, withSuffix = false) {
+  const base = safeFolderName(client.company || client.name, "Client");
+  return withSuffix ? `${base} (${client.id.slice(0, 6)})` : base;
+}
+
+/** Project folders sit inside the client folder, named for the project. */
+export function projectFolderName(project: { id: string; name: string }, withSuffix = false) {
+  const base = safeFolderName(project.name, "Project");
+  return withSuffix ? `${base} (${project.id.slice(0, 6)})` : base;
 }
 
 /** Absolute FileBrowser index path (leading slash) for a project's kind folder. */

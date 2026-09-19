@@ -11,6 +11,7 @@ import {
   FolderKanban,
   FolderUp,
   Globe,
+  HardDrive,
   Inbox,
   LayoutDashboard,
   LogOut,
@@ -162,6 +163,7 @@ export function AppShell({
   area,
   groups,
   user,
+  storageUrl,
   topbar,
   banner,
   children,
@@ -169,6 +171,8 @@ export function AppShell({
   area: "Admin" | "Client Portal";
   groups: NavGroup[];
   user: { name: string; email: string; image?: string | null };
+  /** Admin only: adds a link to the file storage server in the account menu. */
+  storageUrl?: string;
   topbar?: React.ReactNode;
   banner?: React.ReactNode;
   children: React.ReactNode;
@@ -259,6 +263,13 @@ export function AppShell({
                   <Globe /> lukebaber.com
                 </Link>
               </DropdownMenuItem>
+              {storageUrl && (
+                <DropdownMenuItem asChild className="cursor-pointer rounded-lg focus:bg-white/5 focus:text-accent">
+                  <a href={storageUrl} target="_blank" rel="noreferrer">
+                    <HardDrive /> {new URL(storageUrl).host}
+                  </a>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator className="bg-white/5" />
               <DropdownMenuItem onSelect={signOut} className="cursor-pointer rounded-lg text-danger focus:bg-danger/10 focus:text-danger">
                 <LogOut className="text-danger" /> Sign out

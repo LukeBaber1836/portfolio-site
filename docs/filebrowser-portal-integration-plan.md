@@ -13,19 +13,21 @@ The live instance is **FileBrowser Quantum v1.5.x (stable)**: its login-page con
 `/portal/files` is an **upload dropbox**:
 
 1. Client picks the **project**. This step is skipped when there's only one.
-2. Client picks **Pictures, Videos, or Files**.
-3. Client drags and drops, or taps to browse. Files upload straight to `storage.lukebaber.com` with per-file progress.
+2. Client drags and drops, or taps to browse. Each file is routed to pictures/videos/files by its type — nothing to pick.
+3. Files upload straight to `storage.lukebaber.com` with per-file progress, then show up in the folder browser below, where they can be renamed or deleted.
 
-Storage layout, created automatically:
+Storage layout, created automatically inside the service account's scope (`/Documents/Freelancing`):
 
 ```
-clients/
-└── {client-folder}/            ← clients.storage_path (auto: clients/{company-slug}); created on client create
-    └── {project-folder}/       ← projects.storage_folder ({name-slug}-{id6}); created on project create
-        ├── pictures/
-        ├── videos/
-        └── files/
+{client-folder}/                ← clients.storage_path (auto: the client's company or name); created on client create
+└── {project-folder}/           ← projects.storage_folder (auto: the project's name); created on project create
+    ├── pictures/
+    ├── videos/
+    └── files/
 ```
+
+Folder names are kept readable (spaces and capitals as typed, path-breaking characters replaced). A name already
+taken by another client/project of the same client gets a ` (id6)` suffix. Admins can override either name.
 
 - File bytes go **browser → storage directly**. Vercel only handles tiny JSON (folder creation, link minting).
 - The FileBrowser service token never reaches the browser. The browser only receives a per-folder, upload-only share hash.
@@ -248,7 +250,7 @@ Notes:
 - [x] Executables blocked client-side; 5 GB client cap
 - [ ] Caddy CORS + `request_buffers` deployed (§2.1)
 - [ ] `portal-service` non-admin account + token (§2.2)
-- [ ] Disk-usage alert + backups for `clients/`
+- [ ] Disk-usage alert + backups for the Freelancing folder
 - [ ] Periodic cleanup of `*.uploading.tmp`
 
 ---
@@ -297,8 +299,8 @@ Uploads never touch Vercel. Only Server Action JSON (≤ 1 request per file batc
 1. Storage host: §2.1 Caddy, §2.2 service account, then run the §2.1 curl checks.
 2. Apply the migration to the Neon **production** branch (`drizzle/0001_portal_upload_dropbox.sql`, e.g. `npm run db:migrate` with production `DATABASE_URL_UNPOOLED`).
 3. Add env vars (§2.3) in Vercel, then deploy.
-4. Smoke test: as a test client, upload one picture to a project and confirm it appears under `clients/<client>/<project>/pictures/` in FileBrowser.
-5. Optional: set a filesystem quota per `clients/<client>` and schedule the `*.uploading.tmp` cleanup.
+4. Smoke test: as a test client, upload one picture to a project and confirm it appears under `<client>/<project>/pictures/` in FileBrowser.
+5. Optional: set a filesystem quota per client folder and schedule the `*.uploading.tmp` cleanup.
 
 ---
 

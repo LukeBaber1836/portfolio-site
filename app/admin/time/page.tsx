@@ -80,6 +80,9 @@ export default async function TimePage({ searchParams }: { searchParams: Promise
         title="Time"
         actions={
           <div className="flex items-center gap-1">
+            <Button asChild variant="outline" size="sm" className={cn("mr-2", isCurrentWeek && "pointer-events-none invisible")}>
+              <Link href="/admin/time">This week</Link>
+            </Button>
             <Button asChild variant="ghost" size="icon-sm" aria-label="Previous week">
               <Link href={href({ week: prevWeek })}>
                 <ChevronLeft />
@@ -93,11 +96,6 @@ export default async function TimePage({ searchParams }: { searchParams: Promise
                 <ChevronRight />
               </Link>
             </Button>
-            {!isCurrentWeek && (
-              <Button asChild variant="outline" size="sm" className="ml-2">
-                <Link href="/admin/time">This week</Link>
-              </Button>
-            )}
           </div>
         }
       />

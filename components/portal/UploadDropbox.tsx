@@ -49,7 +49,16 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
   );
 }
 
-export function UploadDropbox({ projects, initialProjectId }: { projects: UploadProject[]; initialProjectId?: string }) {
+export function UploadDropbox({
+  projects,
+  initialProjectId,
+  onUploaded,
+}: {
+  projects: UploadProject[];
+  initialProjectId?: string;
+  /** Fires once per file that lands in storage, so the folder browser can refresh that folder. */
+  onUploaded?: (projectId: string, kind: UploadKind) => void;
+}) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [projectId, setProjectId] = useState<string | null>(() =>
@@ -130,6 +139,7 @@ export function UploadDropbox({ projects, initialProjectId }: { projects: Upload
         });
         batchDone.current++;
         patch(item.id, { status: "done", loaded: item.file.size, savedAs: name });
+        onUploaded?.(item.projectId, item.kind);
       } catch (err) {
         if (isAbortError(err)) return;
         patch(item.id, { status: "failed", error: err instanceof Error ? err.message : "Upload failed." });
@@ -139,7 +149,7 @@ export function UploadDropbox({ projects, initialProjectId }: { projects: Upload
         lastProgress.current.delete(item.id);
       }
     },
-    [getTarget, patch],
+    [getTarget, patch, onUploaded],
   );
 
   // Scheduler: run up to CONCURRENCY uploads; each item keeps the project/kind it was dropped with.

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { AppShell, type NavGroup } from "@/components/app-shell/AppShell";
 import { TimerBar } from "@/components/admin/TimerBar";
 import { requireAdmin } from "@/lib/auth/guards";
+import { env } from "@/lib/env";
 import { newRequestCount } from "@/lib/dal/admin/dashboard";
 import { listProjectOptions } from "@/lib/dal/admin/projects";
 import { getRunningTimer } from "@/lib/dal/admin/time";
@@ -33,6 +34,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       area="Admin"
       groups={groups}
       user={user}
+      storageUrl={env.STORAGE_URL}
       topbar={
         <TimerBar
           running={

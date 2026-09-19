@@ -1,5 +1,5 @@
 import { FilesPanel } from "@/components/portal/FilesPanel";
-import { UploadDropbox } from "@/components/portal/UploadDropbox";
+import { FilesWorkspace } from "@/components/portal/FilesWorkspace";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { requireClient } from "@/lib/auth/guards";
 import { portalUploadProjects } from "@/lib/dal/portal";
@@ -22,10 +22,7 @@ export default async function PortalFilesPage({ searchParams }: { searchParams: 
     <>
       <PageHeader title="Files" description="Send pictures, videos, and files for your projects." />
       {uploadsEnabled ? (
-        <div className="space-y-6">
-          <UploadDropbox projects={projects} initialProjectId={params.project} />
-          {client.storageUsername && <FilesPanel storageUrl={storageUrl} username={client.storageUsername} host={host} secondary />}
-        </div>
+        <FilesWorkspace projects={projects} initialProjectId={params.project} />
       ) : (
         <FilesPanel storageUrl={storageUrl} username={client.storageUsername} host={host} />
       )}

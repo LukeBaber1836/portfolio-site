@@ -23,8 +23,9 @@ import { env } from "@/lib/env";
 import { emails } from "@/lib/email/messages";
 import { sendEmail } from "@/lib/email/send";
 import { serviceLabel } from "@/lib/status";
-import { StorageError, getOrRotateShare, isStorageEnabled } from "@/lib/storage/filebrowser";
-import { CLOSED_PROJECT_STATUSES, UPLOAD_CHUNK_BYTES } from "@/lib/upload/kinds";
+import { StorageError, deleteEntry, getOrRotateShare, isStorageEnabled, listFolder, renameEntry } from "@/lib/storage/filebrowser";
+import { normalizeStoragePath } from "@/lib/storage/paths";
+import { CLOSED_PROJECT_STATUSES, UPLOAD_CHUNK_BYTES, safeFileName } from "@/lib/upload/kinds";
 
 // Every function here derives the client from the session via requireClient().
 // No function accepts a client id from the caller.
@@ -293,7 +294,11 @@ export async function submitRequest(input: { title: string; body: string; servic
  * projects, so one client's ids never resolve another client's rows.
  * Clients may change their mind — every response re-timestamps.
  */
-export async function respondToReference(id: string, status: "approved" | "declined") {
+/**
+ * Records the client's vote and/or written feedback on a reference in one write.
+ * `status` and `note` are each left alone when undefined; the admin is only emailed when the vote actually changes.
+ */
+export async function saveReferenceFeedback(id: string, input: { status?: "approved" | "declined"; note?: string | null }) {
   const { client, user } = await requireClient();
   const [row] = await db
     .select({ reference: projectReferences, project: projects })
@@ -301,37 +306,32 @@ export async function respondToReference(id: string, status: "approved" | "decli
     .innerJoin(projects, eq(projects.id, projectReferences.projectId))
     .where(and(eq(projectReferences.id, id), visibleProject(client.id)));
   if (!row) throw new UserError("Reference not found.");
+
+  const voteChanged = input.status !== undefined && input.status !== row.reference.status;
   const [updated] = await db
     .update(projectReferences)
-    .set({ status, respondedAt: new Date() })
+    .set({
+      ...(input.note !== undefined ? { responseNote: input.note } : {}),
+      ...(voteChanged ? { status: input.status, respondedAt: new Date() } : {}),
+    })
     .where(eq(projectReferences.id, id))
     .returning();
-  await sendEmail({
-    to: env.ADMIN_EMAIL,
-    replyTo: user.email,
-    content: emails.referenceResponded({
-      from: user.name,
-      client: client.company || client.name,
-      projectName: row.project.name,
-      projectId: row.project.id,
-      title: updated!.title,
-      approved: status === "approved",
-    }),
-    idempotencyKey: `reference-response-${id}-${status}-${updated!.respondedAt!.getTime()}`,
-  });
-  return updated!;
-}
 
-/** Client's own typed thoughts on a reference — independent of (and doesn't require) a thumbs up/down. */
-export async function saveReferenceNote(id: string, note: string | null) {
-  const { client } = await requireClient();
-  const [row] = await db
-    .select({ id: projectReferences.id })
-    .from(projectReferences)
-    .innerJoin(projects, eq(projects.id, projectReferences.projectId))
-    .where(and(eq(projectReferences.id, id), visibleProject(client.id)));
-  if (!row) throw new UserError("Reference not found.");
-  const [updated] = await db.update(projectReferences).set({ responseNote: note }).where(eq(projectReferences.id, id)).returning();
+  if (voteChanged) {
+    await sendEmail({
+      to: env.ADMIN_EMAIL,
+      replyTo: user.email,
+      content: emails.referenceResponded({
+        from: user.name,
+        client: client.company || client.name,
+        projectName: row.project.name,
+        projectId: row.project.id,
+        title: updated!.title,
+        approved: input.status === "approved",
+      }),
+      idempotencyKey: `reference-response-${id}-${input.status}-${updated!.respondedAt!.getTime()}`,
+    });
+  }
   return updated!;
 }
 
@@ -391,5 +391,96 @@ export async function portalUploadTarget(projectId: string, kind: UploadKind, st
     if (!(err instanceof StorageError)) throw err;
     console.error("[portal] upload target failed", err);
     throw new UserError("Couldn't reach file storage. Please try again in a minute.");
+  }
+}
+
+/** The project's own storage folder, or null when it hasn't been provisioned yet. */
+async function projectStorageRoot(projectId: string) {
+  const { client } = await requireClient();
+  const [project] = await db
+    .select()
+    .from(projects)
+    .where(and(eq(projects.id, projectId), visibleProject(client.id)));
+  if (!project?.storageFolder) return null;
+  const root = normalizeStoragePath(client.storagePath);
+  if (!root) return null;
+  return `/${root}/${project.storageFolder}`;
+}
+
+/** Subfolders inside a project's storage folder — whatever exists, not a fixed list. */
+export async function portalProjectFolders(projectId: string) {
+  if (!isStorageEnabled()) return [];
+  const base = await projectStorageRoot(projectId);
+  if (!base) return [];
+  try {
+    const { folders } = await listFolder(base);
+    return folders.map((f) => f.name).sort((a, b) => a.localeCompare(b));
+  } catch (err) {
+    if (!(err instanceof StorageError)) throw err;
+    console.error("[portal] list project folders failed", err);
+    throw new UserError("Couldn't reach file storage. Please try again in a minute.");
+  }
+}
+
+/** Files inside one subfolder. The folder name is matched against what actually exists. */
+export async function portalFolderFiles(projectId: string, folder: string) {
+  if (!isStorageEnabled()) throw new UserError("File storage isn't available right now.");
+  const base = await projectStorageRoot(projectId);
+  if (!base) return [];
+  try {
+    const { folders } = await listFolder(base);
+    if (!folders.some((f) => f.name === folder)) throw new UserError("That folder doesn't exist.");
+    const { files } = await listFolder(`${base}/${folder}`);
+    // Chunked uploads in flight (and abandoned ones) sit in the folder as *.uploading.tmp.
+    return files.filter((f) => !f.name.endsWith(".uploading.tmp")).sort((a, b) => b.modified.localeCompare(a.modified));
+  } catch (err) {
+    if (err instanceof UserError) throw err;
+    if (!(err instanceof StorageError)) throw err;
+    console.error("[portal] list folder files failed", err);
+    throw new UserError("Couldn't reach file storage. Please try again in a minute.");
+  }
+}
+
+/** Resolves and validates "this client's project / folder / file", or throws a user-facing error. */
+async function resolveClientFile(projectId: string, folder: string, name: string) {
+  if (!isStorageEnabled()) throw new UserError("File storage isn't available right now.");
+  const base = await projectStorageRoot(projectId);
+  if (!base) throw new UserError("That project has no files yet.");
+  const { folders } = await listFolder(base);
+  if (!folders.some((f) => f.name === folder)) throw new UserError("That folder doesn't exist.");
+  const { files } = await listFolder(`${base}/${folder}`);
+  if (!files.some((f) => f.name === name)) throw new UserError("That file no longer exists.");
+  return { dir: `${base}/${folder}`, files };
+}
+
+function storageFailure(err: unknown): never {
+  if (err instanceof UserError) throw err;
+  if (!(err instanceof StorageError)) throw err;
+  console.error("[portal] storage operation failed", err);
+  if (err.status === 403) throw new UserError("File storage refused that change. The storage account needs modify and delete permission.");
+  throw new UserError("Couldn't reach file storage. Please try again in a minute.");
+}
+
+export async function portalRenameFile(projectId: string, folder: string, name: string, rawNewName: string) {
+  try {
+    const newName = safeFileName(rawNewName.trim());
+    if (!newName || newName === "upload") throw new UserError("Give the file a name.");
+    const { dir, files } = await resolveClientFile(projectId, folder, name);
+    if (newName === name) return newName;
+    // FileBrowser overwrites silently on a name clash, so refuse it here.
+    if (files.some((f) => f.name.toLowerCase() === newName.toLowerCase())) throw new UserError("A file with that name already exists.");
+    await renameEntry(`${dir}/${name}`, `${dir}/${newName}`);
+    return newName;
+  } catch (err) {
+    storageFailure(err);
+  }
+}
+
+export async function portalDeleteFile(projectId: string, folder: string, name: string) {
+  try {
+    const { dir } = await resolveClientFile(projectId, folder, name);
+    await deleteEntry(`${dir}/${name}`);
+  } catch (err) {
+    storageFailure(err);
   }
 }

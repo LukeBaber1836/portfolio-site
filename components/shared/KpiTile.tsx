@@ -47,7 +47,7 @@ export function KpiTile({
       <p
         className={cn(
           "font-bold",
-          value.length > 20 ? "text-xl leading-snug font-semibold" : "text-3xl leading-none",
+          value.length > 20 ? "text-sm leading-6 font-medium" : "text-3xl leading-none",
           tone === "gold" && "text-accent",
           tone === "danger" && "text-danger",
         )}

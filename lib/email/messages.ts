@@ -134,32 +134,6 @@ export const emails = {
     };
   },
 
-  milestoneDone(p: { name: string; projectName: string; milestone: string; projectId: string }): EmailContent {
-    return {
-      subject: `Milestone complete: ${p.milestone}`,
-      preview: `${p.projectName} just hit a milestone.`,
-      heading: "Milestone complete",
-      greeting: `Hi ${firstName(p.name)},`,
-      paragraphs: [`“${p.milestone}” on ${p.projectName} is done.`],
-      cta: { label: "See progress", href: url(`/portal/projects/${p.projectId}`) },
-      footnote: "You can turn off project update emails in your portal settings.",
-    };
-  },
-
-  referencesShared(p: { name: string; projectName: string; projectId: string; count: number }): EmailContent {
-    return {
-      subject: `${p.count === 1 ? "A new reference" : `${p.count} new references`} to review on ${p.projectName}`,
-      preview: "Links and notes I'd like your take on.",
-      heading: "New references to review",
-      greeting: `Hi ${firstName(p.name)},`,
-      paragraphs: [
-        `I've shared ${p.count === 1 ? "something" : `${p.count} things`} for you to look at on ${p.projectName} — reference links and notes I'd like your take on. Open the project to preview each link and approve the ones you like.`,
-      ],
-      cta: { label: "Review references", href: url(`/portal/projects/${p.projectId}`) },
-      footnote: "You can turn off project update emails in your portal settings.",
-    };
-  },
-
   referenceResponded(p: {
     from: string;
     client: string;

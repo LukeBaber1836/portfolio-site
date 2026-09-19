@@ -5,8 +5,8 @@ import { useState, useTransition } from "react";
 import { Link2, Pencil, StickyNote, ThumbsDown, ThumbsUp } from "lucide-react";
 import { toast } from "sonner";
 
-import { respondToReferenceAction, saveReferenceNoteAction } from "@/app/portal/_actions";
-import { TextArea } from "@/components/shared/FormField";
+import { saveReferenceFeedbackAction } from "@/app/portal/_actions";
+import { ReferenceFeedbackDialog } from "@/components/portal/ReferenceFeedbackDialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ProjectReference } from "@/lib/db/schema";
@@ -45,32 +45,18 @@ function Thumbnail({ reference, broken, onError }: { reference: ProjectReference
 export function ReferenceCard({ reference }: { reference: ProjectReference }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [notePending, startNoteTransition] = useTransition();
-  const [editingNote, setEditingNote] = useState(false);
-  const [draft, setDraft] = useState(reference.responseNote ?? "");
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [imgBroken, setImgBroken] = useState(false);
 
   function respond(status: "approved" | "declined") {
     if (reference.status === status) return;
     startTransition(async () => {
-      const res = await respondToReferenceAction(reference.id, status);
+      const res = await saveReferenceFeedbackAction({ id: reference.id, status });
       if (!res.ok) {
         toast.error(res.error);
         return;
       }
       toast.success(res.message);
-      router.refresh();
-    });
-  }
-
-  function saveNote() {
-    startNoteTransition(async () => {
-      const res = await saveReferenceNoteAction(reference.id, draft);
-      if (!res.ok) {
-        toast.error(res.error);
-        return;
-      }
-      setEditingNote(false);
       router.refresh();
     });
   }
@@ -153,55 +139,27 @@ export function ReferenceCard({ reference }: { reference: ProjectReference }) {
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  onClick={() => setEditingNote((v) => !v)}
-                  aria-label={reference.responseNote ? "Edit your note" : "Add your thoughts"}
-                  aria-pressed={editingNote}
+                  onClick={() => setFeedbackOpen(true)}
+                  aria-label={reference.responseNote ? "Edit your feedback" : "Give feedback"}
+                  aria-haspopup="dialog"
                   className={cn("size-11 sm:size-8", reference.responseNote ? "text-accent" : "text-white/50 hover:text-accent")}
                 >
                   <Pencil className="size-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{reference.responseNote ? "Edit your note" : "Add your thoughts"}</TooltipContent>
+              <TooltipContent>{reference.responseNote ? "Edit your feedback" : "Give feedback"}</TooltipContent>
             </Tooltip>
           </div>
         </TooltipProvider>
       </div>
 
-      {(editingNote || reference.responseNote) && (
+      {reference.responseNote && (
         <div className="p-4">
-          {editingNote ? (
-            <div className="space-y-2">
-              <TextArea
-                autoFocus
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder="What do you think? Anything you'd change?"
-                maxLength={2000}
-                className="min-h-20 text-sm"
-              />
-              <div className="flex gap-2">
-                <Button type="button" size="sm" disabled={notePending} onClick={saveNote}>
-                  Save
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={notePending}
-                  onClick={() => {
-                    setDraft(reference.responseNote ?? "");
-                    setEditingNote(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <p className="line-clamp-3 border-l-2 border-accent/30 pl-2.5 text-xs leading-5 whitespace-pre-wrap text-white/55">{reference.responseNote}</p>
-          )}
+          <p className="line-clamp-3 border-l-2 border-accent/30 pl-2.5 text-xs leading-5 whitespace-pre-wrap text-white/55">{reference.responseNote}</p>
         </div>
       )}
+
+      <ReferenceFeedbackDialog reference={reference} open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </li>
   );
 }

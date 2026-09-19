@@ -2,20 +2,19 @@ import Link from "next/link";
 import { AlertTriangle, ArrowRight, Clock, DollarSign, FolderKanban, UserPlus, Wallet } from "lucide-react";
 
 import { WeeklyHoursChart } from "@/components/admin/WeeklyHoursChart";
+import { ProjectCard } from "@/components/portal/ProjectCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { KpiTile } from "@/components/shared/KpiTile";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { SectionBar } from "@/components/shared/SectionBar";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { statusBadgeFor } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { requireAdmin } from "@/lib/auth/guards";
 import { fillWeeks } from "@/lib/charts";
 import { pendingInviteCount } from "@/lib/dal/admin/clients";
 import { activeProjectsSummary, recentPayments, weeklyHours } from "@/lib/dal/admin/dashboard";
 import { receivablesSummary } from "@/lib/dal/admin/invoices";
 import { formatDate, formatHours, formatMoney, formatRelative } from "@/lib/format";
-import { PROJECT_STATUS } from "@/lib/status";
 
 export const metadata = { title: "Dashboard" };
 
@@ -126,62 +125,44 @@ export default async function AdminDashboard() {
         </Card>
       </div>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <div className="min-w-0">
-            <CardTitle>Active projects</CardTitle>
-          </div>
-          <CardAction>
+      <section className="mt-6 space-y-4">
+        <SectionBar
+          title="Active projects"
+          action={
             <Link href="/admin/projects" className="inline-flex items-center gap-1 text-xs text-white/50 hover:text-accent">
               All projects <ArrowRight className="size-3" />
             </Link>
-          </CardAction>
-        </CardHeader>
-        <CardContent className="p-2">
+          }
+        />
         {projects.length === 0 ? (
-          <EmptyState
-            icon={FolderKanban}
-            title="No active projects"
-            description={pendingInvites ? `${pendingInvites} client ${pendingInvites === 1 ? "invite is" : "invites are"} still pending.` : "Create a client, then add their first project."}
-            action={
-              <Button asChild size="sm">
-                <Link href="/admin/projects?new=1">New project</Link>
-              </Button>
-            }
-          />
+          <Card>
+            <CardContent>
+              <EmptyState
+                icon={FolderKanban}
+                title="No active projects"
+                description={pendingInvites ? `${pendingInvites} client ${pendingInvites === 1 ? "invite is" : "invites are"} still pending.` : "Create a client, then add their first project."}
+                action={
+                  <Button asChild size="sm">
+                    <Link href="/admin/projects?new=1">New project</Link>
+                  </Button>
+                }
+              />
+            </CardContent>
+          </Card>
         ) : (
-          <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
-            {projects.map((p) => {
-              const budgetPct = p.budgetHours ? Math.min(100, Math.round((p.loggedSeconds / 3600 / p.budgetHours) * 100)) : null;
-              return (
-                <li key={p.id}>
-                  <Link href={`/admin/projects/${p.id}`} className="block rounded-xl p-3 transition-colors hover:bg-white/[0.03]">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-white">{p.name}</p>
-                        <p className="truncate text-xs text-white/40">
-                          {p.clientName}
-                          {p.dueDate ? ` · due ${formatDate(p.dueDate, "MMM d")}` : ""}
-                        </p>
-                      </div>
-                      {statusBadgeFor(PROJECT_STATUS, p.status)}
-                    </div>
-                    <div className="mt-3 flex items-center gap-3">
-                      <Progress value={p.progressPct} className="h-1.5 flex-1 bg-white/10 [&>div]:bg-accent" aria-label="Progress" />
-                      <span className="w-10 text-right text-xs tabular-nums text-white/50">{p.progressPct}%</span>
-                    </div>
-                    <p className="mt-2 text-xs text-white/40">
-                      {formatHours(p.loggedSeconds, 1)} logged
-                      {budgetPct !== null && ` · ${budgetPct}% of ${p.budgetHours}h budget`}
-                    </p>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {projects.map((p) => (
+              <ProjectCard
+                key={p.id}
+                project={p}
+                href={`/admin/projects/${p.id}`}
+                eyebrow={p.clientName}
+                showBudget
+              />
+            ))}
+          </div>
         )}
-        </CardContent>
-      </Card>
+      </section>
     </>
   );
 }

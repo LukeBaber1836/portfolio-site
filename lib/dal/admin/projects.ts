@@ -215,7 +215,7 @@ export async function addMilestone(projectId: string, input: { title: string; du
   return m!;
 }
 
-export async function setMilestoneStatus(id: string, status: MilestoneStatus, notify: boolean) {
+export async function setMilestoneStatus(id: string, status: MilestoneStatus) {
   await requireAdmin();
   const [m] = await db
     .update(milestones)
@@ -223,22 +223,7 @@ export async function setMilestoneStatus(id: string, status: MilestoneStatus, no
     .where(eq(milestones.id, id))
     .returning();
   if (!m) throw new UserError("Milestone not found.");
-
-  let emailNotice = "";
-  if (status === "done" && notify) {
-    const recipients = await projectEmailRecipients(m.projectId);
-    const results = await Promise.all(
-      recipients.map((r) =>
-        sendEmail({
-          to: r.email,
-          content: emails.milestoneDone({ name: r.name, projectName: r.projectName, milestone: m.title, projectId: m.projectId }),
-          idempotencyKey: `milestone-${m.id}-${r.email}`,
-        }),
-      ),
-    );
-    emailNotice = emailRedirectNotice(results);
-  }
-  return { ...m, emailNotice };
+  return m;
 }
 
 export async function updateMilestone(id: string, input: { title: string; dueDate?: string; description?: string }) {
@@ -249,24 +234,21 @@ export async function updateMilestone(id: string, input: { title: string; dueDat
     .where(eq(milestones.id, id));
 }
 
-export async function moveMilestone(id: string, direction: "up" | "down") {
+/** Persist an explicit milestone order (drag and drop). Ids not in the list keep their relative order after. */
+export async function reorderMilestones(projectId: string, orderedIds: string[]) {
   await requireAdmin();
-  const [m] = await db.select().from(milestones).where(eq(milestones.id, id));
-  if (!m) return;
   const siblings = await db
-    .select()
+    .select({ id: milestones.id })
     .from(milestones)
-    .where(eq(milestones.projectId, m.projectId))
+    .where(eq(milestones.projectId, projectId))
     .orderBy(asc(milestones.sortOrder), asc(milestones.createdAt));
-  const idx = siblings.findIndex((s) => s.id === id);
-  const swapWith = siblings[direction === "up" ? idx - 1 : idx + 1];
-  if (!swapWith) return;
-  const reordered = siblings.slice();
-  reordered[idx] = swapWith;
-  reordered[direction === "up" ? idx - 1 : idx + 1] = m;
+  const known = new Set(siblings.map((s) => s.id));
+  const ordered = orderedIds.filter((id) => known.has(id));
+  const rest = siblings.map((s) => s.id).filter((id) => !ordered.includes(id));
+  const final = [...ordered, ...rest];
   await db.transaction(async (tx) => {
-    for (const [i, s] of reordered.entries()) {
-      await tx.update(milestones).set({ sortOrder: i }).where(eq(milestones.id, s.id));
+    for (const [i, id] of final.entries()) {
+      await tx.update(milestones).set({ sortOrder: i }).where(eq(milestones.id, id));
     }
   });
 }
@@ -280,7 +262,6 @@ export type ReferenceInput = {
   url?: string;
   title?: string;
   note?: string;
-  notify: boolean;
 };
 
 /**
@@ -290,12 +271,8 @@ export type ReferenceInput = {
  */
 export async function createReference(projectId: string, input: ReferenceInput) {
   const { user } = await requireAdmin();
-  const [row] = await db
-    .select({ project: projects, client: clients })
-    .from(projects)
-    .innerJoin(clients, eq(clients.id, projects.clientId))
-    .where(eq(projects.id, projectId));
-  if (!row) throw new UserError("Project not found.");
+  const [project] = await db.select({ id: projects.id }).from(projects).where(eq(projects.id, projectId));
+  if (!project) throw new UserError("Project not found.");
 
   const url = input.url?.trim() ? normalizeUrl(input.url) : null;
   if (input.url?.trim() && !url) throw new UserError("That link doesn't look valid.");
@@ -323,20 +300,6 @@ export async function createReference(projectId: string, input: ReferenceInput) 
     })
     .returning();
 
-  let emailNotice = "";
-  if (input.notify) {
-    const recipients = await projectEmailRecipients(projectId);
-    const results = await Promise.all(
-      recipients.map((r) =>
-        sendEmail({
-          to: r.email,
-          content: emails.referencesShared({ name: r.name, projectName: row.project.name, projectId, count: 1 }),
-          idempotencyKey: `reference-${reference!.id}-${r.email}`,
-        }),
-      ),
-    );
-    emailNotice = emailRedirectNotice(results);
-  }
   await audit({
     actorUserId: user.id,
     action: "reference.shared",
@@ -344,7 +307,7 @@ export async function createReference(projectId: string, input: ReferenceInput) 
     entityId: projectId,
     metadata: { referenceId: reference!.id, kind: reference!.kind },
   });
-  return { ...reference!, emailNotice };
+  return reference!;
 }
 
 export async function deleteReference(id: string) {

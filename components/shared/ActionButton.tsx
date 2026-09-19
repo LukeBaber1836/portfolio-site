@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -18,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import type { ActionResult } from "@/lib/actions";
+import { cn } from "@/lib/utils";
 
 type Props = Omit<ButtonProps, "onClick"> & {
   action: () => Promise<ActionResult<unknown>>;
@@ -48,8 +48,14 @@ export function ActionButton({ action, confirm, onDone, refresh = true, children
   }
 
   const button = (
-    <Button {...props} disabled={pending || props.disabled} onClick={confirm ? undefined : run}>
-      {pending && !confirm ? <Loader2 className="animate-spin" /> : null}
+    // While running, the button's own icon spins ([&_svg]) — no extra spinner
+    // appearing beside it and shifting the layout.
+    <Button
+      {...props}
+      className={cn(props.className, pending && !confirm && "[&_svg]:animate-spin")}
+      disabled={pending || props.disabled}
+      onClick={confirm ? undefined : run}
+    >
       {children}
     </Button>
   );
@@ -74,13 +80,13 @@ export function ActionButton({ action, confirm, onDone, refresh = true, children
             <Button
               size="sm"
               variant={confirm.destructive ? "destructive" : "default"}
+              className={cn(pending && "[&_svg]:animate-spin")}
               disabled={pending}
               onClick={(e) => {
                 e.preventDefault();
                 run();
               }}
             >
-              {pending && <Loader2 className="animate-spin" />}
               {confirm.confirmLabel ?? "Confirm"}
             </Button>
           </AlertDialogAction>

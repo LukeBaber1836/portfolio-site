@@ -3,11 +3,13 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+function Table({ className, containerClassName, ...props }: React.ComponentProps<"table"> & { containerClassName?: string }) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      // last:rounded-b-2xl matches Card's radius: this container already clips (overflow-x-auto),
+      // so a table that ends a card gets its row hover cut to the card's rounded bottom corners.
+      className={cn("relative w-full overflow-x-auto last:rounded-b-2xl", containerClassName)}
     >
       <table
         data-slot="table"

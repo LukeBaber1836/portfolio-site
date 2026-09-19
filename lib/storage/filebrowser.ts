@@ -65,6 +65,41 @@ async function failure(res: Response, action: string) {
   return new StorageError(`${action} failed (${res.status}): ${body.slice(0, 200)}`, res.status);
 }
 
+export type StorageEntry = { name: string; size: number; modified: string; type: string };
+
+/** Lists one folder. Missing folder (404) reads as empty — provisioning is lazy. */
+export async function listFolder(path: string): Promise<{ folders: StorageEntry[]; files: StorageEntry[] }> {
+  const res = await fbFetch("/api/resources", { method: "GET", query: { source: env.FILEBROWSER_SOURCE, path } });
+  if (res.status === 404) return { folders: [], files: [] };
+  if (!res.ok) throw await failure(res, `List ${path}`);
+  const data = (await res.json()) as { folders?: StorageEntry[]; files?: StorageEntry[] };
+  const pick = (e: StorageEntry) => ({ name: e.name, size: e.size, modified: e.modified, type: e.type });
+  return { folders: (data.folders ?? []).map(pick), files: (data.files ?? []).map(pick) };
+}
+
+/**
+ * Renames one entry. FileBrowser reports per-item failures inside a 200 body,
+ * and it overwrites an existing target silently — callers must check first.
+ */
+export async function renameEntry(fromPath: string, toPath: string) {
+  const source = env.FILEBROWSER_SOURCE;
+  const res = await fbFetch("/api/resources", {
+    method: "PATCH",
+    query: { source },
+    json: { action: "rename", items: [{ fromSource: source, fromPath, toSource: source, toPath }] },
+  });
+  if (!res.ok) throw await failure(res, `Rename ${fromPath}`);
+  const data = (await res.json()) as { failed?: { message?: string }[] };
+  if (data.failed?.length) throw new StorageError(data.failed[0]?.message ?? "Rename failed", 500);
+}
+
+/** Deletes one entry. Already gone (404) counts as success. */
+export async function deleteEntry(path: string) {
+  const res = await fbFetch("/api/resources", { method: "DELETE", query: { source: env.FILEBROWSER_SOURCE, path } });
+  if (res.ok || res.status === 404) return;
+  throw await failure(res, `Delete ${path}`);
+}
+
 /** Creates a folder (and any missing parents). Already existing is fine. */
 export async function ensureFolder(path: string) {
   const res = await fbFetch("/api/resources", {
@@ -131,6 +166,13 @@ export async function ensureProjectFolders(project: Project, client: Client) {
   let folder = project.storageFolder;
   if (!folder) {
     folder = projectFolderName(project);
+    // Two projects for the same client can share a name; the second gets a short suffix.
+    const [taken] = await db
+      .select({ id: projects.id })
+      .from(projects)
+      .where(and(eq(projects.clientId, project.clientId), eq(projects.storageFolder, folder), ne(projects.id, project.id)))
+      .limit(1);
+    if (taken) folder = projectFolderName(project, true);
     await db.update(projects).set({ storageFolder: folder }).where(eq(projects.id, project.id));
     project.storageFolder = folder;
   }

@@ -92,7 +92,7 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
             <CardHeader>
               <CardTitle>Updates</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className={updates.length ? "scrollbar-subtle max-h-[500px] overflow-y-auto" : undefined}>
             {updates.length === 0 ? (
               <EmptyState compact icon={MessageSquare} title="No updates yet" />
             ) : (
@@ -109,10 +109,26 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
             </CardContent>
           </Card>
 
+          <Card>
+            <CardHeader>
+              <div className="min-w-0">
+                <CardTitle>Time log</CardTitle>
+                <CardDescription>{`${formatHours(loggedSeconds, 1)} logged on this project`}</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+            {entries.length === 0 ? (
+              <EmptyState compact icon={Clock} title="No time logged yet" />
+            ) : (
+              <PortalTimeTable entries={entries} maxHeightClass="max-h-[600px]" />
+            )}
+            </CardContent>
+          </Card>
+
           {references.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>References to review</CardTitle>
+                <CardTitle>References</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -177,22 +193,6 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
                   </li>
                 ))}
               </ol>
-            )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="min-w-0">
-                <CardTitle>Time log</CardTitle>
-                <CardDescription>{`${formatHours(loggedSeconds, 1)} logged on this project`}</CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-            {entries.length === 0 ? (
-              <EmptyState compact icon={Clock} title="No time logged yet" />
-            ) : (
-              <PortalTimeTable entries={entries} />
             )}
             </CardContent>
           </Card>

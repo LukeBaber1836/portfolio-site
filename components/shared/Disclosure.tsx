@@ -9,19 +9,28 @@ export function Disclosure({
   title,
   children,
   defaultOpen = false,
+  open: controlledOpen,
+  onOpenChange,
   className,
   headClassName,
   leading,
+  onOpen,
 }: {
   title: React.ReactNode;
   /** Interactive content (e.g. a checkbox) placed before the toggle — kept outside the <button>. */
   leading?: React.ReactNode;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  /** Pass to drive the panel from outside; leave it off to let the panel manage its own state. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   className?: string;
   headClassName?: string;
+  /** Fires when the panel expands — handy for loading contents on first open. */
+  onOpen?: () => void;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const open = controlledOpen ?? uncontrolledOpen;
   const id = useId();
   return (
     <div className={cn("t-acc", className)} data-open={open}>
@@ -35,7 +44,12 @@ export function Disclosure({
           )}
           aria-expanded={open}
           aria-controls={id}
-          onClick={() => setOpen((o) => !o)}
+          onClick={() => {
+            const next = !open;
+            if (controlledOpen === undefined) setUncontrolledOpen(next);
+            if (next) onOpen?.();
+            onOpenChange?.(next);
+          }}
         >
           <span className="min-w-0 flex-1">{title}</span>
           <span className="t-acc-chevron text-white/50">

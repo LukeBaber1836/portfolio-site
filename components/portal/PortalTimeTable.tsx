@@ -4,6 +4,7 @@ import { StatusBadge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate, formatDuration, formatTime } from "@/lib/format";
 import { TIME_STATUS } from "@/lib/status";
+import { cn } from "@/lib/utils";
 
 type Entry = {
   id: string;
@@ -27,15 +28,17 @@ function statusKey(e: Entry) {
 // Client-facing labels: "unbilled" reads better as "Not yet invoiced".
 const CLIENT_LABELS: Record<string, string> = { unbilled: "Not yet invoiced" };
 
-export function PortalTimeTable({ entries, showProject }: { entries: Entry[]; showProject?: boolean }) {
+export function PortalTimeTable({ entries, showProject, maxHeightClass }: { entries: Entry[]; showProject?: boolean; maxHeightClass?: string }) {
+  // With a height cap the table scrolls inside itself, so the header stays pinned (opaque, with its own divider).
+  const head = maxHeightClass ? "sticky top-0 z-10 bg-card shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)]" : undefined;
   return (
-    <Table>
+    <Table containerClassName={cn(maxHeightClass && "scrollbar-subtle overflow-y-auto", maxHeightClass)}>
       <TableHeader>
         <TableRow className="hover:bg-transparent">
-          <TableHead>Date</TableHead>
-          <TableHead>What I worked on</TableHead>
-          <TableHead className="text-right">Time</TableHead>
-          <TableHead>Status</TableHead>
+          <TableHead className={head}>Date</TableHead>
+          <TableHead className={head}>What I worked on</TableHead>
+          <TableHead className={cn("text-right", head)}>Time</TableHead>
+          <TableHead className={head}>Status</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

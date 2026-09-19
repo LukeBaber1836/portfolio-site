@@ -10,7 +10,7 @@ import { FieldSelect, FieldSelectItem } from "@/components/shared/FieldSelect";
 import { SubmitButton } from "@/components/shared/SubmitButton";
 import { SERVICE_TYPES } from "@/lib/status";
 
-export function RequestForm() {
+export function RequestForm({ onDone }: { onDone?: () => void }) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -38,6 +38,7 @@ export function RequestForm() {
       setErrors({});
       setState("idle");
       router.refresh();
+      onDone?.();
     }, 900);
   }
 

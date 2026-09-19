@@ -112,10 +112,10 @@ export default async function ClientDetailPage({
           value={tab}
           items={[
             { value: "overview", label: "Overview", href: href("overview") },
-            { value: "projects", label: `Projects (${projects.length})`, href: href("projects") },
+            { value: "projects", label: "Projects", href: href("projects") },
             { value: "time", label: "Time", href: href("time") },
-            { value: "invoices", label: `Invoices (${invoices.length})`, href: href("invoices") },
-            { value: "contacts", label: `Contacts (${members.length})`, href: href("contacts") },
+            { value: "invoices", label: "Invoices", href: href("invoices") },
+            { value: "contacts", label: "Contacts", href: href("contacts") },
             { value: "edit", label: "Edit", href: href("edit") },
           ]}
         />

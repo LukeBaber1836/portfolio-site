@@ -38,7 +38,7 @@ export const REQUEST_STATUS: Record<string, StatusDef> = {
 export const REFERENCE_STATUS: Record<string, StatusDef> = {
   pending: { label: "Pending review", tone: "attention" },
   approved: { label: "Approved", tone: "success" },
-  declined: { label: "Not for me", tone: "neutral" },
+  declined: { label: "Not for me", tone: "danger" },
 };
 
 export const TIME_STATUS: Record<string, StatusDef> = {

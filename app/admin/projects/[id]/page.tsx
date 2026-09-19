@@ -3,11 +3,13 @@ import { notFound } from "next/navigation";
 import { EyeOff, MessageSquare, Trash2 } from "lucide-react";
 
 import { deleteUpdateAction } from "@/app/admin/_actions/projects";
+import { MilestoneDialog } from "@/components/admin/MilestoneDialog";
 import { MilestonesPanel } from "@/components/admin/MilestonesPanel";
 import { ProjectQuickControls } from "@/components/admin/ProjectQuickControls";
+import { ReferenceDialog } from "@/components/admin/ReferenceDialog";
 import { ReferencesPanel } from "@/components/admin/ReferencesPanel";
 import { TimeEntriesTable } from "@/components/admin/TimeEntriesTable";
-import { UpdateComposer } from "@/components/admin/UpdateComposer";
+import { UpdateDialog } from "@/components/admin/UpdateDialog";
 import { ActionButton } from "@/components/shared/ActionButton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -70,10 +72,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 <CardTitle>Updates</CardTitle>
                 <CardDescription>Shown on the client&apos;s project page, newest first.</CardDescription>
               </div>
+              <CardAction>
+                <UpdateDialog projectId={id} clientVisible={project.clientVisible} />
+              </CardAction>
             </CardHeader>
             <CardContent>
-              <UpdateComposer projectId={id} clientVisible={project.clientVisible} />
-            <div className="mt-6 border-t border-white/5 pt-2">
+            <div>
               {updates.length === 0 ? (
                 <EmptyState compact icon={MessageSquare} title="No updates yet" description="Share progress so your client always knows where things stand." />
               ) : (
@@ -129,6 +133,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <Card>
             <CardHeader>
               <CardTitle>Milestones</CardTitle>
+              <CardAction>
+                <MilestoneDialog projectId={id} />
+              </CardAction>
             </CardHeader>
             <CardContent>
               <MilestonesPanel
@@ -146,13 +153,13 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
           <Card>
             <CardHeader>
-              <div className="min-w-0">
-                <CardTitle>Send References</CardTitle>
-                <CardDescription>Links and notes the client can preview, approve, or decline.</CardDescription>
-              </div>
+              <CardTitle>References</CardTitle>
+              <CardAction>
+                <ReferenceDialog projectId={id} />
+              </CardAction>
             </CardHeader>
             <CardContent>
-              <ReferencesPanel projectId={id} clientVisible={project.clientVisible} references={references} />
+              <ReferencesPanel projectId={id} references={references} />
             </CardContent>
           </Card>
 

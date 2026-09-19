@@ -11,7 +11,7 @@ import { SubmitButton } from "@/components/shared/SubmitButton";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
-export function UpdateComposer({ projectId, clientVisible }: { projectId: string; clientVisible: boolean }) {
+export function UpdateComposer({ projectId, clientVisible, onDone }: { projectId: string; clientVisible: boolean; onDone?: () => void }) {
   const router = useRouter();
   const [body, setBody] = useState("");
   const [notify, setNotify] = useState(clientVisible);
@@ -36,15 +36,16 @@ export function UpdateComposer({ projectId, clientVisible }: { projectId: string
       setError(null);
       setState("idle");
       router.refresh();
+      onDone?.();
     }, 400);
   }
 
   return (
     <form onSubmit={submit} className="space-y-3">
-      <FormField label="Post an update" htmlFor="update-body" error={error} errorKey={errorKey}>
+      <FormField label="Update" htmlFor="update-body" error={error} errorKey={errorKey}>
         <TextArea
           id="update-body"
-          rows={3}
+          rows={5}
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="What changed, what's next, and anything you need from them…"

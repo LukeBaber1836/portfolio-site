@@ -27,7 +27,7 @@ const clientSchema = z.object({
     .optional(),
   storageUsername: optionalText,
   storagePath: optionalText
-    .refine((v) => v === undefined || normalizeStoragePath(v) !== null, "Use a folder path like clients/acme (no . or .. segments)")
+    .refine((v) => v === undefined || normalizeStoragePath(v) !== null, "Use a folder name like Acme Co (no . or .. segments)")
     .transform((v) => normalizeStoragePath(v) ?? undefined),
   notesInternal: optionalText,
 });

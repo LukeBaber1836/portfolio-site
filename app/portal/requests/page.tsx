@@ -1,6 +1,6 @@
 import { Inbox } from "lucide-react";
 
-import { RequestForm } from "@/components/portal/RequestForm";
+import { NewRequestDialog } from "@/components/portal/NewRequestDialog";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,23 +15,15 @@ export default async function PortalRequestsPage() {
   const requests = await portalRequests();
   return (
     <>
-      <PageHeader title="Requests" />
-      <div className="grid gap-6 lg:grid-cols-5">
-        <Card className="self-start lg:col-span-2">
-          <CardHeader>
-            <CardTitle>New request</CardTitle>
-          </CardHeader>
-          <CardContent>
-          <RequestForm />
-          </CardContent>
-        </Card>
-        <Card className="lg:col-span-3">
+      <PageHeader title="Requests" actions={<NewRequestDialog />} />
+      <div>
+        <Card>
           <CardHeader>
             <CardTitle>Your requests</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
           {requests.length === 0 ? (
-            <EmptyState icon={Inbox} title="No requests yet" description="Anything you send will be tracked here." />
+            <EmptyState icon={Inbox} title="No requests yet" description="Send your first request and it'll be tracked here." />
           ) : (
             <ul className="divide-y divide-white/5">
               {requests.map((r) => (

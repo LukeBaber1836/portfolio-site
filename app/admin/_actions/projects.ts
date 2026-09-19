@@ -11,7 +11,7 @@ import {
   deleteMilestone,
   deleteProjectUpdate,
   deleteReference,
-  moveMilestone,
+  reorderMilestones,
   postProjectUpdate,
   quickUpdateProject,
   setMilestoneStatus,
@@ -134,25 +134,24 @@ export async function saveMilestoneAction(
   });
 }
 
-export async function setMilestoneStatusAction(
-  projectId: string,
-  id: string,
-  status: string,
-  notify: boolean,
-): Promise<ActionResult<undefined>> {
+export async function setMilestoneStatusAction(projectId: string, id: string, status: string): Promise<ActionResult<undefined>> {
   return runAction(async () => {
     const parsed = z.enum(milestoneStatus.enumValues).safeParse(status);
     if (!parsed.success) return fail("Invalid status.");
-    const { emailNotice } = await setMilestoneStatus(id, parsed.data, notify);
+    await setMilestoneStatus(id, parsed.data);
     revalidatePath(`/admin/projects/${projectId}`);
-    return ok(undefined, parsed.data === "done" ? "Milestone complete" + emailNotice : undefined);
+    revalidatePath(`/portal/projects/${projectId}`, "page");
+    return ok(undefined, parsed.data === "done" ? "Milestone complete" : undefined);
   });
 }
 
-export async function moveMilestoneAction(projectId: string, id: string, direction: "up" | "down"): Promise<ActionResult<undefined>> {
+export async function reorderMilestonesAction(projectId: string, orderedIds: string[]): Promise<ActionResult<undefined>> {
   return runAction(async () => {
-    await moveMilestone(id, direction);
+    const parsed = z.array(z.string().uuid()).max(200).safeParse(orderedIds);
+    if (!parsed.success) return fail("Invalid order.");
+    await reorderMilestones(projectId, parsed.data);
     revalidatePath(`/admin/projects/${projectId}`);
+    revalidatePath(`/portal/projects/${projectId}`, "page");
     return ok(undefined);
   });
 }
@@ -170,7 +169,6 @@ const referenceSchema = z
     url: z.string().trim().max(2000).optional(),
     title: z.string().trim().max(160).optional(),
     note: z.string().trim().max(500).optional(),
-    notify: z.boolean(),
   })
   .refine((d) => d.url?.trim() || d.note?.trim(), {
     message: "Add a link or a note",
@@ -184,13 +182,12 @@ export async function sendReferenceAction(
   return runAction(async () => {
     const parsed = referenceSchema.safeParse(input);
     if (!parsed.success) return fromZodError(parsed.error);
-    const { emailNotice } = await createReference(projectId, parsed.data);
+    await createReference(projectId, parsed.data);
     revalidatePath(`/admin/projects/${projectId}`);
     // The portal project page is cached per route — without this, clients keep
     // seeing the pre-share version until a hard refresh.
     revalidatePath(`/portal/projects/${projectId}`, "page");
-    const base = parsed.data.notify ? "Reference shared and emailed" : "Reference shared";
-    return ok(undefined, base + emailNotice);
+    return ok(undefined, "Reference shared");
   });
 }
 

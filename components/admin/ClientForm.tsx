@@ -112,9 +112,9 @@ export function ClientForm({
           label="Folder path"
           htmlFor="storagePath"
           optional
-          hint="Portal uploads land here in a folder per project. Leave blank to use clients/<company>. Changing it doesn't move existing files."
+          hint="Portal uploads land here in a folder per project. Leave blank to use the client's own name. Changing it doesn't move existing files."
         >
-          <TextInput {...bind("storagePath")} placeholder="clients/acme" autoComplete="off" />
+          <TextInput {...bind("storagePath")} placeholder="Acme Co" autoComplete="off" />
         </FormField>
       </fieldset>
 
