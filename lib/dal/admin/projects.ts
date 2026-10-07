@@ -151,6 +151,11 @@ export async function updateProject(id: string, input: Omit<ProjectInput, "clien
   return project!;
 }
 
+export async function updateProjectDomains(id: string, domains: { productionUrl: string | null; devUrl: string | null }) {
+  await requireAdmin();
+  await db.update(projects).set(domains).where(eq(projects.id, id));
+}
+
 export async function quickUpdateProject(id: string, patch: { status?: ProjectStatus; progressPct?: number }) {
   const { user } = await requireAdmin();
   const [before] = await db.select().from(projects).where(eq(projects.id, id));

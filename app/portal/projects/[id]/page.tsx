@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { CheckCircle2, Circle, CircleDot, Clock, MessageSquare } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, Circle, CircleDot, Clock, Globe, MessageSquare } from "lucide-react";
 
 import { PortalTimeTable } from "@/components/portal/PortalTimeTable";
 import { ReferenceCard } from "@/components/portal/ReferenceCard";
@@ -10,6 +10,7 @@ import { statusBadgeFor } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { portalProject } from "@/lib/dal/portal";
 import { formatDate, formatDateTime, formatHours } from "@/lib/format";
+import { hostOf } from "@/lib/references/preview";
 import { PROJECT_STATUS, serviceLabel } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
@@ -165,6 +166,41 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
             )}
             </CardContent>
           </Card>
+
+          {(project.productionUrl || project.devUrl) && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Your website</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {[
+                    { label: "Live site", url: project.productionUrl },
+                    { label: "Preview", url: project.devUrl },
+                  ].map(
+                    (d) =>
+                      d.url && (
+                        <li key={d.label}>
+                          <a
+                            href={d.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center gap-3 rounded-xl border border-white/10 px-3 py-2.5 transition-colors hover:border-accent/40 hover:bg-accent/5"
+                          >
+                            <Globe className="size-4 shrink-0 text-white/40 group-hover:text-accent" aria-hidden />
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-xs text-white/40">{d.label}</span>
+                              <span className="block truncate text-sm text-white group-hover:text-accent">{hostOf(d.url)}</span>
+                            </span>
+                            <ArrowUpRight className="size-4 shrink-0 text-white/30 group-hover:text-accent" aria-hidden />
+                          </a>
+                        </li>
+                      ),
+                  )}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader>

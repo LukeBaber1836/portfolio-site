@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { EyeOff, MessageSquare, Trash2 } from "lucide-react";
 
 import { deleteUpdateAction } from "@/app/admin/_actions/projects";
+import { DomainsForm } from "@/components/admin/DomainsForm";
 import { MilestoneDialog } from "@/components/admin/MilestoneDialog";
 import { MilestonesPanel } from "@/components/admin/MilestonesPanel";
 import { ProjectQuickControls } from "@/components/admin/ProjectQuickControls";
@@ -127,29 +128,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <TimeEntriesTable entries={entries.map((e) => ({ ...e.entry, projectName: e.projectName, invoiceStatus: e.invoiceStatus }))} />
             </CardContent>
           </Card>
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Milestones</CardTitle>
-              <CardAction>
-                <MilestoneDialog projectId={id} />
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              <MilestonesPanel
-                projectId={id}
-                milestones={milestones.map((m) => ({
-                  id: m.id,
-                  title: m.title,
-                  status: m.status,
-                  dueDate: m.dueDate,
-                  dueLabel: m.dueDate ? formatDate(m.dueDate, "MMM d") : null,
-                }))}
-              />
-            </CardContent>
-          </Card>
 
           <Card>
             <CardHeader>
@@ -162,7 +140,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <ReferencesPanel projectId={id} references={references} />
             </CardContent>
           </Card>
+        </div>
 
+        <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>At a glance</CardTitle>
@@ -199,6 +179,39 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <Row label="Start" value={formatDate(project.startDate)} />
               <Row label="Due" value={formatDate(project.dueDate)} />
             </dl>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="min-w-0">
+                <CardTitle>Domains</CardTitle>
+                <CardDescription>Shown on the client&apos;s project page.</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <DomainsForm key={project.updatedAt.toISOString()} projectId={id} productionUrl={project.productionUrl} devUrl={project.devUrl} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Milestones</CardTitle>
+              <CardAction>
+                <MilestoneDialog projectId={id} />
+              </CardAction>
+            </CardHeader>
+            <CardContent>
+              <MilestonesPanel
+                projectId={id}
+                milestones={milestones.map((m) => ({
+                  id: m.id,
+                  title: m.title,
+                  status: m.status,
+                  dueDate: m.dueDate,
+                  dueLabel: m.dueDate ? formatDate(m.dueDate, "MMM d") : null,
+                }))}
+              />
             </CardContent>
           </Card>
         </div>

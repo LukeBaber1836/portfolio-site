@@ -58,25 +58,25 @@ function StatusBadge({
   tone: Tone;
   className?: string;
   pulse?: boolean;
-  /** Replaces the tone's default icon (e.g. a thumb for a yes/no answer). */
-  icon?: LucideIcon;
+  /** Replaces the tone's default icon (e.g. a thumb for a yes/no answer); `null` renders no icon. */
+  icon?: LucideIcon | null;
 }) {
-  const Icon = icon ?? TONE_ICONS[tone];
+  const Icon = icon === undefined ? TONE_ICONS[tone] : icon;
   return (
     <Badge variant={tone} className={className}>
-      <Icon aria-hidden className={cn(pulse && "animate-pulse")} />
+      {Icon && <Icon aria-hidden className={cn(pulse && "animate-pulse")} />}
       {label}
     </Badge>
   );
 }
 
 function statusBadgeFor(
-  map: Record<string, { label: string; tone: Tone }>,
+  map: Record<string, { label: string; tone: Tone; plain?: boolean }>,
   status: string,
   props: { className?: string; pulse?: boolean; icon?: LucideIcon } = {},
 ) {
   const def = map[status] ?? { label: status, tone: "neutral" as Tone };
-  return <StatusBadge label={def.label} tone={def.tone} {...props} />;
+  return <StatusBadge label={def.label} tone={def.tone} icon={def.plain ? null : undefined} {...props} />;
 }
 
 export { Badge, StatusBadge, badgeVariants, statusBadgeFor };

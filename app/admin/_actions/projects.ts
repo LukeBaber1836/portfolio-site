@@ -17,8 +17,10 @@ import {
   setMilestoneStatus,
   updateMilestone,
   updateProject,
+  updateProjectDomains,
 } from "@/lib/dal/admin/projects";
 import { milestoneStatus, projectStatus, serviceType } from "@/lib/db/schema";
+import { normalizeUrl } from "@/lib/references/preview";
 
 const optionalDate = z
   .string()
@@ -91,6 +93,30 @@ export async function quickUpdateProjectAction(
     await quickUpdateProject(id, parsed.data);
     revalidatePath("/admin", "layout");
     return ok(undefined);
+  });
+}
+
+const domainUrl = z
+  .string()
+  .trim()
+  .transform((v, ctx) => {
+    if (v === "") return null;
+    const url = normalizeUrl(v);
+    if (!url) ctx.addIssue({ code: "custom", message: "Enter a valid web address" });
+    return url;
+  });
+
+export async function saveProjectDomainsAction(
+  id: string,
+  input: { productionUrl: string; devUrl: string },
+): Promise<ActionResult<undefined>> {
+  return runAction(async () => {
+    const parsed = z.object({ productionUrl: domainUrl, devUrl: domainUrl }).safeParse(input);
+    if (!parsed.success) return fromZodError(parsed.error);
+    await updateProjectDomains(id, parsed.data);
+    revalidatePath(`/admin/projects/${id}`);
+    revalidatePath(`/portal/projects/${id}`, "page");
+    return ok(undefined, "Domains saved");
   });
 }
 

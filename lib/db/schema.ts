@@ -140,6 +140,9 @@ export const projects = pgTable(
     startDate: date("start_date"),
     dueDate: date("due_date"),
     clientVisible: boolean("client_visible").notNull().default(true),
+    // Where the client can see their site; shown on the portal project page.
+    productionUrl: text("production_url"),
+    devUrl: text("dev_url"),
     // Folder name under the client's storage path. Set once; never renamed with the project.
     storageFolder: text("storage_folder"),
     storageProvisionedAt: timestamp("storage_provisioned_at", { withTimezone: true }),
