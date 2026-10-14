@@ -20,7 +20,7 @@ import {
 } from "@/lib/db/schema";
 import { emails } from "@/lib/email/messages";
 import { emailRedirectNotice, sendEmail } from "@/lib/email/send";
-import { hostOf, normalizeUrl, resolveLinkPreview } from "@/lib/references/preview";
+import { featuredSiteOf, hostOf, normalizeUrl, resolveLinkPreview } from "@/lib/references/preview";
 import { audit } from "@/lib/services/audit";
 import { provisionStorage, revokeUploadShares } from "@/lib/storage/filebrowser";
 import { projectAcceptsUploads } from "@/lib/upload/kinds";
@@ -151,9 +151,19 @@ export async function updateProject(id: string, input: Omit<ProjectInput, "clien
   return project!;
 }
 
-export async function updateProjectDomains(id: string, domains: { productionUrl: string | null; devUrl: string | null }) {
+export async function updateProjectDomains(
+  id: string,
+  domains: { productionUrl: string | null; devUrl: string | null; featuredSite: "production" | "dev" },
+) {
   await requireAdmin();
-  await db.update(projects).set(domains).where(eq(projects.id, id));
+  const [before] = await db.select().from(projects).where(eq(projects.id, id));
+  // Re-shoot only when the hero URL changes (or never resolved) — Microlink calls are slow and rate-limited.
+  const heroUrl = featuredSiteOf(domains)?.url ?? null;
+  const beforeHero = before ? (featuredSiteOf(before)?.url ?? null) : null;
+  let siteScreenshotUrl = before?.siteScreenshotUrl ?? null;
+  if (!heroUrl) siteScreenshotUrl = null;
+  else if (heroUrl !== beforeHero || !siteScreenshotUrl) siteScreenshotUrl = (await resolveLinkPreview(heroUrl)).screenshotUrl;
+  await db.update(projects).set({ ...domains, siteScreenshotUrl }).where(eq(projects.id, id));
 }
 
 export async function quickUpdateProject(id: string, patch: { status?: ProjectStatus; progressPct?: number }) {

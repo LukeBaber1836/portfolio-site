@@ -8,6 +8,8 @@ import {
   createManualEntry,
   deleteEntry,
   discardTimer,
+  pauseTimer,
+  resumeTimer,
   setEntriesBillable,
   startTimer,
   stopTimer,
@@ -42,6 +44,14 @@ export async function stopTimerAction(input: z.input<typeof stopSchema>): Promis
     const entry = await stopTimer(parsed.data);
     refreshTimeViews();
     return ok({ seconds: entry.durationSeconds ?? 0 }, "Time saved");
+  });
+}
+
+export async function setTimerPausedAction(paused: boolean): Promise<ActionResult<undefined>> {
+  return runAction(async () => {
+    await (paused ? pauseTimer() : resumeTimer());
+    refreshTimeViews();
+    return ok(undefined, paused ? "Timer paused" : "Timer resumed");
   });
 }
 

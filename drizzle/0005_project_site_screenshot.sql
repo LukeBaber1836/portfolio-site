@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ADD COLUMN "site_screenshot_url" text;

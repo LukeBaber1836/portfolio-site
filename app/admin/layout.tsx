@@ -42,6 +42,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               ? {
                   id: running.entry.id,
                   startedAt: running.entry.startedAt.toISOString(),
+                  pausedAt: running.entry.pausedAt?.toISOString() ?? null,
+                  pausedSeconds: running.entry.pausedSeconds,
                   description: running.entry.description,
                   projectName: running.projectName,
                   clientName: running.clientCompany || running.clientName,

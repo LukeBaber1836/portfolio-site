@@ -2,10 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Play, Square, Trash2 } from "lucide-react";
+import { Pause, Play, Square, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { discardTimerAction, startTimerAction, stopTimerAction } from "@/app/admin/_actions/time";
+import { discardTimerAction, setTimerPausedAction, startTimerAction, stopTimerAction } from "@/app/admin/_actions/time";
 import { ProjectPicker, type ProjectOption } from "@/components/admin/ProjectPicker";
 import { FormField, TextArea, TextInput } from "@/components/shared/FormField";
 import { SubmitButton } from "@/components/shared/SubmitButton";
@@ -19,19 +19,32 @@ import { cn } from "@/lib/utils";
 export type RunningTimer = {
   id: string;
   startedAt: string;
+  pausedAt: string | null;
+  pausedSeconds: number;
   description: string | null;
   projectName: string;
   clientName: string;
 } | null;
 
-function useElapsed(startedAt: string | null) {
+type PauseState = { pausedAt: string | null; pausedSeconds: number };
+
+/** Worked seconds: wall time since start, minus finished pauses, frozen at the current pause. */
+function useElapsed(running: { startedAt: string } | null, pause: PauseState) {
   const [now, setNow] = useState(() => Date.now());
+  const ticking = !!running && !pause.pausedAt;
   useEffect(() => {
-    if (!startedAt) return;
+    if (!ticking) return;
+    // Tick immediately on resume so the clock doesn't briefly read from the stale pre-pause `now`.
+    const first = setTimeout(() => setNow(Date.now()), 0);
     const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, [startedAt]);
-  return startedAt ? Math.max(0, (now - new Date(startedAt).getTime()) / 1000) : 0;
+    return () => {
+      clearTimeout(first);
+      clearInterval(id);
+    };
+  }, [ticking]);
+  if (!running) return 0;
+  const until = pause.pausedAt ? new Date(pause.pausedAt).getTime() : now;
+  return Math.max(0, (until - new Date(running.startedAt).getTime()) / 1000 - pause.pausedSeconds);
 }
 
 /** Persistent clock-in / clock-out control in the admin top bar. Start time is server-authoritative. */
@@ -49,7 +62,14 @@ export function TimerBar({ running, projects }: { running: RunningTimer; project
   const [errorKey, setErrorKey] = useState(0);
   const [state, setState] = useState<"idle" | "pending" | "success">("idle");
   const [, startTransition] = useTransition();
-  const elapsed = useElapsed(running?.startedAt ?? null);
+  // Optimistic pause/resume, dropped once the server's pausedAt moves past the value it was based on.
+  const [pauseOverride, setPauseOverride] = useState<(PauseState & { id: string; basePausedAt: string | null }) | null>(null);
+  const pause: PauseState =
+    running && pauseOverride?.id === running.id && pauseOverride.basePausedAt === running.pausedAt
+      ? pauseOverride
+      : { pausedAt: running?.pausedAt ?? null, pausedSeconds: running?.pausedSeconds ?? 0 };
+  const isPaused = !!pause.pausedAt;
+  const elapsed = useElapsed(running, pause);
   const descRef = useRef<HTMLTextAreaElement>(null);
 
   // "T" toggles the timer panel when not typing in a field.
@@ -116,6 +136,21 @@ export function TimerBar({ running, projects }: { running: RunningTimer; project
     startTransition(() => router.refresh());
   }
 
+  async function togglePause() {
+    if (!running) return;
+    const nowIso = new Date().toISOString();
+    const next: PauseState = isPaused
+      ? { pausedAt: null, pausedSeconds: pause.pausedSeconds + Math.floor((Date.now() - new Date(pause.pausedAt!).getTime()) / 1000) }
+      : { pausedAt: nowIso, pausedSeconds: pause.pausedSeconds };
+    setPauseOverride({ ...next, id: running.id, basePausedAt: running.pausedAt });
+    const res = await setTimerPausedAction(!isPaused);
+    if (!res.ok) {
+      setPauseOverride(null);
+      return toast.error(res.error);
+    }
+    startTransition(() => router.refresh());
+  }
+
   async function discard() {
     const res = await discardTimerAction();
     if (!res.ok) return toast.error(res.error);
@@ -135,16 +170,42 @@ export function TimerBar({ running, projects }: { running: RunningTimer; project
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="hidden cursor-pointer items-center gap-2 rounded-full border border-info/30 bg-info/10 px-3 py-1.5 text-left transition-colors hover:border-info/60 sm:flex"
-              aria-label={`Timer running on ${running.projectName}`}
+              className={cn(
+                "hidden cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-left transition-colors sm:flex",
+                isPaused ? "border-accent/30 bg-accent/10 hover:border-accent/60" : "border-info/30 bg-info/10 hover:border-info/60",
+              )}
+              aria-label={`Timer ${isPaused ? "paused" : "running"} on ${running.projectName}`}
             >
               <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-info opacity-60 motion-reduce:hidden" />
-                <span className="relative inline-flex size-2 rounded-full bg-info" />
+                {!isPaused && <span className="absolute inline-flex size-full animate-ping rounded-full bg-info opacity-60 motion-reduce:hidden" />}
+                <span className={cn("relative inline-flex size-2 rounded-full", isPaused ? "bg-accent" : "bg-info")} />
               </span>
-              <span className="font-semibold tabular-nums text-white">{formatClock(elapsed)}</span>
-              <span className="max-w-40 truncate text-xs text-white/60">{running.projectName}</span>
+              <span className={cn("font-semibold tabular-nums", isPaused ? "text-white/60" : "text-white")}>{formatClock(elapsed)}</span>
+              <span className="max-w-40 truncate text-xs text-white/60">{isPaused ? "Paused" : running.projectName}</span>
             </button>
+          )}
+          {isRunning && (
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              onClick={togglePause}
+              aria-label={isPaused ? "Resume timer" : "Pause timer"}
+              aria-pressed={isPaused}
+              className={cn(
+                "size-9",
+                isPaused ? "border-accent/40 text-accent hover:border-accent hover:text-accent" : "border-info/40 text-info hover:border-info hover:text-info",
+              )}
+            >
+              <span className="t-icon-swap" data-state={isPaused ? "b" : "a"}>
+                <span className="t-icon flex" data-icon="a">
+                  <Pause className="size-4 fill-current" />
+                </span>
+                <span className="t-icon flex" data-icon="b">
+                  <Play className="size-4 fill-current" />
+                </span>
+              </span>
+            </Button>
           )}
           <Button
             type="button"
@@ -199,7 +260,14 @@ export function TimerBar({ running, projects }: { running: RunningTimer; project
                   {running.projectName} · {running.clientName}
                 </p>
               </div>
-              <span className="rounded-full bg-info/10 px-2.5 py-1 text-sm font-semibold tabular-nums text-info">{formatClock(elapsed)}</span>
+              <span
+                className={cn(
+                  "rounded-full px-2.5 py-1 text-sm font-semibold tabular-nums",
+                  isPaused ? "bg-accent/10 text-accent" : "bg-info/10 text-info",
+                )}
+              >
+                {isPaused ? `Paused · ${formatClock(elapsed)}` : formatClock(elapsed)}
+              </span>
             </div>
             <FormField label="Description" error={error} errorKey={errorKey} hint="Your client sees this in their portal.">
               <TextArea

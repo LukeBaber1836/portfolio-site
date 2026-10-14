@@ -190,7 +190,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               </div>
             </CardHeader>
             <CardContent>
-              <DomainsForm key={project.updatedAt.toISOString()} projectId={id} productionUrl={project.productionUrl} devUrl={project.devUrl} />
+              <DomainsForm key={project.updatedAt.toISOString()} projectId={id} productionUrl={project.productionUrl} devUrl={project.devUrl} featuredSite={project.featuredSite} />
             </CardContent>
           </Card>
 

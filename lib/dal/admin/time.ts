@@ -71,17 +71,50 @@ export async function startTimer(projectId: string, description?: string) {
   }
 }
 
+/** Seconds of the current pause (0 when not paused), as of `at`. */
+function openPauseSeconds(entry: { pausedAt: Date | null }, at: Date) {
+  return entry.pausedAt ? Math.max(0, Math.floor((at.getTime() - entry.pausedAt.getTime()) / 1000)) : 0;
+}
+
+export async function pauseTimer() {
+  const running = await getRunningTimer();
+  if (!running) throw new UserError("No timer is running.");
+  if (running.entry.pausedAt) return running.entry;
+  const [entry] = await db
+    .update(timeEntries)
+    .set({ pausedAt: new Date() })
+    .where(and(eq(timeEntries.id, running.entry.id), isNull(timeEntries.endedAt), isNull(timeEntries.pausedAt)))
+    .returning();
+  return entry ?? running.entry;
+}
+
+export async function resumeTimer() {
+  const running = await getRunningTimer();
+  if (!running) throw new UserError("No timer is running.");
+  const { pausedAt } = running.entry;
+  if (!pausedAt) return running.entry;
+  const [entry] = await db
+    .update(timeEntries)
+    .set({ pausedAt: null, pausedSeconds: running.entry.pausedSeconds + openPauseSeconds(running.entry, new Date()) })
+    // Matching pausedAt guards against a double resume counting the pause twice.
+    .where(and(eq(timeEntries.id, running.entry.id), isNull(timeEntries.endedAt), eq(timeEntries.pausedAt, pausedAt)))
+    .returning();
+  return entry ?? running.entry;
+}
+
 export async function stopTimer(input: { description: string; billable: boolean }) {
   const running = await getRunningTimer();
   if (!running) throw new UserError("No timer is running.");
   const endedAt = new Date();
-  if (endedAt.getTime() - running.entry.startedAt.getTime() < 1000) {
+  // Clocking out while paused closes the pause at the same moment.
+  const pausedSeconds = running.entry.pausedSeconds + openPauseSeconds(running.entry, endedAt);
+  if (endedAt.getTime() - running.entry.startedAt.getTime() - pausedSeconds * 1000 < 1000) {
     throw new UserError("That was less than a second — discard the timer instead.");
   }
   const rateCents = await rateForProject(running.entry.projectId);
   const [entry] = await db
     .update(timeEntries)
-    .set({ endedAt, description: input.description, billable: input.billable, rateCents })
+    .set({ endedAt, pausedAt: null, pausedSeconds, description: input.description, billable: input.billable, rateCents })
     .where(and(eq(timeEntries.id, running.entry.id), isNull(timeEntries.endedAt)))
     .returning();
   if (!entry) throw new UserError("That timer was already stopped.");
@@ -155,9 +188,18 @@ export async function updateEntry(id: string, input: ManualEntryInput) {
   const { startedAt, endedAt } = toRange(input);
   const rateCents =
     existing.projectId === input.projectId ? existing.rateCents ?? (await rateForProject(input.projectId)) : await rateForProject(input.projectId);
+  // Pauses only make sense against the timer's own range — a hand-edited start or end replaces them.
+  const sameMinute = (a: Date, b: Date) => Math.floor(a.getTime() / 60_000) === Math.floor(b.getTime() / 60_000);
+  const rangeKept = sameMinute(startedAt, existing.startedAt) && sameMinute(endedAt, existing.endedAt!);
   await db
     .update(timeEntries)
-    .set({ projectId: input.projectId, startedAt, endedAt, description: input.description, billable: input.billable, rateCents })
+    .set({
+      projectId: input.projectId,
+      ...(rangeKept ? {} : { startedAt, endedAt, pausedSeconds: 0 }),
+      description: input.description,
+      billable: input.billable,
+      rateCents,
+    })
     .where(eq(timeEntries.id, id));
 }
 

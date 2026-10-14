@@ -108,10 +108,10 @@ const domainUrl = z
 
 export async function saveProjectDomainsAction(
   id: string,
-  input: { productionUrl: string; devUrl: string },
+  input: { productionUrl: string; devUrl: string; featuredSite: "production" | "dev" },
 ): Promise<ActionResult<undefined>> {
   return runAction(async () => {
-    const parsed = z.object({ productionUrl: domainUrl, devUrl: domainUrl }).safeParse(input);
+    const parsed = z.object({ productionUrl: domainUrl, devUrl: domainUrl, featuredSite: z.enum(["production", "dev"]) }).safeParse(input);
     if (!parsed.success) return fromZodError(parsed.error);
     await updateProjectDomains(id, parsed.data);
     revalidatePath(`/admin/projects/${id}`);

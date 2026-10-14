@@ -44,6 +44,13 @@ export function hostOf(url: string): string | null {
   }
 }
 
+/** The project domain the portal hero shows: the featured one, else whichever URL is set. */
+export function featuredSiteOf(p: { productionUrl: string | null; devUrl: string | null; featuredSite: "production" | "dev" }) {
+  const prod = p.productionUrl ? { kind: "production" as const, url: p.productionUrl, label: "Live site" } : null;
+  const dev = p.devUrl ? { kind: "dev" as const, url: p.devUrl, label: "Preview" } : null;
+  return p.featuredSite === "dev" ? (dev ?? prod) : (prod ?? dev);
+}
+
 /**
  * Resolve a link's title + screenshot via Microlink. Never throws — any
  * failure (auth-walled staging link, rate limit, outage, timeout) yields

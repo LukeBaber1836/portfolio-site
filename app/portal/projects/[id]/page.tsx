@@ -3,6 +3,7 @@ import { ArrowUpRight, CheckCircle2, Circle, CircleDot, Clock, Globe, MessageSqu
 
 import { PortalTimeTable } from "@/components/portal/PortalTimeTable";
 import { ReferenceCard } from "@/components/portal/ReferenceCard";
+import { SiteHeroCard } from "@/components/portal/SiteHeroCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +11,7 @@ import { statusBadgeFor } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { portalProject } from "@/lib/dal/portal";
 import { formatDate, formatDateTime, formatHours } from "@/lib/format";
-import { hostOf } from "@/lib/references/preview";
+import { featuredSiteOf, hostOf } from "@/lib/references/preview";
 import { PROJECT_STATUS, serviceLabel } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
@@ -37,6 +38,7 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
   if (!data) notFound();
   const { project, milestones, updates, entries, references, loggedSeconds } = data;
   const stepIndex = STEPS.findIndex((s) => s.key === project.status);
+  const hero = featuredSiteOf(project);
   const budgetPct = project.budgetHours ? Math.round((loggedSeconds / 3600 / project.budgetHours) * 100) : null;
 
   return (
@@ -51,6 +53,9 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
         }
         description={project.description}
       />
+
+      {/* Site preview — the domain the admin marked as featured. */}
+      {hero && <SiteHeroCard url={hero.url} label={hero.label} screenshotUrl={project.siteScreenshotUrl} />}
 
       {/* Status stepper */}
       {stepIndex >= 0 && (

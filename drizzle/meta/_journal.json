@@ -36,6 +36,27 @@
       "when": 1791349243850,
       "tag": "0004_project_domains",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791955081490,
+      "tag": "0005_project_site_screenshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791955334283,
+      "tag": "0006_project_featured_site",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791955996310,
+      "tag": "0007_time_entry_pause",
+      "breakpoints": true
     }
   ]
 }

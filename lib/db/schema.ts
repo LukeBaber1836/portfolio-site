@@ -58,6 +58,7 @@ export const invoiceStatus = pgEnum("invoice_status", [
 export const requestStatus = pgEnum("request_status", ["new", "in_review", "accepted", "declined"]);
 
 export const referenceKind = pgEnum("reference_kind", ["link", "note"]);
+export const siteKind = pgEnum("site_kind", ["production", "dev"]);
 
 export const referenceStatus = pgEnum("reference_status", ["pending", "approved", "declined"]);
 export const uploadKind = pgEnum("upload_kind", ["pictures", "videos", "files"]);
@@ -143,6 +144,10 @@ export const projects = pgTable(
     // Where the client can see their site; shown on the portal project page.
     productionUrl: text("production_url"),
     devUrl: text("dev_url"),
+    // Which domain leads the portal hero (falls back to the other when its URL is empty).
+    featuredSite: siteKind("featured_site").notNull().default("production"),
+    // Screenshot of the featured site, resolved when domains are saved — the portal hero image.
+    siteScreenshotUrl: text("site_screenshot_url"),
     // Folder name under the client's storage path. Set once; never renamed with the project.
     storageFolder: text("storage_folder"),
     storageProvisionedAt: timestamp("storage_provisioned_at", { withTimezone: true }),
@@ -255,8 +260,11 @@ export const timeEntries = pgTable(
     userId: uuid("user_id").notNull(),
     startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
     endedAt: timestamp("ended_at", { withTimezone: true }),
+    // Pausing a running timer: pausedAt marks the current pause; finished pauses accumulate in pausedSeconds.
+    pausedAt: timestamp("paused_at", { withTimezone: true }),
+    pausedSeconds: integer("paused_seconds").notNull().default(0),
     durationSeconds: integer("duration_seconds").generatedAlwaysAs(
-      sql`case when ended_at is null then null else floor(extract(epoch from (ended_at - started_at)))::int end`,
+      sql`case when ended_at is null then null else greatest(0, floor(extract(epoch from (ended_at - started_at)))::int - paused_seconds) end`,
     ),
     description: text("description"),
     billable: boolean("billable").notNull().default(true),
@@ -271,6 +279,7 @@ export const timeEntries = pgTable(
     index("time_entries_project_started_idx").on(t.projectId, t.startedAt),
     index("time_entries_invoice_idx").on(t.invoiceId),
     check("time_entries_end_after_start", sql`ended_at is null or ended_at > started_at`),
+    check("time_entries_paused_seconds_nonneg", sql`paused_seconds >= 0`),
   ],
 );
 
