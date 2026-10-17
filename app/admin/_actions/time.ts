@@ -67,6 +67,7 @@ const entrySchema = z.object({
   projectId: z.string().uuid("Pick a project"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date"),
   startTime: z.string().regex(/^\d{2}:\d{2}$/, "Start time required"),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick an end date"),
   endTime: z.string().regex(/^\d{2}:\d{2}$/, "End time required"),
   description: z.string().trim().min(3, "Add a short description").max(2000),
   billable: z.boolean(),

@@ -13,6 +13,7 @@ import { portalProject } from "@/lib/dal/portal";
 import { formatDate, formatDateTime, formatHours } from "@/lib/format";
 import { featuredSiteOf, hostOf } from "@/lib/references/preview";
 import { PROJECT_STATUS, serviceLabel } from "@/lib/status";
+import { CLOSED_PROJECT_STATUSES } from "@/lib/upload/kinds";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
@@ -54,8 +55,16 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
         description={project.description}
       />
 
-      {/* Site preview — the domain the admin marked as featured. */}
-      {hero && <SiteHeroCard url={hero.url} label={hero.label} screenshotUrl={project.siteScreenshotUrl} />}
+      {/* Site preview — the domain the admin marked as featured. The pencil opens it in review mode. */}
+      {hero && (
+        <SiteHeroCard
+          url={hero.url}
+          label={hero.label}
+          screenshotUrl={project.siteScreenshotUrl}
+          reviewHref={(CLOSED_PROJECT_STATUSES as readonly string[]).includes(project.status) ? undefined : `/portal/projects/${project.id}/review`}
+          awaitingReview={project.status === "review"}
+        />
+      )}
 
       {/* Status stepper */}
       {stepIndex >= 0 && (

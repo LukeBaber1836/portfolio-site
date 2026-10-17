@@ -1,8 +1,9 @@
 import { CheckCircle2, CircleAlert } from "lucide-react";
 
 import { SettingsForm } from "@/components/admin/SettingsForm";
+import { SiteReviewDocs } from "@/components/admin/SiteReviewDocs";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { env } from "@/lib/env";
 import { getSettings } from "@/lib/services/settings";
 
@@ -42,6 +43,18 @@ export default async function SettingsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card id="site-review" className="mt-6 scroll-mt-24">
+        <CardHeader>
+          <div className="min-w-0">
+            <CardTitle>Site review toolbar</CardTitle>
+            <CardDescription>Lets clients pin comments directly on the sites you build.</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="max-w-3xl">
+          <SiteReviewDocs devOrigin={process.env.NODE_ENV === "development" ? env.APP_URL : null} />
+        </CardContent>
+      </Card>
     </>
   );
 }

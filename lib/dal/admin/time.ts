@@ -138,16 +138,16 @@ export type ManualEntryInput = {
   projectId: string;
   date: string;
   startTime: string;
+  endDate: string;
   endTime: string;
   description: string;
   billable: boolean;
 };
 
-function toRange(input: Pick<ManualEntryInput, "date" | "startTime" | "endTime">) {
+function toRange(input: Pick<ManualEntryInput, "date" | "startTime" | "endDate" | "endTime">) {
   const startedAt = businessDateTime(input.date, input.startTime);
-  let endedAt = businessDateTime(input.date, input.endTime);
-  // An end time before the start means the session ran past midnight.
-  if (endedAt <= startedAt) endedAt = new Date(endedAt.getTime() + 86_400_000);
+  const endedAt = businessDateTime(input.endDate, input.endTime);
+  if (endedAt <= startedAt) throw new UserError("The end has to be after the start.");
   if (endedAt.getTime() - startedAt.getTime() > 24 * 3600_000) {
     throw new UserError("An entry can't be longer than 24 hours.");
   }

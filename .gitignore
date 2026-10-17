@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .neon
+
+# review toolbar bundle (built by scripts/build-review-toolbar.mjs)
+/public/review/toolbar.js

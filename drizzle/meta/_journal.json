@@ -57,6 +57,13 @@
       "when": 1791955996310,
       "tag": "0007_time_entry_pause",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792205561004,
+      "tag": "0008_site_comments",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { EyeOff, MessageSquare, Trash2 } from "lucide-react";
+import { ExternalLink, EyeOff, MessageSquare, Trash2 } from "lucide-react";
 
 import { deleteUpdateAction } from "@/app/admin/_actions/projects";
 import { DomainsForm } from "@/components/admin/DomainsForm";
@@ -9,6 +9,7 @@ import { MilestonesPanel } from "@/components/admin/MilestonesPanel";
 import { ProjectQuickControls } from "@/components/admin/ProjectQuickControls";
 import { ReferenceDialog } from "@/components/admin/ReferenceDialog";
 import { ReferencesPanel } from "@/components/admin/ReferencesPanel";
+import { SiteFeedbackPanel } from "@/components/admin/SiteFeedbackPanel";
 import { TimeEntriesTable } from "@/components/admin/TimeEntriesTable";
 import { UpdateDialog } from "@/components/admin/UpdateDialog";
 import { ActionButton } from "@/components/shared/ActionButton";
@@ -20,6 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { resolveRateCents } from "@/lib/billing";
 import { listClientOptions } from "@/lib/dal/admin/clients";
 import { getProject } from "@/lib/dal/admin/projects";
+import { listSiteComments } from "@/lib/dal/admin/site-comments";
 import { listEntries } from "@/lib/dal/admin/time";
 import { formatDate, formatDateTime, formatHours, formatMoney } from "@/lib/format";
 import { getSettings } from "@/lib/services/settings";
@@ -40,7 +42,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   if (!data) notFound();
   const { project, client, loggedSeconds, milestones, updates, references } = data;
 
-  const [entries, clients, settings] = await Promise.all([listEntries({ projectId: id, limit: 100 }), listClientOptions(), getSettings()]);
+  const [entries, clients, settings, siteFeedback] = await Promise.all([
+    listEntries({ projectId: id, limit: 100 }),
+    listClientOptions(),
+    getSettings(),
+    listSiteComments(id),
+  ]);
+  const openFeedback = siteFeedback.filter((c) => c.status === "open").length;
+  const hasSite = !!(project.productionUrl || project.devUrl);
   const rate = resolveRateCents({ projectRateCents: project.rateCents, clientRateCents: client.defaultRateCents, defaultRateCents: settings.defaultRateCents });
   const unbilled = entries.filter((e) => e.entry.billable && !e.entry.invoiceId);
   const unbilledSeconds = unbilled.reduce((s, e) => s + (e.entry.durationSeconds ?? 0), 0);
@@ -107,6 +116,27 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 </ul>
               )}
             </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="min-w-0">
+                <CardTitle>Site feedback</CardTitle>
+                <CardDescription>
+                  {siteFeedback.length ? `${openFeedback} open · ${siteFeedback.length - openFeedback} resolved` : "Comments the client pins on their site."}
+                </CardDescription>
+              </div>
+              <CardAction>
+                {hasSite && (
+                  <a href={`/admin/projects/${id}/review`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-accent hover:underline">
+                    Open site review <ExternalLink className="size-3" />
+                  </a>
+                )}
+              </CardAction>
+            </CardHeader>
+            <CardContent className={siteFeedback.length ? "scrollbar-subtle max-h-[520px] overflow-y-auto" : undefined}>
+              <SiteFeedbackPanel projectId={id} items={siteFeedback} hasSite={hasSite} />
             </CardContent>
           </Card>
 

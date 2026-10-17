@@ -19,6 +19,7 @@ import {
   updateProject,
   updateProjectDomains,
 } from "@/lib/dal/admin/projects";
+import { deleteSiteComment, setSiteCommentStatus } from "@/lib/dal/admin/site-comments";
 import { milestoneStatus, projectStatus, serviceType } from "@/lib/db/schema";
 import { normalizeUrl } from "@/lib/references/preview";
 
@@ -223,5 +224,21 @@ export async function deleteReferenceAction(projectId: string, id: string): Prom
     revalidatePath(`/admin/projects/${projectId}`);
     revalidatePath(`/portal/projects/${projectId}`, "page");
     return ok(undefined, "Reference deleted");
+  });
+}
+
+export async function setSiteCommentStatusAction(projectId: string, id: string, status: "open" | "resolved"): Promise<ActionResult<undefined>> {
+  return runAction(async () => {
+    await setSiteCommentStatus(projectId, id, status);
+    revalidatePath(`/admin/projects/${projectId}`);
+    return ok(undefined, status === "resolved" ? "Comment resolved" : "Comment reopened");
+  });
+}
+
+export async function deleteSiteCommentAction(projectId: string, id: string): Promise<ActionResult<undefined>> {
+  return runAction(async () => {
+    await deleteSiteComment(projectId, id);
+    revalidatePath(`/admin/projects/${projectId}`);
+    return ok(undefined, "Comment deleted");
   });
 }

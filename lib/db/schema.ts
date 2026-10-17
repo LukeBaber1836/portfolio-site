@@ -9,6 +9,7 @@ import {
   pgEnum,
   pgTable,
   primaryKey,
+  real,
   text,
   timestamp,
   uniqueIndex,
@@ -62,6 +63,8 @@ export const siteKind = pgEnum("site_kind", ["production", "dev"]);
 
 export const referenceStatus = pgEnum("reference_status", ["pending", "approved", "declined"]);
 export const uploadKind = pgEnum("upload_kind", ["pictures", "videos", "files"]);
+export const siteCommentStatus = pgEnum("site_comment_status", ["open", "resolved"]);
+export const siteViewport = pgEnum("site_viewport", ["desktop", "tablet", "mobile"]);
 
 export const settings = pgTable(
   "settings",
@@ -339,6 +342,41 @@ export const projectUploadShares = pgTable(
   (t) => [primaryKey({ columns: [t.projectId, t.kind] })],
 );
 
+/**
+ * Comments pinned onto a client's live site through the review toolbar (public/review/loader.js).
+ * Anchored to an element by CSS selector + offset within it; `docX`/`docY` place the pin when the
+ * element can't be found any more (redesigned page, different breakpoint).
+ */
+export const siteComments = pgTable(
+  "site_comments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    authorUserId: uuid("author_user_id").notNull(),
+    // Snapshot of the display name — the toolbar runs off-site without a session to join against.
+    authorName: text("author_name").notNull(),
+    fromAdmin: boolean("from_admin").notNull().default(false),
+    pagePath: text("page_path").notNull(),
+    selector: text("selector"),
+    // Click position inside the anchored element, 0–1 on each axis.
+    offsetX: real("offset_x"),
+    offsetY: real("offset_y"),
+    // Fallback position: x as a fraction of the viewport width, y in document pixels.
+    docX: real("doc_x").notNull(),
+    docY: real("doc_y").notNull(),
+    viewport: siteViewport("viewport").notNull().default("desktop"),
+    // Tiptap document JSON; `bodyText` is its plain-text projection for lists and emails.
+    body: jsonb("body").$type<Record<string, unknown>>().notNull(),
+    bodyText: text("body_text").notNull(),
+    status: siteCommentStatus("status").notNull().default("open"),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [index("site_comments_project_idx").on(t.projectId, t.pagePath, t.createdAt)],
+);
+
 export const auditLog = pgTable(
   "audit_log",
   {
@@ -369,3 +407,5 @@ export type ServiceType = (typeof serviceType.enumValues)[number];
 export type MilestoneStatus = (typeof milestoneStatus.enumValues)[number];
 export type RequestStatus = (typeof requestStatus.enumValues)[number];
 export type UploadKind = (typeof uploadKind.enumValues)[number];
+export type SiteComment = typeof siteComments.$inferSelect;
+export type SiteViewport = (typeof siteViewport.enumValues)[number];

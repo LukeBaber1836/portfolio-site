@@ -78,7 +78,10 @@ Marketing container caps at 1200px at all sizes ≥1200px.
 - **Card** (`ui/card`): `Card` is `clay rounded-2xl bg-card`; `CardHeader` (border-b row) + `CardTitle`/`CardDescription`/`CardAction` + `CardContent` (defaults `p-5`). All portal/admin sections use these directly.
 - **Switch** (`ui/switch`, Radix): gold gradient when on; composed with `Label` (+ description `<p>`) at call sites.
 - **Checkbox** (`ui/checkbox`, Radix): gold checked state, keeps the `t-check` draw animation; `checked="indeterminate"` for select-all headers; `disabled` for readonly indicators (password checklist).
-- **Calendar** (`ui/calendar`, react-day-picker) + shared `DatePicker` (`shared/DatePicker.tsx`: popover + calendar for `yyyy-MM-dd` string state, optional `max`). Used for milestone due dates, project start/due, manual entry date.
+- **Calendar** (`ui/calendar`, react-day-picker) + shared `DatePicker` (`shared/DatePicker.tsx`: popover + calendar for `yyyy-MM-dd` string state, optional `max`). Used for milestone due dates, project start/due, manual entry start/end dates.
+- **TimePicker** (`shared/TimePicker.tsx`): shadcn has no time primitive, so it's the same popover trigger as `DatePicker`
+  (clock icon, 12-hour label) opening hour / minute / AM-PM columns; selected cell uses the calendar's gold gradient.
+  `HH:mm` string state, 5-minute `step` by default (off-step values stay listed). Replaces native `type="time"`.
 - **LinkPreview** (`ui/link-preview`, Aceternity): hover screenshot previews for client reference links.
   Dark-clay skinned (gold underline trigger, clay tooltip). Always `isStatic` with the screenshot URL stored
   on the row at send time — never live-resolve on hover (Microlink rate limits, outages, auth-walled links).
@@ -95,7 +98,10 @@ Marketing container caps at 1200px at all sizes ≥1200px.
     (`rounded-2xl`; drag-over = `border-accent bg-accent/[0.06] scale-[1.01]`; inert until a kind is picked,
     shakes via `t-input is-shaking`). Upload rows: `divide-white/5` list, `Progress h-1.5`, `SuccessCheck` when done,
     danger text + Retry on failure. No shadcn dropzone exists.
-  - Time inputs stay native `type="time"` (styled dark); no time-picker primitive.
+  - Site review toolbar (`review-toolbar/`, bundled to `public/review/toolbar.js`) — runs on *client sites* inside a
+    shadow root, so it can't use Tailwind; `review-toolbar/styles.css` hand-mirrors the tokens (clay shadow, gold
+    gradient pins/buttons, `#1b1b1f` cards, JetBrains Mono). Keep it in sync when brand tokens change. Install
+    snippet + checklist live in Admin → Settings → "Site review toolbar".
 - **Tables:** `bg-[#1b1b1f]` rows, `border-white/5` dividers, sticky header, `tabular-nums`, right-aligned money.
 
 ---

@@ -6,8 +6,9 @@ import { toast } from "sonner";
 
 import { saveEntryAction } from "@/app/admin/_actions/time";
 import { ProjectPicker, type ProjectOption } from "@/components/admin/ProjectPicker";
-import { FormField, TextArea, TextInput } from "@/components/shared/FormField";
+import { FormField, TextArea } from "@/components/shared/FormField";
 import { DatePicker } from "@/components/shared/DatePicker";
+import { TimePicker } from "@/components/shared/TimePicker";
 import { SubmitButton } from "@/components/shared/SubmitButton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -18,18 +19,26 @@ export type EditableEntry = {
   projectId: string;
   date: string;
   startTime: string;
+  endDate: string;
   endTime: string;
   description: string;
   billable: boolean;
 };
 
-function durationLabel(start: string, end: string) {
-  if (!/^\d{2}:\d{2}$/.test(start) || !/^\d{2}:\d{2}$/.test(end)) return null;
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
-  let mins = eh! * 60 + em! - (sh! * 60 + sm!);
-  if (mins <= 0) mins += 24 * 60;
-  return `${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, "0")}m${eh! * 60 + em! <= sh! * 60 + sm! ? " (past midnight)" : ""}`;
+function minutesOf(date: string, time: string) {
+  const d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  const t = /^(\d{2}):(\d{2})$/.exec(time);
+  if (!d || !t) return null;
+  return Date.UTC(Number(d[1]), Number(d[2]) - 1, Number(d[3]), Number(t[1]), Number(t[2])) / 60_000;
+}
+
+function durationLabel(v: { date: string; startTime: string; endDate: string; endTime: string }) {
+  const start = minutesOf(v.date, v.startTime);
+  const end = minutesOf(v.endDate, v.endTime);
+  if (start == null || end == null) return null;
+  const mins = end - start;
+  if (mins <= 0) return { text: "End must be after start", bad: true };
+  return { text: `${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, "0")}m`, bad: mins > 24 * 60 };
 }
 
 export function TimeEntryDialog({
@@ -50,6 +59,7 @@ export function TimeEntryDialog({
     projectId: entry?.projectId ?? null,
     date: entry?.date ?? today,
     startTime: entry?.startTime ?? "09:00",
+    endDate: entry?.endDate ?? entry?.date ?? today,
     endTime: entry?.endTime ?? "10:00",
     description: entry?.description ?? "",
     billable: entry?.billable ?? true,
@@ -77,7 +87,7 @@ export function TimeEntryDialog({
     }, 350);
   }
 
-  const duration = durationLabel(v.startTime, v.endTime);
+  const duration = durationLabel(v);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -90,18 +100,31 @@ export function TimeEntryDialog({
           <FormField label="Project" error={errors.projectId} errorKey={errorKey}>
             <ProjectPicker projects={projects} value={v.projectId} onChange={(id) => setV((s) => ({ ...s, projectId: id }))} />
           </FormField>
-          <div className="grid grid-cols-3 gap-3">
-            <FormField label="Date" htmlFor="te-date" error={errors.date}>
-              <DatePicker id="te-date" max={today} value={v.date} onChange={(d) => setV((s) => ({ ...s, date: d }))} />
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Start date" htmlFor="te-date" error={errors.date}>
+              <DatePicker
+                id="te-date"
+                max={today}
+                value={v.date}
+                // Moving the start keeps the end on the same day offset (same day, or the next one).
+                onChange={(d) => setV((s) => ({ ...s, date: d, endDate: s.endDate === s.date || s.endDate < d ? d : s.endDate }))}
+              />
             </FormField>
-            <FormField label="Start" htmlFor="te-start" error={errors.startTime}>
-              <TextInput id="te-start" type="time" step={300} value={v.startTime} onChange={(e) => setV((s) => ({ ...s, startTime: e.target.value }))} className="px-3 [color-scheme:dark]" />
+            <FormField label="Start time" htmlFor="te-start" error={errors.startTime}>
+              <TimePicker id="te-start" value={v.startTime} onChange={(t) => setV((s) => ({ ...s, startTime: t }))} />
             </FormField>
-            <FormField label="End" htmlFor="te-end" error={errors.endTime}>
-              <TextInput id="te-end" type="time" step={300} value={v.endTime} onChange={(e) => setV((s) => ({ ...s, endTime: e.target.value }))} className="px-3 [color-scheme:dark]" />
+            <FormField label="End date" htmlFor="te-end-date" error={errors.endDate}>
+              <DatePicker id="te-end-date" max={today} value={v.endDate} onChange={(d) => setV((s) => ({ ...s, endDate: d }))} />
+            </FormField>
+            <FormField label="End time" htmlFor="te-end" error={errors.endTime}>
+              <TimePicker id="te-end" value={v.endTime} onChange={(t) => setV((s) => ({ ...s, endTime: t }))} />
             </FormField>
           </div>
-          {duration && <p className="-mt-1 text-xs text-white/50">Duration: <span className="text-white">{duration}</span></p>}
+          {duration && (
+            <p className="-mt-1 text-xs text-white/50">
+              Duration: <span className={duration.bad ? "text-danger" : "text-white"}>{duration.text}</span>
+            </p>
+          )}
           <FormField label="What did you work on?" htmlFor="te-desc" error={errors.description} errorKey={errorKey} hint="Your client sees this.">
             <TextArea id="te-desc" rows={3} value={v.description} onChange={(e) => setV((s) => ({ ...s, description: e.target.value }))} />
           </FormField>

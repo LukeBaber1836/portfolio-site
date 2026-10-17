@@ -51,6 +51,7 @@ export default async function TimePage({ searchParams }: { searchParams: Promise
       projectId: entry.projectId,
       date: format(start, "yyyy-MM-dd"),
       startTime: format(start, "HH:mm"),
+      endDate: format(end, "yyyy-MM-dd"),
       endTime: format(end, "HH:mm"),
       description: entry.description ?? "",
       billable: entry.billable,
