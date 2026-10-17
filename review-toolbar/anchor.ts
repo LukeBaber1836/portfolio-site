@@ -84,7 +84,27 @@ export function pinPoint(c: Anchor): PinPoint {
 }
 
 /** Scroll the page so a pin sits in the middle of the viewport. */
-export function scrollToPin(c: Anchor) {
+export function scrollToPin(c: Anchor, behavior: ScrollBehavior = "smooth") {
   const p = pinPoint(c);
-  window.scrollTo({ top: Math.max(0, window.scrollY + p.y - window.innerHeight / 2), behavior: "smooth" });
+  window.scrollTo({ top: Math.max(0, window.scrollY + p.y - window.innerHeight / 2), behavior });
+}
+
+/** How far the pin is from the vertical middle of the viewport, in px. */
+export const offCenter = (c: Anchor) => Math.abs(pinPoint(c).y - window.innerHeight / 2);
+
+/**
+ * Resolves once a comment's position is knowable after a page load: its element has rendered
+ * (client-rendered sites mount late), or the document is tall enough to reach its fallback spot.
+ * Gives up after `timeoutMs` and scrolls to the best guess.
+ */
+export function whenAnchorReady(c: Anchor, timeoutMs = 4000) {
+  const started = Date.now();
+  return new Promise<void>((resolve) => {
+    const check = () => {
+      const ready = c.selector ? pinPoint(c).anchored : document.documentElement.scrollHeight >= c.docY;
+      if (ready || Date.now() - started > timeoutMs) resolve();
+      else setTimeout(check, 150);
+    };
+    check();
+  });
 }

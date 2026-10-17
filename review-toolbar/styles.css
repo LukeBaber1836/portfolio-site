@@ -212,6 +212,17 @@
   color: var(--accent);
 }
 
+.lb-icon-btn--danger:hover,
+.lb-icon-btn--danger[aria-expanded="true"] {
+  background: rgba(251, 113, 133, 0.12);
+  color: var(--danger);
+}
+
+.lb-icon-btn--success:hover {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--success);
+}
+
 .lb-fab {
   position: fixed;
   right: 20px;
@@ -313,6 +324,20 @@
 .lb-pin--active {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(20, 20, 22, 0.9), 0 0 0 5px rgba(243, 208, 118, 0.45);
   z-index: 2;
+}
+
+/* Arrived here from the comment list: a couple of rings so the eye finds it. */
+.lb-pin--flash {
+  animation: lb-flash 0.8s ease-out 2;
+}
+
+@keyframes lb-flash {
+  0% {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(20, 20, 22, 0.9), 0 0 0 0 rgba(243, 208, 118, 0.7);
+  }
+  100% {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(20, 20, 22, 0.9), 0 0 0 18px rgba(243, 208, 118, 0);
+  }
 }
 
 .lb-pin--resolved {
@@ -439,35 +464,6 @@
   color: var(--accent);
   font-size: 10px;
   font-weight: 500;
-}
-
-.lb-menu {
-  display: flex;
-  flex-direction: column;
-  margin: 0 8px 6px;
-  padding: 4px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--card);
-  animation: lb-drop 150ms var(--ease) both;
-}
-
-.lb-menu__item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  text-align: left;
-}
-
-.lb-menu__item:hover {
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.lb-menu__item--danger {
-  color: var(--danger);
 }
 
 .lb-confirm {
@@ -681,6 +677,34 @@
   margin: 0;
   padding: 4px 8px 8px;
   overflow-y: auto;
+  list-style: none;
+}
+
+.lb-group + .lb-group {
+  margin-top: 10px;
+}
+
+.lb-group__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.lb-group__here {
+  flex-shrink: 0;
+  font-weight: 400;
+  color: var(--faint);
+}
+
+.lb-group__list {
+  margin: 0;
+  padding: 4px 0 0;
   list-style: none;
 }
 

@@ -1,4 +1,4 @@
-import { Check, CircleCheck, Loader2, MoreHorizontal, RotateCcw, Trash2, X } from "lucide-react";
+import { Check, CircleCheck, Loader2, RotateCcw, Trash2, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import type { NewCommentInput, ReviewComment, TiptapDoc } from "@/lib/site-review/types";
@@ -9,6 +9,7 @@ import { EditorContent, FormatBar, isEmptyDoc, useCommentEditor } from "./Editor
 
 const CARD_W = 320;
 const GAP = 18;
+const TOOLBAR_CLEARANCE = 84;
 
 export function timeAgo(iso: string) {
   const s = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
@@ -36,6 +37,7 @@ export function CommentCard({
   point,
   viewerName,
   canEdit,
+  canDelete,
   isAdmin,
   onSaved,
   onDeleted,
@@ -48,6 +50,8 @@ export function CommentCard({
   point: PinPoint;
   viewerName: string;
   canEdit: boolean;
+  /** Own comments (or any, for admins) on an open project. */
+  canDelete: boolean;
   isAdmin: boolean;
   onSaved: (c: ReviewComment) => void;
   onDeleted: (id: string) => void;
@@ -60,7 +64,7 @@ export function CommentCard({
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const queue = useRef<Promise<void>>(Promise.resolve());
   const [save, setSave] = useState<SaveState>({ kind: "idle" });
-  const [menu, setMenu] = useState<"closed" | "open" | "confirm-delete">("closed");
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const editor = useCommentEditor({
@@ -127,7 +131,6 @@ export function CommentCard({
     setBusy(true);
     try {
       onSaved(await api.update(idRef.current, { status }));
-      setMenu("closed");
     } catch (err) {
       setSave({ kind: "error", message: (err as Error).message });
     } finally {
@@ -151,12 +154,14 @@ export function CommentCard({
   const width = Math.min(CARD_W, vw - 24);
   const right = point.x + GAP + width <= vw - 12;
   const left = right ? point.x + GAP : Math.max(12, point.x - GAP - width);
-  const top = Math.min(Math.max(12, point.y - 28), Math.max(12, vh - height - 12));
+  // Keep clear of the toolbar pill along the bottom edge.
+  const top = Math.min(Math.max(12, point.y - 28), Math.max(12, vh - height - TOOLBAR_CLEARANCE));
 
   const isNew = !savedId;
   const author = comment?.authorName ?? viewerName;
   const resolved = comment?.status === "resolved";
-  const canManage = !!comment && (comment.mine || isAdmin);
+  // Deletable once it exists on the server; before the first save, × simply discards it.
+  const showDelete = canDelete && !!savedId;
 
   return (
     <div
@@ -190,9 +195,28 @@ export function CommentCard({
             )}
           </span>
         </div>
-        {canManage && (
-          <button type="button" className="lb-icon-btn" aria-label="More actions" aria-expanded={menu !== "closed"} onClick={() => setMenu((m) => (m === "closed" ? "open" : "closed"))}>
-            <MoreHorizontal size={16} />
+        {isAdmin && savedId && (
+          <button
+            type="button"
+            className="lb-icon-btn lb-icon-btn--success"
+            aria-label={resolved ? "Reopen comment" : "Mark resolved"}
+            title={resolved ? "Reopen" : "Mark resolved"}
+            disabled={busy}
+            onClick={() => setStatus(resolved ? "open" : "resolved")}
+          >
+            {resolved ? <RotateCcw size={15} /> : <Check size={16} />}
+          </button>
+        )}
+        {showDelete && (
+          <button
+            type="button"
+            className="lb-icon-btn lb-icon-btn--danger"
+            aria-label="Delete comment"
+            title="Delete comment"
+            aria-expanded={confirmDelete}
+            onClick={() => setConfirmDelete((v) => !v)}
+          >
+            <Trash2 size={15} />
           </button>
         )}
         <button type="button" className="lb-icon-btn" aria-label="Close" onClick={close}>
@@ -200,23 +224,11 @@ export function CommentCard({
         </button>
       </header>
 
-      {menu === "open" && (
-        <div className="lb-menu" role="menu">
-          {isAdmin && (
-            <button type="button" role="menuitem" className="lb-menu__item" disabled={busy} onClick={() => setStatus(resolved ? "open" : "resolved")}>
-              {resolved ? <RotateCcw size={14} /> : <Check size={14} />} {resolved ? "Reopen" : "Mark resolved"}
-            </button>
-          )}
-          <button type="button" role="menuitem" className="lb-menu__item lb-menu__item--danger" onClick={() => setMenu("confirm-delete")}>
-            <Trash2 size={14} /> Delete comment
-          </button>
-        </div>
-      )}
-      {menu === "confirm-delete" && (
+      {confirmDelete && (
         <div className="lb-confirm">
           <p>Delete this comment? This can&apos;t be undone.</p>
           <div className="lb-confirm__actions">
-            <button type="button" className="lb-btn lb-btn--small lb-btn--ghost" onClick={() => setMenu("closed")}>
+            <button type="button" className="lb-btn lb-btn--small lb-btn--ghost" onClick={() => setConfirmDelete(false)}>
               Cancel
             </button>
             <button type="button" className="lb-btn lb-btn--small lb-btn--danger" disabled={busy} onClick={remove}>

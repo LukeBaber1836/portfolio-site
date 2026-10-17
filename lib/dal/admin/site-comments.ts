@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 
 import { UserError } from "@/lib/actions";
 import { requireAdmin } from "@/lib/auth/guards";
@@ -16,7 +16,7 @@ export async function getProjectSites(id: string) {
   return row ?? null;
 }
 
-/** Open comments first, then by page and order of creation (matches pin numbering on the site). */
+/** By page, then creation order — the same order the toolbar numbers its pins. */
 export async function listSiteComments(projectId: string) {
   await requireAdmin();
   return db
@@ -33,7 +33,7 @@ export async function listSiteComments(projectId: string) {
     })
     .from(siteComments)
     .where(eq(siteComments.projectId, projectId))
-    .orderBy(asc(siteComments.status), asc(siteComments.pagePath), asc(siteComments.createdAt), desc(siteComments.id));
+    .orderBy(asc(siteComments.pagePath), asc(siteComments.createdAt), asc(siteComments.id));
 }
 
 export async function setSiteCommentStatus(projectId: string, id: string, status: "open" | "resolved") {
