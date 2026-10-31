@@ -4,6 +4,7 @@ import { Archive, ArchiveRestore, Clock, DollarSign, ExternalLink, FolderKanban,
 
 import { setClientStatusAction } from "@/app/admin/_actions/clients";
 import { ClientForm } from "@/components/admin/ClientForm";
+import { ClientSocialsCard } from "@/components/admin/ClientSocialsCard";
 import { ContactsPanel } from "@/components/admin/ContactsPanel";
 import { InvoicesTable } from "@/components/admin/InvoicesTable";
 import { ProjectsList } from "@/components/admin/ProjectsList";
@@ -136,6 +137,7 @@ export default async function ClientDetailPage({
               </div>
               <ProjectsList rows={activeProjects} />
             </div>
+            <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Details</CardTitle>
@@ -192,6 +194,8 @@ export default async function ClientDetailPage({
               </div>
               </CardContent>
             </Card>
+            <ClientSocialsCard links={client.socialLinks} />
+            </div>
           </div>
         </div>
       )}

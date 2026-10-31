@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { businessTzSql } from "@/lib/db/sql";
 import {
   clientMembers,
+  clients,
   clientRequests,
   invoiceLineItems,
   invoices,
@@ -352,6 +353,11 @@ export async function updatePreferences(prefs: { emailUpdates: boolean; emailWee
     .where(and(eq(clientMembers.clientId, client.id), eq(clientMembers.userId, user.id)));
 }
 
+/** Replaces the client's social links (shared by every contact on the account). */
+export async function updateSocialLinks(links: string[]) {
+  const { client } = await requireClient();
+  await db.update(clients).set({ socialLinks: links }).where(eq(clients.id, client.id));
+}
 
 const acceptsUploads = (clientId: string) =>
   and(visibleProject(clientId), notInArray(projects.status, [...CLOSED_PROJECT_STATUSES]));

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ExternalLink, EyeOff, MessageSquare, Trash2 } from "lucide-react";
 
 import { deleteUpdateAction } from "@/app/admin/_actions/projects";
+import { ClientSocialsCard } from "@/components/admin/ClientSocialsCard";
 import { DomainsForm } from "@/components/admin/DomainsForm";
 import { MilestoneDialog } from "@/components/admin/MilestoneDialog";
 import { MilestonesPanel } from "@/components/admin/MilestonesPanel";
@@ -223,6 +224,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <DomainsForm key={project.updatedAt.toISOString()} projectId={id} productionUrl={project.productionUrl} devUrl={project.devUrl} featuredSite={project.featuredSite} />
             </CardContent>
           </Card>
+
+          <ClientSocialsCard links={client.socialLinks} />
 
           <Card>
             <CardHeader>

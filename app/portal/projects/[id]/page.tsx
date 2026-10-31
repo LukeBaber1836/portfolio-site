@@ -4,11 +4,13 @@ import { ArrowUpRight, CheckCircle2, Circle, CircleDot, Clock, Globe, MessageSqu
 import { PortalTimeTable } from "@/components/portal/PortalTimeTable";
 import { ReferenceCard } from "@/components/portal/ReferenceCard";
 import { SiteHeroCard } from "@/components/portal/SiteHeroCard";
+import { SocialLinksCard } from "@/components/portal/SocialLinksCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { statusBadgeFor } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { requireClient } from "@/lib/auth/guards";
 import { portalProject } from "@/lib/dal/portal";
 import { formatDate, formatDateTime, formatHours } from "@/lib/format";
 import { featuredSiteOf, hostOf } from "@/lib/references/preview";
@@ -35,7 +37,7 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
   const { id } = await params;
   // Unknown or other clients' projects both 404 — never reveal that an id exists.
   if (!isUuid(id)) notFound();
-  const data = await portalProject(id);
+  const [data, { client }] = await Promise.all([portalProject(id), requireClient()]);
   if (!data) notFound();
   const { project, milestones, updates, entries, references, loggedSeconds } = data;
   const stepIndex = STEPS.findIndex((s) => s.key === project.status);
@@ -215,6 +217,8 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
               </CardContent>
             </Card>
           )}
+
+          <SocialLinksCard links={client.socialLinks} />
 
           <Card>
             <CardHeader>
