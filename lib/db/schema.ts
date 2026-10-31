@@ -101,6 +101,8 @@ export const clients = pgTable(
     storagePath: text("storage_path"),
     storageProvisionedAt: timestamp("storage_provisioned_at", { withTimezone: true }),
     notesInternal: text("notes_internal"),
+    /** Client-entered social profile URLs, in display order. Platform is derived from the host (lib/socials). */
+    socialLinks: jsonb("social_links").$type<string[]>().notNull().default([]),
     ...timestamps,
   },
   (t) => [index("clients_status_idx").on(t.status)],

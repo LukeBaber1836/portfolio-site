@@ -13,8 +13,11 @@ import {
   saveReferenceFeedback,
   submitRequest,
   updatePreferences,
+  updateSocialLinks,
 } from "@/lib/dal/portal";
 import { serviceType, uploadKind } from "@/lib/db/schema";
+import { normalizeUrl } from "@/lib/references/preview";
+import { MAX_SOCIAL_LINKS } from "@/lib/socials";
 
 const requestSchema = z.object({
   title: z.string().trim().min(3, "Give your request a short title").max(160),
@@ -38,6 +41,28 @@ export async function updatePreferencesAction(prefs: { emailUpdates: boolean; em
     if (!parsed.success) return fromZodError(parsed.error);
     await updatePreferences(parsed.data);
     return ok(undefined, "Email preferences saved");
+  });
+}
+
+const socialUrl = z.string().transform((v, ctx) => {
+  const url = normalizeUrl(v);
+  if (!url) ctx.addIssue({ code: "custom", message: "Enter a valid link, like instagram.com/yourname" });
+  return url ?? "";
+});
+
+const socialLinksSchema = z
+  .array(socialUrl)
+  .max(MAX_SOCIAL_LINKS, `You can add up to ${MAX_SOCIAL_LINKS} links`)
+  .transform((links) => [...new Set(links)]);
+
+/** The card sends the full list on every add, edit, or removal. */
+export async function saveSocialLinksAction(links: string[]): Promise<ActionResult<string[]>> {
+  return runAction(async () => {
+    const parsed = socialLinksSchema.safeParse(links);
+    if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Enter a valid link.");
+    await updateSocialLinks(parsed.data);
+    revalidatePath("/portal", "layout");
+    return ok(parsed.data, "Socials saved");
   });
 }
 

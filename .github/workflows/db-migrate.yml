@@ -1,0 +1,48 @@
+# Applies pending Drizzle migrations (drizzle/*.sql) to the production database
+# whenever they land on main. Migrations generated with `npm run db:generate`
+# just need to be committed — this job runs them.
+name: Database migrations
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "drizzle/**"
+      - "lib/db/schema.ts"
+      - "drizzle.config.ts"
+      - ".github/workflows/db-migrate.yml"
+  workflow_dispatch:
+
+# Never run two migrations against the same database at once.
+concurrency:
+  group: db-migrate
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Fails the run if lib/db/schema.ts changed without a matching migration being generated.
+      - name: Check migrations are up to date
+        run: |
+          npx drizzle-kit generate --name ci_drift_check
+          if [ -n "$(git status --porcelain drizzle)" ]; then
+            echo "::error::lib/db/schema.ts has changes with no migration. Run 'npm run db:generate' and commit the result."
+            git status --porcelain drizzle
+            exit 1
+          fi
+
+      - name: Apply migrations
+        run: npx drizzle-kit migrate
