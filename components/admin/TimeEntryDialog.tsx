@@ -11,6 +11,7 @@ import { DatePicker } from "@/components/shared/DatePicker";
 import { TimePicker } from "@/components/shared/TimePicker";
 import { SubmitButton } from "@/components/shared/SubmitButton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
@@ -91,10 +92,10 @@ export function TimeEntryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="text-white">{entry ? "Edit time entry" : "Add time manually"}</DialogTitle>
-          <DialogDescription className="text-white/50">For time you forgot to clock. Times are Central (Tyler, TX).</DialogDescription>
+          <DialogTitle>{entry ? "Edit time entry" : "Add time manually"}</DialogTitle>
+          <DialogDescription>Times are Central (Tyler, TX).</DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4" noValidate>
           <FormField label="Project" error={errors.projectId} errorKey={errorKey}>
@@ -121,7 +122,7 @@ export function TimeEntryDialog({
             </FormField>
           </div>
           {duration && (
-            <p className="-mt-1 text-xs text-white/50">
+            <p className="-mt-1 text-xs text-fg-3">
               Duration: <span className={duration.bad ? "text-danger" : "text-white"}>{duration.text}</span>
             </p>
           )}
@@ -134,7 +135,10 @@ export function TimeEntryDialog({
               Billable
             </Label>
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2 pt-1">
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
             <SubmitButton state={state} pendingLabel="Saving…" successLabel="Saved">
               {entry ? "Save entry" : "Add entry"}
             </SubmitButton>

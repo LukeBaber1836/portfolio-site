@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
-import { ArrowUpRight, CheckCircle2, Circle, CircleDot, Clock, Globe, MessageSquare } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, Circle, CircleDot } from "lucide-react";
 
 import { PortalTimeTable } from "@/components/portal/PortalTimeTable";
 import { ReferenceCard } from "@/components/portal/ReferenceCard";
 import { SiteHeroCard } from "@/components/portal/SiteHeroCard";
 import { SocialLinksCard } from "@/components/portal/SocialLinksCard";
-import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { RailSection } from "@/components/shared/PropertyList";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { statusBadgeFor } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { requireClient } from "@/lib/auth/guards";
@@ -43,21 +43,46 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
   const stepIndex = STEPS.findIndex((s) => s.key === project.status);
   const hero = featuredSiteOf(project);
   const budgetPct = project.budgetHours ? Math.round((loggedSeconds / 3600 / project.budgetHours) * 100) : null;
+  const sites = [
+    { label: "Live site", url: project.productionUrl },
+    { label: "Preview", url: project.devUrl },
+  ].filter((d): d is { label: string; url: string } => !!d.url);
 
   return (
     <>
       <PageHeader
         back={{ href: "/portal/projects", label: "Projects" }}
-        eyebrow={serviceLabel(project.serviceType)}
         title={
           <span className="flex flex-wrap items-center gap-3">
             {project.name} {statusBadgeFor(PROJECT_STATUS, project.status)}
           </span>
         }
+        meta={[serviceLabel(project.serviceType), project.dueDate ? `Target ${formatDate(project.dueDate)}` : null]}
         description={project.description}
       />
 
-      {/* Site preview — the domain the admin marked as featured. The pencil opens it in review mode. */}
+      {/* Stage: four flat segments; the current one is white, done ones gold. */}
+      {stepIndex >= 0 && (
+        <ol className="mb-8 grid grid-cols-4 gap-2" aria-label="Project stage">
+          {STEPS.map((s, i) => {
+            const state = i < stepIndex ? "done" : i === stepIndex ? "current" : "todo";
+            return (
+              <li key={s.key} aria-current={state === "current" ? "step" : undefined}>
+                <span
+                  aria-hidden
+                  className={cn("block h-1 rounded-full", state === "done" ? "gold-brushed" : state === "current" ? "bg-white" : "bg-white/[0.08]")}
+                />
+                <span className={cn("mt-2 block truncate text-xs", state === "todo" ? "text-fg-3" : state === "current" ? "font-medium text-white" : "text-fg-2")}>
+                  {s.label}
+                  <span className="sr-only">{state === "done" ? " (done)" : state === "current" ? " (current)" : ""}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+
+      {/* Site preview — the domain the admin marked as featured. "Leave feedback" opens it in review mode. */}
       {hero && (
         <SiteHeroCard
           url={hero.url}
@@ -68,179 +93,111 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
         />
       )}
 
-      {/* Status stepper */}
-      {stepIndex >= 0 && (
-        <Card className="mb-6">
-          <CardContent className="px-5 py-6">
-          <ol className="grid grid-cols-4 gap-2" aria-label="Project stage">
-            {STEPS.map((s, i) => {
-              const state = i < stepIndex ? "done" : i === stepIndex ? "current" : "todo";
-              return (
-                <li key={s.key} className="relative flex flex-col items-center gap-2 text-center" aria-current={state === "current" ? "step" : undefined}>
-                  {i > 0 && (
-                    <span
-                      aria-hidden
-                      className={cn("absolute right-1/2 top-4 h-0.5 w-full -translate-y-1/2", i <= stepIndex ? "bg-accent" : "bg-white/10")}
-                      style={{ marginRight: 16 }}
-                    />
-                  )}
-                  <span
-                    className={cn(
-                      "relative z-10 flex size-8 items-center justify-center rounded-full border-2 transition-colors",
-                      state === "done" && "border-accent bg-accent text-background",
-                      state === "current" && "border-accent bg-background text-accent shadow-[0_0_18px_rgba(243,208,118,0.45)]",
-                      state === "todo" && "border-white/15 bg-background text-white/30",
-                    )}
-                  >
-                    {state === "done" ? <CheckCircle2 className="size-4" /> : state === "current" ? <CircleDot className="size-4" /> : <Circle className="size-3" />}
-                  </span>
-                  <span className={cn("text-xs", state === "todo" ? "text-white/35" : "text-white")}>{s.label}</span>
-                </li>
-              );
-            })}
-          </ol>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Updates</CardTitle>
-            </CardHeader>
-            <CardContent className={updates.length ? "scrollbar-subtle max-h-[500px] overflow-y-auto" : undefined}>
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_272px]">
+        <div className="min-w-0 space-y-10">
+          <section>
+            <SectionHeader title="Updates" count={updates.length || undefined} />
             {updates.length === 0 ? (
-              <EmptyState compact icon={MessageSquare} title="No updates yet" />
+              <p className="text-[13px] text-fg-3">No updates yet. I&apos;ll post progress here as the work moves along.</p>
             ) : (
-              <ol className="relative space-y-6 border-l border-white/10 pl-6">
+              <ol className="scrollbar-subtle max-h-[520px] divide-y divide-line overflow-y-auto rounded-lg border border-line bg-surface">
                 {updates.map((u) => (
-                  <li key={u.id} className="relative">
-                    <span className="absolute -left-[31px] top-1 size-3 rounded-full border-2 border-card bg-accent" aria-hidden />
-                    <p className="text-xs text-white/40">{formatDateTime(u.createdAt)}</p>
-                    <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-white/85">{u.body}</p>
+                  <li key={u.id} className="px-4 py-3">
+                    <p className="text-xs text-fg-3">{formatDateTime(u.createdAt)}</p>
+                    <p className="mt-1 text-[13px] leading-6 whitespace-pre-wrap text-white">{u.body}</p>
                   </li>
                 ))}
               </ol>
             )}
-            </CardContent>
-          </Card>
+          </section>
 
-          <Card>
-            <CardHeader>
-              <div className="min-w-0">
-                <CardTitle>Time log</CardTitle>
-                <CardDescription>{`${formatHours(loggedSeconds, 1)} logged on this project`}</CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
+          <section>
+            <SectionHeader
+              title="Time log"
+              action={entries.length > 0 ? <span className="text-xs tabular-nums text-fg-3">{formatHours(loggedSeconds, 1)} total</span> : undefined}
+            />
             {entries.length === 0 ? (
-              <EmptyState compact icon={Clock} title="No time logged yet" />
+              <p className="text-[13px] text-fg-3">No time logged yet.</p>
             ) : (
-              <PortalTimeTable entries={entries} maxHeightClass="max-h-[600px]" />
+              <div className="overflow-hidden rounded-lg border border-line bg-surface">
+                <PortalTimeTable entries={entries} maxHeightClass="max-h-[560px]" />
+              </div>
             )}
-            </CardContent>
-          </Card>
+          </section>
 
           {references.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>References</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {references.map((r) => (
-                    <ReferenceCard key={r.id} reference={r} />
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            <section>
+              <SectionHeader title="References" count={references.length} />
+              <p className="-mt-1 mb-3 text-[13px] text-fg-3">Examples I&apos;ve pulled together. Tell me what you like and what you don&apos;t.</p>
+              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {references.map((r) => (
+                  <ReferenceCard key={r.id} reference={r} />
+                ))}
+              </ul>
+            </section>
           )}
         </div>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Progress</CardTitle>
-            </CardHeader>
-            <CardContent>
-            <div className="flex items-end justify-between">
-              <span className="text-4xl font-bold text-white">{project.progressPct}%</span>
-              {project.dueDate && <span className="text-xs text-white/45">Target {formatDate(project.dueDate)}</span>}
+        <aside className="lg:border-l lg:border-line lg:pl-8">
+          <RailSection title="Progress">
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-medium tabular-nums text-white">{project.progressPct}%</span>
+              {project.dueDate && <span className="text-xs text-fg-3">Target {formatDate(project.dueDate, "MMM d")}</span>}
             </div>
-            <Progress value={project.progressPct} className="mt-3 h-2.5 bg-white/10" aria-label="Progress" />
+            <Progress value={project.progressPct} className="mt-2" aria-label="Progress" />
             {budgetPct !== null && (
-              <div className="mt-6">
-                <div className="mb-2 flex justify-between text-xs text-white/50">
-                  <span>Hours used</span>
-                  <span className="tabular-nums">
+              <div className="mt-4">
+                <div className="mb-1.5 flex justify-between text-xs">
+                  <span className="text-fg-3">Hours used</span>
+                  <span className="tabular-nums text-fg-2">
                     {formatHours(loggedSeconds, 1)} of {project.budgetHours}h
                   </span>
                 </div>
-                <Progress value={Math.min(100, budgetPct)} className="h-2 bg-white/10 [&>div]:bg-info" aria-label="Budget used" />
+                <Progress value={Math.min(100, budgetPct)} indicatorClassName="bg-white/50" aria-label="Hours used" />
               </div>
             )}
-            </CardContent>
-          </Card>
+          </RailSection>
 
-          {(project.productionUrl || project.devUrl) && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Your website</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {[
-                    { label: "Live site", url: project.productionUrl },
-                    { label: "Preview", url: project.devUrl },
-                  ].map(
-                    (d) =>
-                      d.url && (
-                        <li key={d.label}>
-                          <a
-                            href={d.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group flex items-center gap-3 rounded-xl border border-white/10 px-3 py-2.5 transition-colors hover:border-accent/40 hover:bg-accent/5"
-                          >
-                            <Globe className="size-4 shrink-0 text-white/40 group-hover:text-accent" aria-hidden />
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-xs text-white/40">{d.label}</span>
-                              <span className="block truncate text-sm text-white group-hover:text-accent">{hostOf(d.url)}</span>
-                            </span>
-                            <ArrowUpRight className="size-4 shrink-0 text-white/30 group-hover:text-accent" aria-hidden />
-                          </a>
-                        </li>
-                      ),
-                  )}
-                </ul>
-              </CardContent>
-            </Card>
+          {sites.length > 0 && (
+            <RailSection title="Your website">
+              <ul className="-mx-2 space-y-0.5">
+                {sites.map((d) => (
+                  <li key={d.label}>
+                    <a
+                      href={d.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-white/[0.04]"
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-xs text-fg-3">{d.label}</span>
+                        <span className="block truncate text-[13px] text-white">{hostOf(d.url)}</span>
+                      </span>
+                      <ArrowUpRight className="size-4 shrink-0 text-fg-3 group-hover:text-white" aria-hidden />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </RailSection>
           )}
 
-          <SocialLinksCard links={client.socialLinks} />
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Milestones</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <RailSection title="Milestones">
             {milestones.length === 0 ? (
-              <p className="text-sm text-white/40">No milestones set.</p>
+              <p className="text-[13px] text-fg-3">None set yet.</p>
             ) : (
-              <ol className="space-y-3">
+              <ol className="space-y-2.5">
                 {milestones.map((m) => (
-                  <li key={m.id} className="flex gap-3">
+                  <li key={m.id} className="flex gap-2.5">
                     {m.status === "done" ? (
-                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-label="Done" />
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" aria-label="Done" />
                     ) : m.status === "in_progress" ? (
-                      <CircleDot className="mt-0.5 size-5 shrink-0 text-info" aria-label="In progress" />
+                      <CircleDot className="mt-0.5 size-4 shrink-0 text-info" aria-label="In progress" />
                     ) : (
-                      <Circle className="mt-0.5 size-5 shrink-0 text-white/25" aria-label="Upcoming" />
+                      <Circle className="mt-0.5 size-4 shrink-0 text-fg-3" aria-label="Upcoming" />
                     )}
-                    <div>
-                      <p className={cn("text-sm leading-6", m.status === "done" ? "text-white/50" : "text-white")}>{m.title}</p>
-                      <p className="text-xs text-white/35">
+                    <div className="min-w-0">
+                      <p className={cn("text-[13px] leading-5", m.status === "done" ? "text-fg-3" : "text-white")}>{m.title}</p>
+                      <p className="text-xs text-fg-3">
                         {m.status === "done" && m.completedAt ? `Done ${formatDate(m.completedAt, "MMM d")}` : m.dueDate ? `Due ${formatDate(m.dueDate, "MMM d")}` : ""}
                       </p>
                     </div>
@@ -248,9 +205,12 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
                 ))}
               </ol>
             )}
-            </CardContent>
-          </Card>
-        </div>
+          </RailSection>
+
+          <RailSection>
+            <SocialLinksCard links={client.socialLinks} />
+          </RailSection>
+        </aside>
       </div>
     </>
   );

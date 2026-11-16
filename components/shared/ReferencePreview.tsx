@@ -16,22 +16,22 @@ function Thumbnail({ reference }: { reference: ProjectReference }) {
         alt=""
         loading="lazy"
         onError={() => setBroken(true)}
-        className="size-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+        className="size-full object-cover object-top"
       />
     );
   }
   return (
-    <div className="flex size-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-white/[0.07] to-transparent">
+    <div className="flex size-full flex-col items-center justify-center gap-2 bg-surface-2">
       {reference.kind === "link" ? (
         reference.faviconUrl ? (
-          <img src={reference.faviconUrl} alt="" loading="lazy" className="size-9 rounded-lg" />
+          <img src={reference.faviconUrl} alt="" loading="lazy" className="size-8 rounded-md" />
         ) : (
-          <Link2 className="size-8 text-white/20" aria-hidden />
+          <Link2 className="size-6 text-fg-3" aria-hidden />
         )
       ) : (
-        <StickyNote className="size-8 text-white/20" aria-hidden />
+        <StickyNote className="size-6 text-fg-3" aria-hidden />
       )}
-      {reference.url && <span className="max-w-[85%] truncate text-xs text-white/30">{hostOf(reference.url)}</span>}
+      {reference.url && <span className="max-w-[85%] truncate text-xs text-fg-3">{hostOf(reference.url)}</span>}
     </div>
   );
 }
@@ -39,7 +39,7 @@ function Thumbnail({ reference }: { reference: ProjectReference }) {
 /** Screenshot with the title/note captioned over it; `children` are overlaid controls (e.g. top-right actions). */
 export function ReferencePreview({ reference, children }: { reference: ProjectReference; children?: React.ReactNode }) {
   return (
-    <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-white/5">
+    <div className="relative aspect-video w-full shrink-0 overflow-hidden border-b border-line bg-surface-2">
       {reference.url ? (
         <a href={reference.url} target="_blank" rel="noopener noreferrer" aria-label={reference.title} className="absolute inset-0">
           <Thumbnail reference={reference} />
@@ -48,23 +48,23 @@ export function ReferencePreview({ reference, children }: { reference: ProjectRe
         <Thumbnail reference={reference} />
       )}
       {/* Fades to black exactly where the caption sits, so the title reads over any screenshot. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black via-black/60 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 
       {/* Caption lives inside the picture; pointer-events pass through to the image link except on the title. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-1 p-4">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-0.5 p-3">
         {reference.url ? (
           <a
             href={reference.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="pointer-events-auto line-clamp-2 font-medium text-white drop-shadow-sm hover:text-accent"
+            className="pointer-events-auto line-clamp-2 text-[13px] font-medium text-white hover:underline"
           >
             {reference.title}
           </a>
         ) : (
-          <p className="line-clamp-2 font-medium text-white drop-shadow-sm">{reference.title}</p>
+          <p className="line-clamp-2 text-[13px] font-medium text-white">{reference.title}</p>
         )}
-        {reference.note && <p className="line-clamp-2 text-xs leading-5 text-white/70">{reference.note}</p>}
+        {reference.note && <p className="line-clamp-2 text-xs leading-5 text-white/65">{reference.note}</p>}
       </div>
 
       {children}

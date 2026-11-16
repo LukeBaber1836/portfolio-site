@@ -43,14 +43,14 @@ export function MilestoneDialog({ projectId }: { projectId: string }) {
 
   return (
     <>
-      <Button variant="ghost" size="icon-sm" aria-label="Add milestone" onClick={() => setOpen(true)} className="hover:text-accent">
+      <Button variant="ghost" size="icon-sm" aria-label="Add milestone" onClick={() => setOpen(true)} className="size-7 text-fg-3">
         <Plus />
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white">Add milestone</DialogTitle>
-            <DialogDescription className="text-white/50">A checkpoint the client can follow on their project page.</DialogDescription>
+            <DialogTitle>Add milestone</DialogTitle>
+            <DialogDescription>Shown on the client&apos;s project page.</DialogDescription>
           </DialogHeader>
           <form onSubmit={add} className="space-y-4">
             <FormField label="Milestone" htmlFor="ms-title" error={error} errorKey={errorKey}>

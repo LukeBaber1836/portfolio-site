@@ -24,7 +24,7 @@ const HeaderAuthButton = ({ className }: { className?: string }) => {
           className="block"
         >
           {user ? (
-            <Button effect="shineHover" className="w-full">
+            <Button variant="brand" effect="shineHover" className="w-full">
               {user.role === "admin" ? "Admin" : "Portal"}
             </Button>
           ) : (

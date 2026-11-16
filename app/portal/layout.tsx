@@ -14,14 +14,20 @@ export default async function PortalLayout({ children }: { children: React.React
 
   // Settings lives in the avatar menu (AppShell footer) — not repeated here.
   const groups: NavGroup[] = [
+    { items: [{ title: "Overview", href: "/portal", icon: "dashboard", exact: true }] },
     {
+      label: "Your work",
       items: [
-        { title: "Overview", href: "/portal", icon: "dashboard", exact: true },
         { title: "Projects", href: "/portal/projects", icon: "projects" },
-        { title: "Hours", href: "/portal/hours", icon: "hours" },
-        { title: "Invoices", href: "/portal/invoices", icon: "invoices", badge: openInvoices },
         { title: "Files", href: "/portal/files", icon: "files" },
         { title: "Requests", href: "/portal/requests", icon: "requests" },
+      ],
+    },
+    {
+      label: "Billing",
+      items: [
+        { title: "Invoices", href: "/portal/invoices", icon: "invoices", badge: openInvoices },
+        { title: "Hours", href: "/portal/hours", icon: "hours" },
       ],
     },
   ];
@@ -32,7 +38,7 @@ export default async function PortalLayout({ children }: { children: React.React
       groups={groups}
       user={user}
       banner={impersonatedBy ? <ImpersonationBanner clientName={client.company || client.name} userName={user.name} /> : undefined}
-      topbar={<span className="truncate text-sm text-white/60">{client.company || client.name}</span>}
+      topbar={<span className="truncate text-[13px] text-fg-3">{client.company || client.name}</span>}
     >
       {children}
     </AppShell>

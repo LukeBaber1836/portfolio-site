@@ -17,14 +17,20 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   // Settings lives in the avatar menu (AppShell footer) — not repeated here.
   const groups: NavGroup[] = [
+    { items: [{ title: "Dashboard", href: "/admin", icon: "dashboard", exact: true }] },
     {
+      label: "Work",
       items: [
-        { title: "Dashboard", href: "/admin", icon: "dashboard", exact: true },
         { title: "Clients", href: "/admin/clients", icon: "clients" },
         { title: "Projects", href: "/admin/projects", icon: "projects" },
+        { title: "Requests", href: "/admin/requests", icon: "requests", badge: requests },
+      ],
+    },
+    {
+      label: "Billing",
+      items: [
         { title: "Time", href: "/admin/time", icon: "time" },
         { title: "Invoices", href: "/admin/invoices", icon: "invoices" },
-        { title: "Requests", href: "/admin/requests", icon: "requests", badge: requests },
       ],
     },
   ];

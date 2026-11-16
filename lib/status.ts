@@ -2,16 +2,21 @@
 
 export type Tone = "info" | "attention" | "success" | "danger" | "neutral";
 
-/** `plain` drops the tone icon — the label alone carries the meaning. */
-type StatusDef = { label: string; tone: Tone; plain?: boolean };
+type StatusDef = { label: string; tone: Tone };
 
 export const PROJECT_STATUS: Record<string, StatusDef> = {
   planned: { label: "Scheduled", tone: "neutral" },
-  in_progress: { label: "In progress", tone: "success", plain: true },
+  in_progress: { label: "In progress", tone: "info" },
   review: { label: "Awaiting your review", tone: "attention" },
   on_hold: { label: "On hold", tone: "neutral" },
   completed: { label: "Completed", tone: "success" },
   cancelled: { label: "Cancelled", tone: "neutral" },
+};
+
+/** Admin wording: "review" is the client's turn, not the viewer's. */
+export const PROJECT_STATUS_ADMIN: Record<string, StatusDef> = {
+  ...PROJECT_STATUS,
+  review: { label: "Client review", tone: "attention" },
 };
 
 export const MILESTONE_STATUS: Record<string, StatusDef> = {

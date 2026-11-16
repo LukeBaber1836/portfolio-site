@@ -12,14 +12,14 @@ export function UpdateDialog({ projectId, clientVisible }: { projectId: string; 
 
   return (
     <>
-      <Button size="sm" onClick={() => setOpen(true)}>
-        <Send /> Send an update
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <Send /> Post update
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-white">Send an update</DialogTitle>
-            <DialogDescription className="text-white/50">Posts to the client&apos;s project page, newest first.</DialogDescription>
+            <DialogTitle>Post an update</DialogTitle>
+            <DialogDescription>Appears on the client&apos;s project page.</DialogDescription>
           </DialogHeader>
           <UpdateComposer projectId={projectId} clientVisible={clientVisible} onDone={() => setOpen(false)} />
         </DialogContent>

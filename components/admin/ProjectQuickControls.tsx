@@ -11,7 +11,7 @@ import { FieldSelect, FieldSelectItem } from "@/components/shared/FieldSelect";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import type { Project } from "@/lib/db/schema";
-import { PROJECT_STATUS } from "@/lib/status";
+import { PROJECT_STATUS_ADMIN } from "@/lib/status";
 
 export function ProjectQuickControls({
   project,
@@ -44,18 +44,18 @@ export function ProjectQuickControls({
         defaultValue={project.status}
         onValueChange={(value) => {
           save({ status: value });
-          toast.success(`Status: ${PROJECT_STATUS[value]?.label}`);
+          toast.success(`Status: ${PROJECT_STATUS_ADMIN[value]?.label}`);
         }}
-        className="h-9 w-48 rounded-full text-xs"
+        className="h-8 w-44 text-[13px]"
       >
-        {Object.entries(PROJECT_STATUS).map(([value, def]) => (
+        {Object.entries(PROJECT_STATUS_ADMIN).map(([value, def]) => (
           <FieldSelectItem key={value} value={value}>
             {def.label}
           </FieldSelectItem>
         ))}
       </FieldSelect>
-      <div className="flex h-9 items-center gap-2 rounded-full border border-white/10 px-3">
-        <label htmlFor="quick-progress" className="text-xs text-white/50">
+      <div className="flex h-8 items-center gap-2 rounded-md border border-white/[0.08] bg-white/[0.03] px-2.5">
+        <label htmlFor="quick-progress" className="text-xs text-fg-3">
           Progress
         </label>
         <input
@@ -71,7 +71,7 @@ export function ProjectQuickControls({
             if (saveTimer.current) clearTimeout(saveTimer.current);
             saveTimer.current = setTimeout(() => save({ progressPct: value }), 400);
           }}
-          className="w-28 cursor-pointer accent-[#f3d076]"
+          className="w-24 cursor-pointer accent-[#f3d076]"
         />
         <span className="w-9 text-right text-xs tabular-nums text-white">{progress}%</span>
       </div>
@@ -83,7 +83,7 @@ export function ProjectQuickControls({
         </DialogTrigger>
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-white">Edit project</DialogTitle>
+            <DialogTitle>Edit project</DialogTitle>
           </DialogHeader>
           <ProjectForm project={project} clients={clients} defaultRateCents={defaultRateCents} onDone={() => setEditOpen(false)} />
         </DialogContent>

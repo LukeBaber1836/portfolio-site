@@ -30,7 +30,7 @@ export function WeeklyHoursChart({ weeks }: { weeks: Week[] }) {
 
   return (
     <figure className="space-y-4">
-      <div className="flex flex-wrap items-center gap-4 text-xs text-white/60" aria-hidden>
+      <div className="flex flex-wrap items-center gap-4 text-xs text-fg-2" aria-hidden>
         {SERIES.map((s) => (
           <span key={s.key} className="inline-flex items-center gap-2">
             <span className="size-2.5 rounded-[3px]" style={{ background: s.color }} />
@@ -41,7 +41,7 @@ export function WeeklyHoursChart({ weeks }: { weeks: Week[] }) {
 
       <div className="relative flex gap-3">
         {/* Y axis ticks */}
-        <div className="relative w-8 shrink-0 text-right text-[11px] tabular-nums text-white/35" style={{ height }} aria-hidden>
+        <div className="relative w-8 shrink-0 text-right text-[11px] tabular-nums text-fg-3" style={{ height }} aria-hidden>
           {ticks.map((t) => (
             <span key={t} className="absolute right-0 -translate-y-1/2" style={{ top: height - (t / maxHours) * height }}>
               {t}h
@@ -51,7 +51,7 @@ export function WeeklyHoursChart({ weeks }: { weeks: Week[] }) {
 
         <div className="relative flex-1" style={{ height }}>
           {ticks.map((t) => (
-            <div key={t} className="absolute inset-x-0 h-px bg-white/[0.06]" style={{ top: height - (t / maxHours) * height }} />
+            <div key={t} className="absolute inset-x-0 h-px bg-white/[0.05]" style={{ top: height - (t / maxHours) * height }} />
           ))}
 
           <div className="absolute inset-0 flex items-end justify-around">
@@ -71,33 +71,33 @@ export function WeeklyHoursChart({ weeks }: { weeks: Week[] }) {
                   onPointerLeave={() => setActive(null)}
                   onFocus={() => setActive(i)}
                   onBlur={() => setActive(null)}
-                  className="group relative flex h-full flex-1 cursor-default flex-col items-center justify-end rounded-lg outline-none focus-visible:bg-white/[0.04]"
+                  className="group relative flex h-full flex-1 cursor-default flex-col items-center justify-end rounded-md outline-none focus-visible:bg-white/[0.04]"
                 >
                   <div className={`flex w-full max-w-6 flex-col-reverse gap-[2px] transition-[filter] duration-150 ${isActive ? "brightness-125" : ""}`}>
                     {billablePx > 0 && (
                       <div
                         style={{ height: Math.max(2, billablePx), background: SERIES[0].color }}
-                        className={nonPx > 0 ? "" : "rounded-t-[4px]"}
+                        className={nonPx > 0 ? "" : "rounded-t-[2px]"}
                       />
                     )}
                     {nonPx > 0 && (
-                      <div style={{ height: Math.max(2, nonPx), background: SERIES[1].color }} className="rounded-t-[4px]" />
+                      <div style={{ height: Math.max(2, nonPx), background: SERIES[1].color }} className="rounded-t-[2px]" />
                     )}
                   </div>
 
                   {isActive && (
-                    <div className="pointer-events-none absolute bottom-full z-10 mb-2 w-max min-w-36 rounded-xl border border-white/10 bg-popover px-3 py-2 text-xs shadow-xl">
-                      <p className="mb-1.5 text-white/50">Week of {formatDate(w.week, "MMM d")}</p>
+                    <div className="pointer-events-none absolute bottom-full z-10 mb-2 w-max min-w-36 rounded-md border border-white/[0.08] bg-popover px-3 py-2 text-xs shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
+                      <p className="mb-1.5 text-fg-3">Week of {formatDate(w.week, "MMM d")}</p>
                       {SERIES.map((s) => (
                         <p key={s.key} className="flex items-center justify-between gap-4">
-                          <span className="inline-flex items-center gap-2 text-white/60">
+                          <span className="inline-flex items-center gap-2 text-fg-2">
                             <span className="h-0.5 w-3 rounded-full" style={{ background: s.color }} />
                             {s.label}
                           </span>
                           <strong className="tabular-nums text-white">{formatHours(w[s.key], 1)}</strong>
                         </p>
                       ))}
-                      <p className="mt-1.5 flex justify-between border-t border-white/10 pt-1.5 text-white/60">
+                      <p className="mt-1.5 flex justify-between border-t border-white/[0.08] pt-1.5 text-fg-2">
                         Total <strong className="tabular-nums text-white">{formatHours(total, 1)}</strong>
                       </p>
                     </div>
@@ -109,7 +109,7 @@ export function WeeklyHoursChart({ weeks }: { weeks: Week[] }) {
         </div>
       </div>
 
-      <div className="ml-11 flex justify-around text-[11px] text-white/35" aria-hidden>
+      <div className="ml-11 flex justify-around text-[11px] text-fg-3" aria-hidden>
         {weeks.map((w) => (
           <span key={w.week} className="flex-1 text-center">
             {formatDate(w.week, "MMM d")}

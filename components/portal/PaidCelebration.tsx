@@ -2,16 +2,16 @@
 
 import { SuccessCheck } from "@/components/shared/SuccessCheck";
 
-/** transitions.dev "Success check" moment for a paid invoice. */
+/** Paid state for an invoice: a quiet check-draw (transitions.dev "Success check"), amount, and date. */
 export function PaidCelebration({ amount, paidOn }: { amount: string; paidOn: string | null }) {
   return (
-    <div className="flex flex-col items-center py-2 text-center">
-      <span className="flex size-16 items-center justify-center rounded-full bg-success/15 text-success">
-        <SuccessCheck className="size-8" strokeWidth={2.5} />
-      </span>
-      <p className="mt-4 text-lg font-semibold text-white">Paid — thank you!</p>
-      <p className="mt-1 text-2xl font-bold text-success">{amount}</p>
-      {paidOn && <p className="mt-1 text-xs text-white/45">Received {paidOn}</p>}
+    <div>
+      <p className="flex items-center gap-2 text-[13px] text-success">
+        <SuccessCheck className="size-4" strokeWidth={2.5} />
+        Paid, thank you
+      </p>
+      <p className="mt-2 text-3xl font-medium tabular-nums tracking-[-0.01em] text-white">{amount}</p>
+      {paidOn && <p className="mt-1 text-[13px] text-fg-3">Received {paidOn}</p>}
     </div>
   );
 }

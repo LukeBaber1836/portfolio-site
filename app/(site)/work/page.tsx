@@ -97,7 +97,7 @@ const projects = [
           </p>
 
           <div className="flex flex-col justify-center py-4">
-            <div className="relative flex justify-center items-center w-full h-full rounded-lg overflow-clip">
+            <div className="relative flex justify-center items-center w-full h-full rounded-xl overflow-clip">
               <Image
                 width={1600}
                 height={900}
@@ -163,7 +163,7 @@ const projects = [
           </p>
 
           <div className="flex flex-col justify-center py-4">
-            <div className="relative flex justify-center items-center w-full h-full rounded-lg overflow-clip px-20">
+            <div className="relative flex justify-center items-center w-full h-full rounded-xl overflow-clip px-20">
               <Image
                 width={1600}
                 height={900}
@@ -517,7 +517,7 @@ const Work = () => {
                 <SwiperSlide key={i} className="w-full">
                   <div className="sm:h-[460px] h-full relative group flex justify-center items-center">
                     {/* Image */}
-                    <div className="relative flex justify-center items-center w-full h-full rounded-lg overflow-clip">
+                    <div className="relative flex justify-center items-center w-full h-full rounded-xl overflow-clip">
                       <Image
                         width={1600}
                         height={900}

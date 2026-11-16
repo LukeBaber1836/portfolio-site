@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink, EyeOff, MessageSquare, Trash2 } from "lucide-react";
+import { ExternalLink, EyeOff, Trash2 } from "lucide-react";
 
 import { deleteUpdateAction } from "@/app/admin/_actions/projects";
-import { ClientSocialsCard } from "@/components/admin/ClientSocialsCard";
+import { ClientSocialsList } from "@/components/admin/ClientSocialsCard";
 import { DomainsForm } from "@/components/admin/DomainsForm";
 import { MilestoneDialog } from "@/components/admin/MilestoneDialog";
 import { MilestonesPanel } from "@/components/admin/MilestonesPanel";
@@ -16,7 +16,8 @@ import { UpdateDialog } from "@/components/admin/UpdateDialog";
 import { ActionButton } from "@/components/shared/ActionButton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Property, PropertyList, RailSection } from "@/components/shared/PropertyList";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { statusBadgeFor } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { resolveRateCents } from "@/lib/billing";
@@ -26,9 +27,11 @@ import { listSiteComments } from "@/lib/dal/admin/site-comments";
 import { listEntries } from "@/lib/dal/admin/time";
 import { formatDate, formatDateTime, formatHours, formatMoney } from "@/lib/format";
 import { getSettings } from "@/lib/services/settings";
-import { PROJECT_STATUS, serviceLabel } from "@/lib/status";
+import { PROJECT_STATUS_ADMIN, serviceLabel } from "@/lib/status";
+import { cn } from "@/lib/utils";
 
 const isUuid = (s: string) => /^[0-9a-f-]{36}$/.test(s);
+const panel = "overflow-hidden rounded-lg border border-line bg-surface";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -55,209 +58,181 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const unbilled = entries.filter((e) => e.entry.billable && !e.entry.invoiceId);
   const unbilledSeconds = unbilled.reduce((s, e) => s + (e.entry.durationSeconds ?? 0), 0);
   const budgetPct = project.budgetHours ? Math.round((loggedSeconds / 3600 / project.budgetHours) * 100) : null;
+  const billing = project.billingType === "fixed" ? `Fixed ${formatMoney(project.fixedPriceCents ?? 0)}` : `${formatMoney(rate)}/h${project.rateCents != null ? " (override)" : ""}`;
+  const clientLabel = client.company || client.name;
 
   return (
     <>
       <PageHeader
-        back={{ href: `/admin/clients/${client.id}?tab=projects`, label: client.company || client.name }}
+        back={{ href: `/admin/clients/${client.id}?tab=projects`, label: clientLabel }}
         title={
-          <span className="flex flex-wrap items-center gap-3">
+          <span className="flex flex-wrap items-center gap-2.5">
             {project.name}
-            {statusBadgeFor(PROJECT_STATUS, project.status)}
+            {statusBadgeFor(PROJECT_STATUS_ADMIN, project.status)}
             {!project.clientVisible && (
-              <span className="inline-flex items-center gap-1 text-xs font-normal text-white/40">
-                <EyeOff className="size-3.5" /> Hidden from client
+              <span className="inline-flex items-center gap-1 text-xs font-normal text-fg-3">
+                <EyeOff className="size-3.5" aria-hidden /> Hidden from client
               </span>
             )}
           </span>
         }
-        description={project.description ?? serviceLabel(project.serviceType)}
+        meta={[
+          <Link key="client" href={`/admin/clients/${client.id}`} className="hover:text-white hover:underline">
+            {clientLabel}
+          </Link>,
+          serviceLabel(project.serviceType),
+          billing,
+          project.dueDate ? `Due ${formatDate(project.dueDate, "MMM d")}` : null,
+        ]}
+        description={project.description}
         actions={<ProjectQuickControls key={project.updatedAt.toISOString()} project={project} clients={clients} defaultRateCents={settings.defaultRateCents} />}
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <div className="min-w-0">
-                <CardTitle>Updates</CardTitle>
-                <CardDescription>Shown on the client&apos;s project page, newest first.</CardDescription>
-              </div>
-              <CardAction>
-                <UpdateDialog projectId={id} clientVisible={project.clientVisible} />
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-            <div>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <div className="min-w-0 space-y-8">
+          <section>
+            <SectionHeader title="Updates" count={updates.length || undefined} action={<UpdateDialog projectId={id} clientVisible={project.clientVisible} />} />
+            <div className={panel}>
               {updates.length === 0 ? (
-                <EmptyState compact icon={MessageSquare} title="No updates yet" description="Share progress so your client always knows where things stand." />
+                <EmptyState compact title="No updates yet" description="Share progress so your client always knows where things stand." />
               ) : (
-                <ul className="divide-y divide-white/5">
+                <ul className="scrollbar-subtle max-h-[520px] divide-y divide-line overflow-y-auto">
                   {updates.map(({ update, authorName }) => (
-                    <li key={update.id} className="group py-4">
-                      <div className="mb-1 flex items-center justify-between gap-3 text-xs text-white/40">
+                    <li key={update.id} className="group px-4 py-3">
+                      <div className="mb-1 flex items-center justify-between gap-3 text-xs text-fg-3">
                         <span>
                           {authorName ?? "You"} · {formatDateTime(update.createdAt)}
-                          {update.emailedAt && <span className="ml-2 text-success/80">· emailed</span>}
+                          {update.emailedAt && " · emailed"}
                         </span>
                         <ActionButton
                           variant="ghost"
                           size="icon-sm"
                           aria-label="Delete update"
-                          className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:text-danger"
+                          className="-my-1 size-7 text-fg-3 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-danger/10 hover:text-danger"
                           action={deleteUpdateAction.bind(null, id, update.id)}
                           confirm={{ title: "Delete this update?", description: "It will disappear from the client's portal. Emails already sent can't be recalled.", confirmLabel: "Delete", destructive: true }}
                         >
                           <Trash2 />
                         </ActionButton>
                       </div>
-                      <p className="whitespace-pre-wrap text-sm leading-6 text-white/85">{update.body}</p>
+                      <p className="whitespace-pre-wrap text-[13px] leading-6 text-white/85">{update.body}</p>
                     </li>
                   ))}
                 </ul>
               )}
             </div>
-            </CardContent>
-          </Card>
+          </section>
 
-          <Card>
-            <CardHeader>
-              <div className="min-w-0">
-                <CardTitle>Site feedback</CardTitle>
-                <CardDescription>
-                  {siteFeedback.length ? `${openFeedback} open · ${siteFeedback.length - openFeedback} resolved` : "Comments the client pins on their site."}
-                </CardDescription>
-              </div>
-              <CardAction>
-                {hasSite && (
-                  <a href={`/admin/projects/${id}/review`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-accent hover:underline">
-                    Open site review <ExternalLink className="size-3" />
-                  </a>
-                )}
-              </CardAction>
-            </CardHeader>
-            <CardContent className={siteFeedback.length ? "scrollbar-subtle max-h-[520px] overflow-y-auto" : undefined}>
-              <SiteFeedbackPanel projectId={id} items={siteFeedback} hasSite={hasSite} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="min-w-0">
-                <CardTitle>Time log</CardTitle>
-                <CardDescription>{`${formatHours(loggedSeconds, 1)} total · ${formatHours(unbilledSeconds, 1)} unbilled`}</CardDescription>
-              </div>
-              <CardAction>
-                {unbilledSeconds > 0 && (
-                  <Link href={`/admin/invoices/new?client=${client.id}`} className="text-xs text-accent hover:underline">
-                    Invoice unbilled time
-                  </Link>
-                )}
-              </CardAction>
-            </CardHeader>
-            <CardContent className="p-0">
-              <TimeEntriesTable entries={entries.map((e) => ({ ...e.entry, projectName: e.projectName, invoiceStatus: e.invoiceStatus }))} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>References</CardTitle>
-              <CardAction>
-                <ReferenceDialog projectId={id} />
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              <ReferencesPanel projectId={id} references={references} />
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>At a glance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="space-y-4 text-sm">
-              <div>
-                <dt className="mb-2 flex justify-between text-xs uppercase tracking-wider text-white/40">
-                  Progress <span className="tabular-nums text-white/70">{project.progressPct}%</span>
-                </dt>
-                <dd>
-                  <Progress value={project.progressPct} className="h-2 bg-white/10" aria-label="Progress" />
-                </dd>
-              </div>
-              {budgetPct !== null && (
-                <div>
-                  <dt className="mb-2 flex justify-between text-xs uppercase tracking-wider text-white/40">
-                    Budget
-                    <span className={`tabular-nums ${budgetPct > 100 ? "text-danger" : budgetPct >= 80 ? "text-accent" : "text-white/70"}`}>
-                      {formatHours(loggedSeconds, 1)} / {project.budgetHours}h
+          <section>
+            <SectionHeader
+              title="Site feedback"
+              count={openFeedback || undefined}
+              action={
+                <span className="flex items-center gap-3">
+                  {siteFeedback.length > 0 && (
+                    <span className="text-xs text-fg-3">
+                      {openFeedback} open · {siteFeedback.length - openFeedback} resolved
                     </span>
-                  </dt>
-                  <dd>
-                    <Progress
-                      value={Math.min(100, budgetPct)}
-                      className={`h-2 bg-white/10 ${budgetPct > 100 ? "[&>div]:bg-danger" : ""}`}
-                      aria-label="Budget used"
-                    />
-                  </dd>
-                </div>
-              )}
-              <Row label="Billing" value={project.billingType === "fixed" ? `Fixed · ${formatMoney(project.fixedPriceCents ?? 0)}` : `${formatMoney(rate)}/h${project.rateCents != null ? " (override)" : ""}`} />
-              <Row label="Service" value={serviceLabel(project.serviceType)} />
-              <Row label="Start" value={formatDate(project.startDate)} />
-              <Row label="Due" value={formatDate(project.dueDate)} />
-            </dl>
-            </CardContent>
-          </Card>
+                  )}
+                  {hasSite && (
+                    <a
+                      href={`/admin/projects/${id}/review`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 rounded-md text-xs text-fg-2 transition-colors hover:text-white"
+                    >
+                      Open site review <ExternalLink className="size-3" aria-hidden />
+                    </a>
+                  )}
+                </span>
+              }
+            />
+            <div className={cn(panel, siteFeedback.length && "scrollbar-subtle max-h-[560px] overflow-y-auto")}>
+              <SiteFeedbackPanel projectId={id} items={siteFeedback} hasSite={hasSite} />
+            </div>
+          </section>
 
-          <Card>
-            <CardHeader>
-              <div className="min-w-0">
-                <CardTitle>Domains</CardTitle>
-                <CardDescription>Shown on the client&apos;s project page.</CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <DomainsForm key={project.updatedAt.toISOString()} projectId={id} productionUrl={project.productionUrl} devUrl={project.devUrl} featuredSite={project.featuredSite} />
-            </CardContent>
-          </Card>
+          <section>
+            <SectionHeader
+              title="Time log"
+              action={
+                <span className="flex items-center gap-3 text-xs text-fg-3">
+                  <span className="tabular-nums">
+                    {formatHours(loggedSeconds, 1)} total · {formatHours(unbilledSeconds, 1)} unbilled
+                  </span>
+                  {unbilledSeconds > 0 && (
+                    <Link href={`/admin/invoices/new?client=${client.id}`} className="text-fg-2 transition-colors hover:text-white">
+                      Invoice it →
+                    </Link>
+                  )}
+                </span>
+              }
+            />
+            <div className={panel}>
+              <TimeEntriesTable entries={entries.map((e) => ({ ...e.entry, projectName: e.projectName, invoiceStatus: e.invoiceStatus }))} />
+            </div>
+          </section>
 
-          <ClientSocialsCard links={client.socialLinks} />
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Milestones</CardTitle>
-              <CardAction>
-                <MilestoneDialog projectId={id} />
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              <MilestonesPanel
-                projectId={id}
-                milestones={milestones.map((m) => ({
-                  id: m.id,
-                  title: m.title,
-                  status: m.status,
-                  dueDate: m.dueDate,
-                  dueLabel: m.dueDate ? formatDate(m.dueDate, "MMM d") : null,
-                }))}
-              />
-            </CardContent>
-          </Card>
+          <section>
+            <SectionHeader title="References" count={references.length || undefined} action={<ReferenceDialog projectId={id} />} />
+            <ReferencesPanel projectId={id} references={references} />
+          </section>
         </div>
+
+        <aside className="lg:border-l lg:border-line lg:pl-6">
+          <RailSection title="Progress">
+            <div className="flex items-center gap-3">
+              <Progress value={project.progressPct} className="flex-1" aria-label="Progress" />
+              <span className="w-9 text-right text-xs tabular-nums text-white">{project.progressPct}%</span>
+            </div>
+            {budgetPct !== null && (
+              <div className="mt-4">
+                <div className="mb-1.5 flex justify-between text-xs">
+                  <span className="text-fg-3">Budget</span>
+                  <span className={cn("tabular-nums", budgetPct > 100 ? "text-danger" : budgetPct >= 80 ? "text-warning" : "text-fg-2")}>
+                    {formatHours(loggedSeconds, 1)} / {project.budgetHours}h
+                  </span>
+                </div>
+                <Progress
+                  value={Math.min(100, budgetPct)}
+                  indicatorClassName={budgetPct > 100 ? "bg-danger" : budgetPct >= 80 ? "bg-warning" : undefined}
+                  aria-label={`Budget used: ${budgetPct}%`}
+                />
+              </div>
+            )}
+          </RailSection>
+
+          <RailSection title="Details">
+            <PropertyList>
+              <Property label="Billing">{billing}</Property>
+              <Property label="Service">{serviceLabel(project.serviceType)}</Property>
+              <Property label="Start">{formatDate(project.startDate)}</Property>
+              <Property label="Due">{formatDate(project.dueDate)}</Property>
+            </PropertyList>
+          </RailSection>
+
+          <RailSection title="Domains">
+            <DomainsForm key={project.updatedAt.toISOString()} projectId={id} productionUrl={project.productionUrl} devUrl={project.devUrl} featuredSite={project.featuredSite} />
+          </RailSection>
+
+          <RailSection title="Milestones" action={<MilestoneDialog projectId={id} />}>
+            <MilestonesPanel
+              projectId={id}
+              milestones={milestones.map((m) => ({
+                id: m.id,
+                title: m.title,
+                status: m.status,
+                dueDate: m.dueDate,
+                dueLabel: m.dueDate ? formatDate(m.dueDate, "MMM d") : null,
+              }))}
+            />
+          </RailSection>
+
+          <RailSection title="Client socials">
+            <ClientSocialsList links={client.socialLinks} />
+          </RailSection>
+        </aside>
       </div>
     </>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-3 border-t border-white/5 pt-3">
-      <dt className="text-white/40">{label}</dt>
-      <dd className="text-right text-white/80">{value}</dd>
-    </div>
   );
 }

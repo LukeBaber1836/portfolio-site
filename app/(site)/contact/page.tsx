@@ -167,6 +167,7 @@ const Contact = () => {
                 </div>
               ) : (
                 <Button
+                  variant="brand"
                   type="submit"
                   disabled={loading}
                   className="max-w-40 shadow-xl flex items-center gap-2"

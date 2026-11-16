@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 
 import { statusBadgeFor } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { formatDate, formatHours } from "@/lib/format";
 import { PROJECT_STATUS, serviceLabel } from "@/lib/status";
 
+/** Client-facing project summary: name, stage, progress, and the one or two facts that matter. */
 export function ProjectCard({
   project,
   href = `/portal/projects/${project.id}`,
@@ -32,38 +32,28 @@ export function ProjectCard({
   showBudget?: boolean;
 }) {
   const p = project;
-  const budgetPct = showBudget && p.budgetHours ? Math.min(100, Math.round((p.loggedSeconds / 3600 / p.budgetHours) * 100)) : null;
+  const facts = [
+    p.milestonesTotal ? `${p.milestonesDone}/${p.milestonesTotal} milestones` : null,
+    showBudget && p.budgetHours ? `${formatHours(p.loggedSeconds, 1)} of ${p.budgetHours}h` : `${formatHours(p.loggedSeconds, 1)} logged`,
+    p.dueDate ? `Target ${formatDate(p.dueDate, "MMM d")}` : null,
+  ].filter(Boolean);
   return (
     <Link
       href={href}
-      className="clay group relative block h-full rounded-2xl bg-card p-5 transition-all duration-300 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+      className="group flex h-full flex-col rounded-lg border border-line bg-surface p-4 transition-colors hover:border-line-strong hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate text-xs text-white/40">{eyebrow ?? serviceLabel(p.serviceType)}</p>
-          <p className="mt-1 truncate text-lg font-semibold text-white transition-colors group-hover:text-accent">{p.name}</p>
+          <p className="truncate text-xs text-fg-3">{eyebrow ?? serviceLabel(p.serviceType)}</p>
+          <p className="mt-0.5 truncate text-[15px] font-medium text-white">{p.name}</p>
         </div>
-        <ArrowUpRight className="size-5 shrink-0 text-white/25 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
+        {statusBadgeFor(PROJECT_STATUS, p.status)}
       </div>
-      <div className="mt-3">{statusBadgeFor(PROJECT_STATUS, p.status)}</div>
       <div className="mt-5 flex items-center gap-3">
-        <Progress value={p.progressPct} className="h-2 flex-1 bg-white/10" aria-label={`${p.progressPct}% complete`} />
-        <span className="w-10 text-right text-sm font-semibold tabular-nums text-white">{p.progressPct}%</span>
+        <Progress value={p.progressPct} className="flex-1" aria-label={`${p.progressPct}% complete`} />
+        <span className="text-xs tabular-nums text-fg-2">{p.progressPct}%</span>
       </div>
-      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/45">
-        <span>{formatHours(p.loggedSeconds, 1)} logged</span>
-        {budgetPct !== null && (
-          <span>
-            {budgetPct}% of {p.budgetHours}h budget
-          </span>
-        )}
-        {p.milestonesTotal ? (
-          <span>
-            {p.milestonesDone}/{p.milestonesTotal} milestones
-          </span>
-        ) : null}
-        {p.dueDate && <span>Target {formatDate(p.dueDate, "MMM d")}</span>}
-      </div>
+      <p className="mt-3 text-xs text-fg-3">{facts.join(" · ")}</p>
     </Link>
   );
 }

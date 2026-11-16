@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ChevronRight, Receipt } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/EmptyState";
 import { StatusBadge } from "@/components/ui/badge";
@@ -32,7 +31,7 @@ export function InvoicesTable({
   emptyAction?: React.ReactNode;
 }) {
   if (!rows.length) {
-    return <EmptyState compact icon={Receipt} title="No invoices" action={emptyAction} />;
+    return <EmptyState compact title="No invoices" action={emptyAction} />;
   }
   return (
     <Table>
@@ -44,31 +43,27 @@ export function InvoicesTable({
           <TableHead>Due</TableHead>
           <TableHead className="text-right">Amount</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead className="w-10" />
         </TableRow>
       </TableHeader>
       <TableBody>
         {rows.map(({ invoice, clientName, clientCompany }) => (
-          <TableRow key={invoice.id} className="group relative">
+          <TableRow key={invoice.id} className="group relative has-[a:focus-visible]:bg-white/[0.03]">
             <TableCell>
-              <Link href={`${hrefBase}/${invoice.id}`} className="font-medium text-white after:absolute after:inset-0 group-hover:text-accent">
+              <Link href={`${hrefBase}/${invoice.id}`} className="font-medium text-white after:absolute after:inset-0 focus-visible:outline-none">
                 {invoice.number ?? "Draft"}
               </Link>
             </TableCell>
-            {showClient && <TableCell className="text-white/70">{clientCompany || clientName}</TableCell>}
-            <TableCell className="text-white/60">{formatDate(invoice.finalizedAt ?? invoice.createdAt, "MMM d, yyyy")}</TableCell>
-            <TableCell className="text-white/60">{invoice.dueDate ? formatDate(invoice.dueDate, "MMM d, yyyy") : "—"}</TableCell>
-            <TableCell className="text-right font-medium tabular-nums text-white">
+            {showClient && <TableCell className="text-fg-2">{clientCompany || clientName}</TableCell>}
+            <TableCell className="text-fg-3">{formatDate(invoice.finalizedAt ?? invoice.createdAt, "MMM d, yyyy")}</TableCell>
+            <TableCell className="text-fg-3">{invoice.dueDate ? formatDate(invoice.dueDate, "MMM d, yyyy") : "—"}</TableCell>
+            <TableCell className="text-right tabular-nums text-white">
               {formatMoney(invoice.status === "paid" ? invoice.amountPaidCents : invoice.totalCents)}
               {invoice.status === "open" && invoice.amountPaidCents > 0 && (
-                <span className="block text-xs font-normal text-white/40">{formatMoney(invoice.amountDueCents)} due</span>
+                <span className="block text-xs font-normal text-fg-3">{formatMoney(invoice.amountDueCents)} due</span>
               )}
             </TableCell>
             <TableCell>
               <InvoiceStatusBadge invoice={invoice} />
-            </TableCell>
-            <TableCell>
-              <ChevronRight className="size-4 text-white/25 transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
             </TableCell>
           </TableRow>
         ))}

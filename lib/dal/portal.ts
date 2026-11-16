@@ -63,6 +63,10 @@ export async function portalOverview() {
         serviceType: projects.serviceType,
         dueDate: projects.dueDate,
         budgetHours: projects.budgetHours,
+        productionUrl: projects.productionUrl,
+        devUrl: projects.devUrl,
+        featuredSite: projects.featuredSite,
+        siteScreenshotUrl: projects.siteScreenshotUrl,
         loggedSeconds: sql<number>`coalesce((select sum(t.duration_seconds)::int from ${timeEntries} t where t.project_id = "projects"."id"), 0)`,
       })
       .from(projects)

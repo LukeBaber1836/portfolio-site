@@ -15,7 +15,7 @@ import {
 const STRENGTH = [
   { label: "Very weak", className: "bg-danger" },
   { label: "Weak", className: "bg-danger" },
-  { label: "Fair", className: "bg-accent/70" },
+  { label: "Fair", className: "bg-warning" },
   { label: "Strong", className: "bg-success" },
   { label: "Very strong", className: "bg-success" },
 ];
@@ -86,7 +86,7 @@ export function PasswordField({
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/5 hover:text-accent"
+          className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-fg-3 transition-colors hover:bg-white/[0.06] hover:text-white"
           aria-label={visible ? "Hide password" : "Show password"}
         >
           <span className="t-icon-swap" data-state={visible ? "b" : "a"}>
@@ -100,21 +100,21 @@ export function PasswordField({
         </button>
       </div>
 
-      <div id={`${id}-strength`} className="mt-3 flex items-center gap-3" aria-live="polite">
-        <div className="flex h-1.5 flex-1 gap-1">
+      <div id={`${id}-strength`} className="mt-2.5 flex items-center gap-3" aria-live="polite">
+        <div className="flex h-1 flex-1 gap-1">
           {[0, 1, 2, 3].map((i) => (
             <span
               key={i}
               className={cn(
-                "h-full flex-1 rounded-full bg-white/10 transition-colors duration-300",
+                "h-full flex-1 rounded-full bg-white/[0.08] transition-colors duration-300",
                 effectiveScore !== null && effectiveScore > i && STRENGTH[effectiveScore]!.className,
               )}
             />
           ))}
         </div>
-        <span className="w-20 text-right text-xs text-white/50">{effectiveScore === null ? "" : STRENGTH[effectiveScore]!.label}</span>
+        <span className="w-20 text-right text-xs text-fg-3">{effectiveScore === null ? "" : STRENGTH[effectiveScore]!.label}</span>
       </div>
-      {warning && value && !strongEnough && <p className="mt-2 text-xs text-accent/80">{warning}</p>}
+      {warning && value && !strongEnough && <p className="mt-2 text-xs text-fg-2">{warning}</p>}
     </FormField>
   );
 }

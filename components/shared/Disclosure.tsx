@@ -39,7 +39,7 @@ export function Disclosure({
         <button
           type="button"
           className={cn(
-            "t-acc-head flex w-full min-w-0 flex-1 cursor-pointer items-center justify-between gap-3 py-3 text-left text-sm text-white transition-colors hover:text-accent",
+            "t-acc-head flex w-full min-w-0 flex-1 cursor-pointer items-center justify-between gap-3 py-3 text-left text-sm text-white transition-colors hover:text-fg-2",
             headClassName,
           )}
           aria-expanded={open}

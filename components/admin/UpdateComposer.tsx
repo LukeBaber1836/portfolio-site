@@ -58,12 +58,12 @@ export function UpdateComposer({ projectId, clientVisible, onDone }: { projectId
         {clientVisible ? (
           <div className="flex items-center gap-2">
             <Switch id="update-notify" checked={notify} onCheckedChange={setNotify} />
-            <Label htmlFor="update-notify" className="text-xs font-normal text-white/70">
+            <Label htmlFor="update-notify" className="text-xs font-normal text-fg-2">
               Email the client
             </Label>
           </div>
         ) : (
-          <span className="text-xs text-white/40">This project is hidden from the client portal.</span>
+          <span className="text-xs text-fg-3">This project is hidden from the client portal.</span>
         )}
         <SubmitButton state={state} size="sm" pendingLabel="Posting…" successLabel="Posted" disabled={body.trim().length < 5}>
           <Send /> Post update

@@ -165,76 +165,74 @@ export function TimerBar({ running, projects }: { running: RunningTimer; project
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverAnchor asChild>
-        <div className="flex items-center gap-2">
-          {isRunning && (
+        {isRunning ? (
+          <div className="flex h-8 items-center rounded-md border border-line bg-white/[0.02]">
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className={cn(
-                "hidden cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-left transition-colors sm:flex",
-                isPaused ? "border-accent/30 bg-accent/10 hover:border-accent/60" : "border-info/30 bg-info/10 hover:border-info/60",
-              )}
-              aria-label={`Timer ${isPaused ? "paused" : "running"} on ${running.projectName}`}
+              className="flex h-full min-w-0 cursor-pointer items-center gap-2 rounded-l-md pl-2.5 pr-2 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+              aria-label={`Timer ${isPaused ? "paused" : "running"} on ${running.projectName}. Open clock-out panel`}
+              aria-keyshortcuts="T"
             >
-              <span className="relative flex size-2">
-                {!isPaused && <span className="absolute inline-flex size-full animate-ping rounded-full bg-info opacity-60 motion-reduce:hidden" />}
-                <span className={cn("relative inline-flex size-2 rounded-full", isPaused ? "bg-accent" : "bg-info")} />
+              <span className="relative flex size-1.5 shrink-0">
+                {!isPaused && <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60 motion-reduce:hidden" />}
+                <span className={cn("relative inline-flex size-1.5 rounded-full", isPaused ? "bg-fg-3" : "bg-accent")} />
               </span>
-              <span className={cn("font-semibold tabular-nums", isPaused ? "text-white/60" : "text-white")}>{formatClock(elapsed)}</span>
-              <span className="max-w-40 truncate text-xs text-white/60">{isPaused ? "Paused" : running.projectName}</span>
+              <span className={cn("text-[13px] tabular-nums", isPaused ? "text-fg-3" : "text-white")}>{formatClock(elapsed)}</span>
+              <span className="hidden max-w-36 truncate text-xs text-fg-3 sm:inline">{isPaused ? "Paused" : running.projectName}</span>
             </button>
-          )}
-          {isRunning && (
+            <span aria-hidden className="h-4 w-px bg-line" />
             <Button
               type="button"
-              size="icon"
-              variant="outline"
+              size="icon-sm"
+              variant="ghost"
               onClick={togglePause}
               aria-label={isPaused ? "Resume timer" : "Pause timer"}
               aria-pressed={isPaused}
-              className={cn(
-                "size-9",
-                isPaused ? "border-accent/40 text-accent hover:border-accent hover:text-accent" : "border-info/40 text-info hover:border-info hover:text-info",
-              )}
+              className="size-8 rounded-none text-fg-2"
             >
               <span className="t-icon-swap" data-state={isPaused ? "b" : "a"}>
                 <span className="t-icon flex" data-icon="a">
-                  <Pause className="size-4 fill-current" />
+                  <Pause className="size-3.5 fill-current" />
                 </span>
                 <span className="t-icon flex" data-icon="b">
-                  <Play className="size-4 fill-current" />
+                  <Play className="size-3.5 fill-current" />
                 </span>
               </span>
             </Button>
-          )}
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => setOpen(true)}
+              aria-label="Clock out"
+              className="size-8 rounded-l-none text-fg-2"
+            >
+              <Square className="size-3 fill-current" />
+            </Button>
+          </div>
+        ) : (
           <Button
             type="button"
             size="sm"
-            variant={isRunning ? "outline" : "default"}
+            variant="ghost"
             onClick={() => setOpen((o) => !o)}
-            className={cn("h-9 gap-2", isRunning && "border-info/40 text-info hover:border-info hover:text-info")}
+            className="text-fg-2"
             aria-keyshortcuts="T"
           >
-            <span className="t-icon-swap" data-state={isRunning ? "b" : "a"}>
-              <span className="t-icon flex" data-icon="a">
-                <Play className="size-4 fill-current" />
-              </span>
-              <span className="t-icon flex" data-icon="b">
-                <Square className="size-3.5 fill-current" />
-              </span>
-            </span>
-            <span className="sm:hidden tabular-nums">{isRunning ? formatClock(elapsed) : "Clock in"}</span>
-            <span className="hidden sm:inline">{isRunning ? "Clock out" : "Clock in"}</span>
+            <Play className="size-3.5 fill-current" />
+            Start timer
+            <kbd className="ml-1 hidden rounded border border-line px-1.5 text-[10px] leading-4 text-fg-3 sm:inline">T</kbd>
           </Button>
-        </div>
+        )}
       </PopoverAnchor>
 
-      <PopoverContent align="end" sideOffset={12} className="w-[min(92vw,420px)] rounded-2xl border-white/10 bg-popover p-0 shadow-2xl">
+      <PopoverContent align="end" sideOffset={8} className="w-[min(92vw,400px)] rounded-xl border-white/[0.08] bg-popover p-0 shadow-[0_16px_48px_rgba(0,0,0,0.5)]">
         {!isRunning ? (
-          <form onSubmit={clockIn} className="space-y-4 p-5">
+          <form onSubmit={clockIn} className="space-y-4 p-4">
             <div>
-              <p className="font-semibold text-white">Clock in</p>
-              <p className="text-xs text-white/50">The timer keeps running even if you close this tab.</p>
+              <p className="text-[15px] font-semibold text-white">Start timer</p>
+              <p className="text-xs text-fg-3">Keeps running if you close this tab.</p>
             </div>
             <FormField label="Project" error={error} errorKey={errorKey}>
               <ProjectPicker projects={projects} value={projectId} onChange={setProjectId} />
@@ -243,29 +241,24 @@ export function TimerBar({ running, projects }: { running: RunningTimer; project
               <TextInput value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g. Homepage hero layout" maxLength={500} />
             </FormField>
             <div className="flex items-center justify-between gap-3 pt-1">
-              <span className="text-xs text-white/35">
-                Press <kbd className="rounded border border-white/15 px-1.5 py-0.5 text-[10px]">T</kbd> anytime
+              <span className="text-xs text-fg-3">
+                Press <kbd className="rounded border border-line px-1.5 py-0.5 text-[10px]">T</kbd> anytime
               </span>
-              <SubmitButton state={state} size="sm" className="h-9" pendingLabel="Starting…" successLabel="Running">
+              <SubmitButton state={state} size="sm" pendingLabel="Starting…" successLabel="Running">
                 <Play className="size-3.5 fill-current" /> Start timer
               </SubmitButton>
             </div>
           </form>
         ) : (
-          <form onSubmit={clockOut} className="t-panel-slide space-y-4 p-5" data-open={open} style={{ ["--panel-translate-y" as string]: "12px" }}>
+          <form onSubmit={clockOut} className="t-panel-slide space-y-4 p-4" data-open={open} style={{ ["--panel-translate-y" as string]: "12px" }}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="font-semibold text-white">What did you work on?</p>
-                <p className="truncate text-xs text-white/50">
+                <p className="text-[15px] font-semibold text-white">What did you work on?</p>
+                <p className="truncate text-xs text-fg-3">
                   {running.projectName} · {running.clientName}
                 </p>
               </div>
-              <span
-                className={cn(
-                  "rounded-full px-2.5 py-1 text-sm font-semibold tabular-nums",
-                  isPaused ? "bg-accent/10 text-accent" : "bg-info/10 text-info",
-                )}
-              >
+              <span className={cn("rounded-md bg-white/[0.06] px-2 py-0.5 text-[13px] tabular-nums", isPaused ? "text-fg-3" : "text-white")}>
                 {isPaused ? `Paused · ${formatClock(elapsed)}` : formatClock(elapsed)}
               </span>
             </div>
@@ -287,15 +280,15 @@ export function TimerBar({ running, projects }: { running: RunningTimer; project
                 <Label htmlFor="timer-billable" className="text-sm font-normal text-white">
                   Billable
                 </Label>
-                <p className="mt-0.5 text-xs leading-5 text-white/50">{billable ? "Counts toward the next invoice." : "Shown to the client as “No charge”."}</p>
+                <p className="mt-0.5 text-xs leading-5 text-fg-3">{billable ? "Counts toward the next invoice." : "Shown to the client as “No charge”."}</p>
               </div>
               <Switch id="timer-billable" checked={billable} onCheckedChange={setBillable} />
             </div>
             <div className="flex items-center justify-between gap-3 pt-1">
-              <Button type="button" variant="ghost" size="sm" onClick={discard} className="text-white/40 hover:text-danger">
+              <Button type="button" variant="ghost" size="sm" onClick={discard} className="text-fg-3 hover:text-danger">
                 <Trash2 /> Discard
               </Button>
-              <SubmitButton state={state} size="sm" className="h-9" pendingLabel="Saving…" successLabel="Saved">
+              <SubmitButton state={state} size="sm" pendingLabel="Saving…" successLabel="Saved">
                 <Square className="size-3 fill-current" /> Clock out
               </SubmitButton>
             </div>

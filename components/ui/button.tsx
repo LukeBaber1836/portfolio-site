@@ -4,24 +4,24 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-md font-medium ring-offset-background transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default:
+        // App (admin/portal) variants — flat, hairline, gold only for the primary action.
+        default: "gold-brushed gold-ring text-background hover:brightness-[1.04]",
+        outline: "border border-line-strong bg-transparent text-white hover:bg-white/[0.05]",
+        secondary: "bg-white/[0.06] text-white hover:bg-white/[0.1]",
+        ghost: "text-white/70 hover:bg-white/[0.06] hover:text-white",
+        destructive: "bg-danger/10 text-danger hover:bg-danger/20",
+        link: "h-auto px-0 text-accent underline-offset-4 hover:underline",
+        // Marketing-site variants (claymorphic brand look) — don't use in the app shells.
+        brand:
           "clay-glow rounded-full text-black bg-gradient-to-bl from-gold-d1 via-gold-l1 to-gold-d2 transition-all duration-300",
         goldOutline:
           "clay-glow rounded-full border border-accent bg-transparent text-accent hover:text-primary-foreground hover:bg-gradient-to-br hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2 transition-all duration-300 ease-in-out",
         iconOutline:
           "clay-glow rounded-full border border-accent bg-transparent text-accent hover:text-primary-foreground hover:bg-gradient-to-tr hover:from-gold-d1 hover:via-gold-l1 hover:to-gold-d2 transition-all duration-300 ease-in-out",
-        destructive:
-          "rounded-full border border-danger/40 bg-danger/10 text-danger hover:bg-danger hover:text-background transition-all duration-200",
-        outline:
-          "rounded-full border border-white/10 bg-white/[0.02] text-white hover:border-accent/50 hover:text-accent transition-all duration-200",
-        secondary:
-          "rounded-full bg-secondary text-secondary-foreground hover:bg-white/10 transition-all duration-200",
-        ghost: "text-white/70 hover:bg-white/5 hover:text-accent transition-all duration-200",
-        link: "text-accent underline-offset-4 hover:underline",
       },
       effect: {
         expandIcon: "group gap-0 relative",
@@ -43,13 +43,19 @@ const buttonVariants = cva(
           "bg-[size:400%] bg-[linear-gradient(-45deg,var(--gradient-lime),var(--gradient-ocean),var(--gradient-wine),var(--gradient-rust))] animate-gradient-flow",
       },
       size: {
-        default: "h-10 px-5 py-2",
-        sm: "h-9 px-4 text-sm",
-        lg: "h-11 px-8",
-        icon: "h-10 w-10",
-        "icon-sm": "h-8 w-8 rounded-full",
+        default: "h-9 px-3.5",
+        sm: "h-8 px-3 text-[13px] [&_svg]:size-3.5",
+        lg: "h-10 px-5",
+        icon: "size-9",
+        "icon-sm": "size-8",
       },
     },
+    // Marketing variants keep their original size/type scale.
+    compoundVariants: [
+      { variant: ["brand", "goldOutline", "iconOutline"], className: "text-base" },
+      { variant: ["brand", "goldOutline", "iconOutline"], size: "default", className: "h-10 px-5 py-2" },
+      { variant: ["brand", "goldOutline", "iconOutline"], size: "icon", className: "size-10" },
+    ],
     defaultVariants: {
       variant: "default",
       size: "default",

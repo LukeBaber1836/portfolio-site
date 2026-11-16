@@ -19,13 +19,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
       icons={{
         success: <CircleCheckIcon className="size-4 text-success" />,
         info: <InfoIcon className="size-4 text-info" />,
-        warning: <TriangleAlertIcon className="size-4 text-accent" />,
+        warning: <TriangleAlertIcon className="size-4 text-warning" />,
         error: <OctagonXIcon className="size-4 text-danger" />,
-        loading: <Loader2Icon className="size-4 animate-spin text-accent" />,
+        loading: <Loader2Icon className="size-4 animate-spin text-fg-2" />,
       }}
       toastOptions={{
         classNames: {
-          toast: "clay !rounded-xl !font-primary",
+          toast: "!rounded-lg !border-white/[0.08] !bg-popover !font-primary !text-[13px] !shadow-[0_16px_48px_rgba(0,0,0,0.5)]",
         },
       }}
       style={

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 export type TabItem = { value: string; label: React.ReactNode; href?: string };
 
-/** transitions.dev "Tabs sliding": a gold pill glides between segments. */
+/** Segmented control for filters (transitions.dev "Tabs sliding"): a flat chip glides between segments. */
 export function SlidingTabs({
   items,
   value,
@@ -36,11 +36,11 @@ export function SlidingTabs({
         return;
       }
       if (!animate) pill.style.transition = "none";
-      // Recessed pill: 3px moat on all sides so x/y padding match.
-      pill.style.transform = `translateX(${active.offsetLeft + 3}px)`;
-      pill.style.width = `${active.offsetWidth - 6}px`;
-      pill.style.height = `${active.offsetHeight - 6}px`;
-      pill.style.top = `${active.offsetTop + 3}px`;
+      // Flat pill sits exactly on the active segment.
+      pill.style.transform = `translateX(${active.offsetLeft}px)`;
+      pill.style.width = `${active.offsetWidth}px`;
+      pill.style.height = `${active.offsetHeight}px`;
+      pill.style.top = `${active.offsetTop}px`;
       if (!animate) {
         void pill.offsetHeight;
         pill.style.transition = "";
@@ -53,11 +53,11 @@ export function SlidingTabs({
     return () => window.removeEventListener("resize", onResize);
   }, [value, items.length]);
 
-  const tabClass = cn("t-tab inline-flex items-center gap-1.5 font-medium whitespace-nowrap", size === "sm" ? "!h-8 text-xs" : "!h-9 text-sm");
+  const tabClass = cn("t-tab inline-flex items-center gap-1.5 font-medium whitespace-nowrap", size === "sm" ? "!h-7 !px-2.5 text-xs" : "!h-8 !px-3 text-[13px]");
 
   return (
-    <div ref={barRef} role="tablist" className={cn("t-tabs clay max-w-full overflow-x-auto scrollbar-hide", className)}>
-      <span ref={pillRef} className="t-tabs-pill" style={{ top: 3 }} aria-hidden />
+    <div ref={barRef} role="tablist" className={cn("t-tabs max-w-full overflow-x-auto scrollbar-hide", className)}>
+      <span ref={pillRef} className="t-tabs-pill" style={{ top: 2 }} aria-hidden />
       {items.map((item) => {
         const selected = item.value === value;
         return item.href ? (
@@ -66,7 +66,7 @@ export function SlidingTabs({
             href={item.href}
             role="tab"
             aria-selected={selected}
-            className={cn(tabClass, selected && "font-semibold")}
+            className={tabClass}
             scroll={false}
           >
             {item.label}
@@ -77,7 +77,7 @@ export function SlidingTabs({
             type="button"
             role="tab"
             aria-selected={selected}
-            className={cn(tabClass, selected && "font-semibold")}
+            className={tabClass}
             onClick={() => onChange?.(item.value)}
           >
             {item.label}

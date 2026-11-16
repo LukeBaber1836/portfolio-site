@@ -19,7 +19,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fieldInputClass } from "@/components/shared/FormField";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/format";
@@ -92,8 +91,8 @@ function FileRow({
 
   if (editing) {
     return (
-      <li className="flex items-center gap-2 px-3 py-0.5 text-xs">
-        <FileIcon type={file.type} className="size-3.5 shrink-0 text-white/25" />
+      <li className="flex min-h-9 items-center gap-2 px-4 text-xs">
+        <FileIcon type={file.type} className="size-3.5 shrink-0 text-fg-3" />
         <span className="flex min-w-0 flex-1 items-center gap-1.5">
           <input
             autoFocus
@@ -110,9 +109,9 @@ function FileRow({
             aria-label={"Rename " + file.name}
             className={cn(fieldInputClass, "h-8 min-w-0 flex-1 px-2 text-xs")}
           />
-          {ext && <span className="shrink-0 text-white/35">{ext}</span>}
+          {ext && <span className="shrink-0 text-fg-3">{ext}</span>}
         </span>
-        <Button variant="ghost" size="icon-sm" aria-label="Save name" disabled={busy} onClick={save} className="size-7 hover:text-success">
+        <Button variant="ghost" size="icon-sm" aria-label="Save name" disabled={busy} onClick={save} className="size-7">
           <Check className="size-3.5" />
         </Button>
         <Button
@@ -133,15 +132,15 @@ function FileRow({
   }
 
   return (
-    <li className="group/file flex items-center gap-2.5 rounded-lg px-3 py-0.5 text-xs transition-colors hover:bg-white/[0.03]">
-      <FileIcon type={file.type} className="size-3.5 shrink-0 text-white/25" />
-      <span className="min-w-0 flex-1 truncate text-white/80" title={file.name}>
+    <li className="group/file flex min-h-9 items-center gap-3 px-4 text-[13px] transition-colors hover:bg-white/[0.025]">
+      <FileIcon type={file.type} className="size-3.5 shrink-0 text-fg-3" />
+      <span className="min-w-0 flex-1 truncate text-white" title={file.name}>
         {file.name}
       </span>
-      <span className="shrink-0 tabular-nums text-white/35">{formatBytes(file.size)}</span>
-      <span className="hidden shrink-0 text-white/30 sm:inline">{formatDate(file.modified, "MMM d")}</span>
+      <span className="w-16 shrink-0 text-right text-xs tabular-nums text-fg-3">{formatBytes(file.size)}</span>
+      <span className="hidden w-14 shrink-0 text-right text-xs text-fg-3 sm:inline">{formatDate(file.modified, "MMM d")}</span>
       <span className="flex shrink-0 gap-0.5 opacity-0 transition-opacity group-focus-within/file:opacity-100 group-hover/file:opacity-100">
-        <Button variant="ghost" size="icon-sm" aria-label={"Rename " + file.name} onClick={() => setEditing(true)} className="size-7 hover:text-accent">
+        <Button variant="ghost" size="icon-sm" aria-label={"Rename " + file.name} onClick={() => setEditing(true)} className="size-7">
           <Pencil className="size-3.5" />
         </Button>
         <Button variant="ghost" size="icon-sm" aria-label={"Delete " + file.name} onClick={() => setConfirming(true)} className="size-7 hover:text-danger">
@@ -149,10 +148,10 @@ function FileRow({
         </Button>
       </span>
       <AlertDialog open={confirming} onOpenChange={setConfirming}>
-        <AlertDialogContent className="clay rounded-2xl border-white/10 bg-popover">
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Delete this file?</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm leading-6 text-white/60">
+            <AlertDialogDescription className="text-[13px] leading-5 text-fg-2">
               {file.name} will be removed from storage. You can upload it again afterwards.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -227,28 +226,29 @@ function FolderRow({ projectId, folder, revision }: { projectId: string; folder:
     <Disclosure
       open={open}
       onOpenChange={setOpen}
-      className="border-b border-white/5 last:border-0"
+      className="border-b border-line last:border-0"
+      headClassName="px-4"
       title={
         <span className="flex items-center gap-2.5">
-          <FolderIcon name={folder} className="size-4 shrink-0 text-white/40" />
+          <FolderIcon name={folder} className="size-4 shrink-0 text-fg-3" />
           <span className="truncate capitalize">{folder}</span>
-          {files && <span className="text-xs text-white/35">{files.length}</span>}
+          {files && <span className="text-xs tabular-nums text-fg-3">{files.length}</span>}
         </span>
       }
       onOpen={load}
     >
-      <div className="pb-3 pl-4">
+      <div className="pb-2">
         {error ? (
-          <p className="text-xs text-danger">{error}</p>
+          <p className="px-4 text-xs text-danger">{error}</p>
         ) : loading || !files ? (
-          <div className="space-y-2">
+          <div className="space-y-2 px-4">
             <Skeleton className="h-4 w-2/3 bg-white/5" />
             <Skeleton className="h-4 w-1/2 bg-white/5" />
           </div>
         ) : files.length === 0 ? (
-          <p className="text-xs text-white/35">Nothing here yet.</p>
+          <p className="px-4 text-xs text-fg-3">Nothing here yet.</p>
         ) : (
-          <ul className="space-y-1">
+          <ul className="divide-y divide-line border-t border-line">
             {files.map((f) => (
               <FileRow
                 key={f.name}
@@ -312,24 +312,25 @@ export function ProjectFilesBrowser({ projects, uploaded }: { projects: UploadPr
   const projectName = projects.find((p) => p.id === projectId)?.name;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Your files{projects.length > 1 && projectName ? ` · ${projectName}` : ""}</CardTitle>
-      </CardHeader>
-      <CardContent className="py-1">
+    <section>
+      <div className="mb-3 flex min-h-8 items-center gap-2">
+        <h2 className="text-sm font-semibold text-white">Your files</h2>
+        {projects.length > 1 && projectName && <span className="truncate text-[13px] text-fg-3">{projectName}</span>}
+      </div>
+      <div className="overflow-hidden rounded-lg border border-line bg-surface">
         {error ? (
-          <p className="py-3 text-sm text-danger">{error}</p>
+          <p className="px-4 py-3 text-[13px] text-danger">{error}</p>
         ) : !folders ? (
-          <div className="space-y-3 py-3">
+          <div className="space-y-3 px-4 py-3">
             <Skeleton className="h-5 w-40 bg-white/5" />
             <Skeleton className="h-5 w-32 bg-white/5" />
           </div>
         ) : folders.length === 0 ? (
-          <EmptyState compact icon={FolderOpen} title="No folders yet" description="They'll appear here once you upload something." />
+          <EmptyState compact title="No files yet" description="Anything you upload will show up here." />
         ) : (
           folders.map((f) => <FolderRow key={f} projectId={projectId} folder={f} revision={revisions[f] ?? 0} />)
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

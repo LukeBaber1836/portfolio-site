@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { Clock, Loader2, Plus, Receipt, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { createDraftInvoiceAction, loadUnbilledAction } from "@/app/admin/_actions/invoices";
@@ -12,7 +12,6 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { FormField, TextInput } from "@/components/shared/FormField";
 import { SubmitButton } from "@/components/shared/SubmitButton";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { groupEntriesForInvoice, invoiceTotalCents } from "@/lib/billing";
@@ -133,186 +132,36 @@ export function InvoiceBuilder({
     setTimeout(() => router.push(`/admin/invoices/${res.data.id}`), 450);
   }
 
+  const ghostInput =
+    "h-8 w-full rounded-md border border-transparent bg-transparent px-2 text-sm text-white placeholder:text-fg-3 outline-none transition-[border-color,box-shadow] hover:border-white/[0.08] focus:border-accent/50 focus:ring-[3px] focus:ring-accent/15";
+  const dueLabel = client ? formatDate(new Date(openedAt + terms * 86_400_000), "MMM d, yyyy") : null;
+
   return (
-    <form onSubmit={create} className="grid gap-6 lg:grid-cols-3">
-      <div className="space-y-6 lg:col-span-2">
-        <Card>
-          <CardContent>
-          <FormField label="Bill to" htmlFor="ib-client">
-            <Select value={clientId} onValueChange={selectClient}>
-              <SelectTrigger id="ib-client" className="h-11 text-sm text-white">
-                <SelectValue placeholder="Choose a client…" />
-              </SelectTrigger>
-              <SelectContent className="border-white/10 bg-popover">
-                {clients.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.company || c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormField>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="min-w-0">
-              <CardTitle>Unbilled hours</CardTitle>
-              <CardDescription>{roundingMinutes ? `Totals round to the nearest ${roundingMinutes} minutes per project.` : "Billed to the exact minute."}</CardDescription>
-            </div>
-            <CardAction>{entries.length > 0 && (<Button type="button" variant="ghost" size="sm" onClick={() => toggleIds(entries.map((e) => e.id), selected.size !== entries.length)}>{selected.size === entries.length ? "Clear all" : "Select all"}</Button>)}</CardAction>
-          </CardHeader>
-          <CardContent className="p-2">
-          {!clientId ? (
-            <EmptyState compact icon={Receipt} title="Pick a client" />
-          ) : loading ? (
-            <div className="flex items-center justify-center gap-2 py-10 text-sm text-white/50">
-              <Loader2 className="size-4 animate-spin" /> Loading hours…
-            </div>
-          ) : entries.length === 0 ? (
-            <EmptyState compact icon={Clock} title="No unbilled hours" description="You can still invoice fixed-price work with line items below." />
-          ) : (
-            <div className="divide-y divide-white/5">
-              {byProject.map(([projectId, g]) => {
-                const ids = g.entries.map((e) => e.id);
-                const count = ids.filter((id) => selected.has(id)).length;
-                const seconds = g.entries.filter((e) => selected.has(e.id)).reduce((s, e) => s + e.durationSeconds, 0);
-                return (
-                  <Disclosure
-                    key={projectId}
-                    defaultOpen={byProject.length === 1}
-                    className="px-3"
-                    leading={
-                      <Checkbox
-                        checked={count === ids.length ? true : count > 0 ? "indeterminate" : false}
-                        onCheckedChange={() => toggleIds(ids, count !== ids.length)}
-                        onClick={(e) => e.stopPropagation()}
-                        aria-label={`Select all ${g.name} entries`}
-                      />
-                    }
-                    title={
-                      <span className="flex items-center gap-3">
-                        <span className="min-w-0 flex-1 truncate font-medium">{g.name}</span>
-                        <span className="text-xs tabular-nums text-white/50">
-                          {count}/{ids.length} · {formatHours(seconds)}
-                        </span>
-                      </span>
-                    }
-                  >
-                    <ul className="mb-3 space-y-1 pl-7">
-                      {g.entries.map((e) => (
-                        <li key={e.id} className="flex items-start gap-3 rounded-lg p-2 text-sm hover:bg-white/[0.03]">
-                          <Checkbox checked={selected.has(e.id)} onCheckedChange={() => toggleIds([e.id], !selected.has(e.id))} aria-label={`Include ${formatDate(e.startedAt, "MMM d")} entry`} />
-                          <span className="w-16 shrink-0 text-xs leading-5 text-white/40">{formatDate(e.startedAt, "MMM d")}</span>
-                          <span className={cn("min-w-0 flex-1 leading-5", selected.has(e.id) ? "text-white/85" : "text-white/35 line-through")}>{e.description}</span>
-                          <span className="shrink-0 text-xs tabular-nums leading-5 text-white/60">{formatDuration(e.durationSeconds)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </Disclosure>
-                );
-              })}
-            </div>
-          )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="min-w-0">
-              <CardTitle>Line items</CardTitle>
-            </div>
-            <CardAction><Button type="button" variant="outline" size="sm" onClick={() => setItems((list) => [...list, { key: Date.now(), description: "", quantity: "1", unit: "" }])}><Plus /> Add item</Button></CardAction>
-          </CardHeader>
-          <CardContent>
-          {items.length === 0 ? (
-            <p className="text-sm text-white/40">No line items.</p>
-          ) : (
-            <ul className="space-y-3">
-              {items.map((item, idx) => (
-                <li key={item.key} className="grid grid-cols-[1fr_4.5rem_7rem_auto] items-center gap-2">
-                  <TextInput
-                    aria-label="Description"
-                    placeholder="PETG print — 2 enclosures"
-                    value={item.description}
-                    onChange={(e) => setItems((list) => list.map((it, i) => (i === idx ? { ...it, description: e.target.value } : it)))}
-                  />
-                  <TextInput
-                    aria-label="Quantity"
-                    inputMode="numeric"
-                    value={item.quantity}
-                    onChange={(e) => setItems((list) => list.map((it, i) => (i === idx ? { ...it, quantity: e.target.value } : it)))}
-                    className="text-center"
-                  />
-                  <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/40">$</span>
-                    <TextInput
-                      aria-label="Unit price"
-                      inputMode="decimal"
-                      placeholder="0.00"
-                      value={item.unit}
-                      onChange={(e) => setItems((list) => list.map((it, i) => (i === idx ? { ...it, unit: e.target.value } : it)))}
-                      className="pl-7"
-                    />
-                  </div>
-                  <Button type="button" variant="ghost" size="icon-sm" aria-label="Remove item" className="hover:text-danger" onClick={() => setItems((list) => list.filter((_, i) => i !== idx))}>
-                    <Trash2 />
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Summary */}
-      <div className="lg:sticky lg:top-24 lg:self-start">
-        <Card>
-          <CardHeader>
-            <CardTitle>Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-          <ul className="space-y-3 text-sm">
-            {groups.map((g) => (
-              <li key={g.key} className="flex justify-between gap-3">
-                <span className="min-w-0">
-                  <span className="block truncate text-white/85">{g.projectName}</span>
-                  <span className="block text-xs text-white/40">
-                    {formatHours(g.billedSeconds)} × {formatMoney(g.rateCents)}/h
-                    {g.billedSeconds !== g.loggedSeconds && ` (logged ${formatHours(g.loggedSeconds)})`}
-                  </span>
-                </span>
-                <span className="tabular-nums text-white">{formatMoney(g.amountCents)}</span>
-              </li>
-            ))}
-            {parsedItems.map((i, idx) => (
-              <li key={idx} className="flex justify-between gap-3">
-                <span className="min-w-0 truncate text-white/85">
-                  {i.description}
-                  {i.quantity > 1 && <span className="text-white/40"> ×{i.quantity}</span>}
-                </span>
-                <span className="tabular-nums text-white">{formatMoney(i.quantity * i.unitAmountCents)}</span>
-              </li>
-            ))}
-            {!groups.length && !parsedItems.length && <li className="text-white/40">Select hours or add items.</li>}
-          </ul>
-
-          <div className="my-5 flex items-end justify-between border-t border-white/10 pt-4">
-            <span className="text-xs uppercase tracking-wider text-white/50">Total</span>
-            <span className="text-3xl font-bold text-accent">
-              <AnimatedNumber value={formatMoney(total)} />
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            <FormField label="Payment terms" htmlFor="ib-terms" hint={client ? `Due ${formatDate(new Date(openedAt + terms * 86_400_000), "MMM d, yyyy")} if sent today.` : undefined}>
+    <form onSubmit={create}>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="min-w-0 space-y-8">
+          {/* Bill to + terms */}
+          <section className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Bill to" htmlFor="ib-client">
+              <Select value={clientId} onValueChange={selectClient}>
+                <SelectTrigger id="ib-client" className="text-sm text-white">
+                  <SelectValue placeholder="Choose a client…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.company || c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+            <FormField label="Payment terms" htmlFor="ib-terms" hint={dueLabel ? `Due ${dueLabel} if sent today.` : undefined}>
               <Select value={String(terms)} onValueChange={(v) => setTerms(Number(v))}>
-                <SelectTrigger id="ib-terms" className="h-11 text-sm text-white">
+                <SelectTrigger id="ib-terms" className="text-sm text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="border-white/10 bg-popover">
+                <SelectContent>
                   {[0, 7, 14, 15, 30, 45, 60].map((d) => (
                     <SelectItem key={d} value={String(d)}>
                       {d === 0 ? "Due on receipt" : `Net ${d}`}
@@ -322,17 +171,215 @@ export function InvoiceBuilder({
                 </SelectContent>
               </Select>
             </FormField>
-            <FormField label="Memo" htmlFor="ib-memo" optional hint="Shown on the invoice.">
-              <TextInput id="ib-memo" value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="September work — thanks!" maxLength={500} />
-            </FormField>
-            {itemsInvalid && <p className="text-xs text-danger">Each line item needs a description and a price.</p>}
-            <SubmitButton state={state} className="h-11 w-full" disabled={!clientId || total <= 0 || itemsInvalid} pendingLabel="Creating in Stripe…" successLabel="Draft created">
-              Create draft invoice
-            </SubmitButton>
-            <p className="text-center text-xs leading-5 text-white/40">Nothing is sent yet. Selected hours are locked to this draft.</p>
+          </section>
+
+          {/* Unbilled hours */}
+          <section>
+            <div className="mb-3 flex min-h-8 items-center justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-sm font-semibold text-white">Unbilled hours</h2>
+                <p className="text-xs text-fg-3">{roundingMinutes ? `Rounded to ${roundingMinutes} min per project.` : "Billed to the exact minute."}</p>
+              </div>
+              {entries.length > 0 && (
+                <Button type="button" variant="ghost" size="sm" onClick={() => toggleIds(entries.map((e) => e.id), selected.size !== entries.length)}>
+                  {selected.size === entries.length ? "Clear all" : "Select all"}
+                </Button>
+              )}
+            </div>
+            <div className="overflow-hidden rounded-lg border border-line bg-surface">
+              {!clientId ? (
+                <EmptyState compact title="Pick a client to load their hours" />
+              ) : loading ? (
+                <div className="flex items-center justify-center gap-2 py-8 text-[13px] text-fg-3">
+                  <Loader2 className="size-4 animate-spin" /> Loading hours…
+                </div>
+              ) : entries.length === 0 ? (
+                <EmptyState compact title="No unbilled hours" description="Fixed-price work can still go in line items." />
+              ) : (
+                <div className="divide-y divide-line">
+                  {byProject.map(([projectId, g]) => {
+                    const ids = g.entries.map((e) => e.id);
+                    const count = ids.filter((id) => selected.has(id)).length;
+                    const seconds = g.entries.filter((e) => selected.has(e.id)).reduce((s, e) => s + e.durationSeconds, 0);
+                    return (
+                      <Disclosure
+                        key={projectId}
+                        defaultOpen={byProject.length === 1}
+                        className="px-4"
+                        leading={
+                          <Checkbox
+                            checked={count === ids.length ? true : count > 0 ? "indeterminate" : false}
+                            onCheckedChange={() => toggleIds(ids, count !== ids.length)}
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={`Select all ${g.name} entries`}
+                          />
+                        }
+                        title={
+                          <span className="flex items-center gap-3">
+                            <span className="min-w-0 flex-1 truncate font-medium">{g.name}</span>
+                            <span className="text-xs tabular-nums text-fg-3">
+                              {count}/{ids.length} · {formatHours(seconds)}
+                            </span>
+                          </span>
+                        }
+                      >
+                        <ul className="mb-3 pl-7">
+                          {g.entries.map((e) => (
+                            <li key={e.id} className="flex min-h-9 items-center gap-3 rounded-md px-2 text-[13px] hover:bg-white/[0.03]">
+                              <Checkbox
+                                checked={selected.has(e.id)}
+                                onCheckedChange={() => toggleIds([e.id], !selected.has(e.id))}
+                                aria-label={`Include ${formatDate(e.startedAt, "MMM d")} entry`}
+                              />
+                              <span className="w-14 shrink-0 text-xs text-fg-3">{formatDate(e.startedAt, "MMM d")}</span>
+                              <span className={cn("min-w-0 flex-1 truncate", selected.has(e.id) ? "text-white" : "text-fg-3 line-through")}>
+                                {e.description}
+                              </span>
+                              <span className="shrink-0 text-xs tabular-nums text-fg-2">{formatDuration(e.durationSeconds)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </Disclosure>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Line items: inline editable table */}
+          <section>
+            <h2 className="mb-3 text-sm font-semibold text-white">Line items</h2>
+            <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+              <div className="min-w-[520px]">
+                {items.length > 0 && (
+                  <div className="divide-y divide-line">
+                    <div className="grid grid-cols-[1fr_4rem_6.5rem_6rem_2rem] items-center gap-2 px-2 py-2 text-xs text-fg-3">
+                      <span className="px-2">Description</span>
+                      <span className="px-2 text-center">Qty</span>
+                      <span className="px-2 text-right">Price</span>
+                      <span className="px-2 text-right">Amount</span>
+                      <span />
+                    </div>
+                    {items.map((item, idx) => {
+                      const qty = Math.max(1, Math.floor(Number(item.quantity) || 1));
+                      const unitCents = Math.round(Number(item.unit.replace(/[$,]/g, "")) * 100) || 0;
+                      return (
+                        <div key={item.key} className="group grid grid-cols-[1fr_4rem_6.5rem_6rem_2rem] items-center gap-2 px-2 py-1.5">
+                          <input
+                            aria-label="Description"
+                            placeholder="e.g. Domain + hosting setup"
+                            value={item.description}
+                            onChange={(e) => setItems((list) => list.map((it, i) => (i === idx ? { ...it, description: e.target.value } : it)))}
+                            className={ghostInput}
+                          />
+                          <input
+                            aria-label="Quantity"
+                            inputMode="numeric"
+                            value={item.quantity}
+                            onChange={(e) => setItems((list) => list.map((it, i) => (i === idx ? { ...it, quantity: e.target.value } : it)))}
+                            className={cn(ghostInput, "text-center tabular-nums")}
+                          />
+                          <div className="relative">
+                            <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-sm text-fg-3">$</span>
+                            <input
+                              aria-label="Unit price"
+                              inputMode="decimal"
+                              placeholder="0.00"
+                              value={item.unit}
+                              onChange={(e) => setItems((list) => list.map((it, i) => (i === idx ? { ...it, unit: e.target.value } : it)))}
+                              className={cn(ghostInput, "pl-5 text-right tabular-nums")}
+                            />
+                          </div>
+                          <span className="px-2 text-right text-sm tabular-nums text-fg-2">{formatMoney(qty * unitCents)}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label="Remove item"
+                            className="size-7 text-fg-3 opacity-0 transition-opacity hover:text-danger focus-visible:opacity-100 group-hover:opacity-100"
+                            onClick={() => setItems((list) => list.filter((_, i) => i !== idx))}
+                          >
+                            <Trash2 />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setItems((list) => [...list, { key: Date.now(), description: "", quantity: "1", unit: "" }])}
+                  className={cn(
+                    "flex w-full cursor-pointer items-center gap-2 px-4 py-2.5 text-[13px] text-fg-3 transition-colors hover:bg-white/[0.025] hover:text-white focus-visible:bg-white/[0.03] focus-visible:outline-none",
+                    items.length > 0 && "border-t border-line",
+                  )}
+                >
+                  <Plus className="size-4" aria-hidden /> Add line item
+                </button>
+              </div>
+            </div>
+            {itemsInvalid && <p className="mt-2 text-xs text-danger">Each line item needs a description and a price.</p>}
+          </section>
+
+          <FormField label="Memo" htmlFor="ib-memo" optional hint="Shown on the invoice.">
+            <TextInput id="ib-memo" value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Thanks for the work this month." maxLength={500} />
+          </FormField>
+        </div>
+
+        {/* Summary: what Stripe will bill (same grouping function as the server) */}
+        <aside className="lg:sticky lg:top-20 lg:self-start">
+          <div className="rounded-lg border border-line bg-surface">
+            <p className="border-b border-line px-4 py-3 text-xs font-medium text-fg-2">Summary</p>
+            <ul className="space-y-3 px-4 py-3 text-[13px]">
+              {groups.map((g) => (
+                <li key={g.key} className="flex justify-between gap-3">
+                  <span className="min-w-0">
+                    <span className="block truncate text-white">{g.projectName}</span>
+                    <span className="block text-xs text-fg-3">
+                      {formatHours(g.billedSeconds)} × {formatMoney(g.rateCents)}/h
+                      {g.billedSeconds !== g.loggedSeconds && ` (logged ${formatHours(g.loggedSeconds)})`}
+                    </span>
+                  </span>
+                  <span className="tabular-nums text-white">{formatMoney(g.amountCents)}</span>
+                </li>
+              ))}
+              {parsedItems.map((i, idx) => (
+                <li key={idx} className="flex justify-between gap-3">
+                  <span className="min-w-0 truncate text-white">
+                    {i.description}
+                    {i.quantity > 1 && <span className="text-fg-3"> ×{i.quantity}</span>}
+                  </span>
+                  <span className="tabular-nums text-white">{formatMoney(i.quantity * i.unitAmountCents)}</span>
+                </li>
+              ))}
+              {!groups.length && !parsedItems.length && <li className="text-fg-3">Select hours or add line items.</li>}
+            </ul>
+            <div className="flex items-baseline justify-between border-t border-line px-4 py-3">
+              <span className="text-[13px] text-fg-2">Total</span>
+              <span className="text-xl font-semibold tabular-nums text-white">
+                <AnimatedNumber value={formatMoney(total)} />
+              </span>
+            </div>
           </div>
-          </CardContent>
-        </Card>
+        </aside>
+      </div>
+
+      {/* Sticky action bar */}
+      <div className="sticky bottom-0 z-20 -mx-4 mt-8 flex items-center justify-between gap-4 border-t border-line bg-background/90 px-4 py-3 backdrop-blur-sm md:-mx-8 md:px-8">
+        <p className="min-w-0 text-xs leading-5 text-fg-3">Creates a Stripe draft and locks the selected hours. Nothing is sent yet.</p>
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="hidden text-sm tabular-nums text-white sm:inline">{formatMoney(total)}</span>
+          <SubmitButton
+            state={state}
+            size="sm"
+            disabled={!clientId || total <= 0 || itemsInvalid}
+            pendingLabel="Creating in Stripe…"
+            successLabel="Draft created"
+          >
+            Create draft
+          </SubmitButton>
+        </div>
       </div>
     </form>
   );

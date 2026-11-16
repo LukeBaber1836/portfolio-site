@@ -59,11 +59,11 @@ export function ProjectPicker({
         onChange(p.id);
         setOpen(false);
       }}
-      className="cursor-pointer rounded-lg py-2 data-[selected=true]:bg-white/5 data-[selected=true]:text-accent"
+      className="cursor-pointer rounded-md py-1.5 data-[selected=true]:bg-white/[0.06] data-[selected=true]:text-white"
     >
-      <Check className={cn("size-4", value === p.id ? "opacity-100 text-accent" : "opacity-0")} />
+      <Check className={cn("size-4", value === p.id ? "opacity-100 text-white" : "opacity-0")} />
       <span className="min-w-0 flex-1 truncate">{p.name}</span>
-      <span className="truncate text-xs text-white/40">{p.clientCompany || p.clientName}</span>
+      <span className="truncate text-xs text-fg-3">{p.clientCompany || p.clientName}</span>
     </CommandItem>
   );
 
@@ -79,19 +79,19 @@ export function ProjectPicker({
         >
           {selected ? (
             <span className="min-w-0 truncate">
-              {selected.name} <span className="text-white/40">· {selected.clientCompany || selected.clientName}</span>
+              {selected.name} <span className="text-fg-3">· {selected.clientCompany || selected.clientName}</span>
             </span>
           ) : (
-            <span className="text-white/35">{placeholder}</span>
+            <span className="text-fg-3">{placeholder}</span>
           )}
-          <ChevronsUpDown className="size-4 shrink-0 text-white/40" />
+          <ChevronsUpDown className="size-4 shrink-0 text-fg-3" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-72 rounded-xl border-white/10 bg-popover p-0" align="start">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-72 rounded-lg border-white/[0.08] bg-popover p-0" align="start">
         <Command className="bg-transparent">
           <CommandInput placeholder="Search projects or clients…" />
           <CommandList className="max-h-72">
-            <CommandEmpty className="py-6 text-center text-sm text-white/50">No active projects match.</CommandEmpty>
+            <CommandEmpty className="py-6 text-center text-[13px] text-fg-3">No active projects match.</CommandEmpty>
             {recent.length > 0 && (
               <CommandGroup heading="Recent">{recent.map((p) => item(p, "recent"))}</CommandGroup>
             )}

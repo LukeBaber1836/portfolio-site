@@ -60,19 +60,19 @@ export function LoginForm({ next, justReset }: { next?: string; justReset?: bool
   }
 
   return (
-    <div className="clay rounded-3xl bg-card p-8 sm:p-10">
-      <div className="mb-8 space-y-2">
-        <h1 className="text-2xl font-semibold text-white">Welcome back</h1>
+    <div className="rounded-xl border border-line bg-surface p-6 sm:p-8">
+      <div className="mb-6 space-y-1.5">
+        <h1 className="text-xl font-semibold tracking-[-0.01em] text-white">Welcome back</h1>
       </div>
 
       {justReset && (
-        <p className="mb-6 rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
+        <p className="mb-5 rounded-md border border-success/20 bg-success/[0.07] px-3 py-2.5 text-[13px] text-success">
           Your password has been updated. Sign in with your new password.
         </p>
       )}
 
       {oauthError && (
-        <p className="mb-6 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm leading-6 text-danger" role="alert">
+        <p className="mb-5 rounded-md border border-danger/20 bg-danger/[0.07] px-3 py-2.5 text-[13px] leading-5 text-danger" role="alert">
           {oauthError}
         </p>
       )}
@@ -109,7 +109,7 @@ export function LoginForm({ next, justReset }: { next?: string; justReset?: bool
             <button
               type="button"
               onClick={() => setVisible((v) => !v)}
-              className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-white/50 transition-colors hover:bg-white/5 hover:text-accent"
+              className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-fg-3 transition-colors hover:bg-white/[0.06] hover:text-white"
               aria-label={visible ? "Hide password" : "Show password"}
             >
               <span className="t-icon-swap" data-state={visible ? "b" : "a"}>
@@ -125,14 +125,14 @@ export function LoginForm({ next, justReset }: { next?: string; justReset?: bool
         </FormField>
 
         <div className="flex justify-end">
-          <Link href="/forgot-password" className="text-xs text-white/50 transition-colors hover:text-accent">
+          <Link href="/forgot-password" className="text-xs text-fg-3 transition-colors hover:text-white">
             Forgot your password?
           </Link>
         </div>
 
         <SubmitButton
           state={state}
-          className="h-11 w-full"
+          className="h-10 w-full"
           disabled={!email || !password}
           pendingLabel="Signing in…"
           successLabel="Welcome!"
@@ -141,9 +141,9 @@ export function LoginForm({ next, justReset }: { next?: string; justReset?: bool
         </SubmitButton>
       </form>
 
-      <p className="mt-8 text-center text-xs leading-5 text-white/40">
+      <p className="mt-8 text-center text-xs leading-5 text-fg-3">
         Accounts are created by invitation. Working with me but don&apos;t have a login?{" "}
-        <Link href="/contact" className="text-accent hover:underline">
+        <Link href="/contact" className="text-white underline-offset-4 hover:underline">
           Get in touch
         </Link>
         .

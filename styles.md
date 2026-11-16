@@ -41,41 +41,62 @@ Marketing container caps at 1200px at all sizes ≥1200px.
 
 ---
 
-## 2. Elevation (claymorphism)
+## 2. App surfaces (admin / portal / auth) — flat, 2026-11 redesign
 
-| Class | Use |
-|---|---|
-| `.clay` | Static cards (`ui/card`'s `Card`, auth cards). Puffy light/dark shadows |
-| `.clay-glow` | Interactive gold glow on hover (primary buttons). Glow layer is always present at 0 alpha so it fades instead of snapping |
-| `.clay-hover` | Icon buttons — no elevation at rest, puffy shadow on hover |
+The app shells dropped claymorphism for a flat Linear/Vercel/Stripe-style system. **Separation comes from
+lightness steps and 1px hairlines, never shadows.** Claymorphism (`.clay*`, gold gradients) is now
+**marketing-site only** (`app/(site)/`, `components/*.tsx`).
 
-**Caveat:** never declare `transition` inside these classes — every consumer already carries Tailwind's
-`transition-all`, and a second shorthand would clobber it to `box-shadow` only (documented in `globals.css`).
+| Token | Value | Use |
+|---|---|---|
+| `sunken` / `sidebar` | `#0f0f11` | Sidebar, behind the inset content panel |
+| `background` | `#141416` | Content panel / page |
+| `surface` | `#18181b` | Panels, tables, stat strip, cards |
+| `surface-2` | `#1d1d20` | Hover on a surface |
+| `surface-3` | `#232327` | Pressed/selected |
+| `popover` | `#1a1a1d` | Dialogs, menus, tooltips, toasts |
+| `line` / `line-strong` | white 7% / 12% | Hairline borders / outline buttons |
+| `fg-2` / `fg-3` | `#a0a0a8` / `#6c6c74` | Secondary / tertiary text |
+| `accent-strong` | `#f7dc97` | Primary button hover |
 
----
+- **Radius:** `--radius` 0.5rem → `rounded-md` 6px controls/badges, `rounded-lg` 8px panels/tables, `rounded-xl` 12px dialogs. Nothing above 12px in the app.
+- **Shadow:** only overlays (`0 16px 48px rgba(0,0,0,.5)`). Backdrops `black/60`, no blur.
+- **Brushed gold:** every solid gold surface uses the `gold-brushed` utility (globals.css): brushed-metal gradient +
+  fine grain + a soft glare, all as background layers (works with variants, e.g. `data-[state=checked]:gold-brushed`).
+  The glare follows the pointer via the shared `<GoldLight />` (mounted in `AppShell` and the auth layout), which eases
+  `--gx/--gy/--gnear/--ga` per on-screen element (offset measured against the element's own size, so sweeping across a button
+  sweeps the light) and sleeps when idle. No timed sweep. Touch = static; reduced motion = tracks instantly, no easing.
+  Gold buttons also get `gold-ring`: a reflective 1px metal rim (conic highlight that turns to face the pointer via `--ga`).
+  `Progress` is gold by default; pass `indicatorClassName` (e.g. `bg-danger`) to replace the fill. Tiny status dots stay flat `bg-accent`.
+- **Gold is for:** the one primary action per view, focus rings, checked controls, progress fills, the running-timer dot, the main chart series, dropzone drag-over. **Not** for nav active state, headings, icons, borders, tabs, hovers, or table links.
+- **Type:** 13px body, 12px meta/labels (sentence case, `fg-2`), page title 20px/600, section title 14px/600, stat values 24px/500 tabular. No uppercase-tracked eyebrows.
 
 ## 3. Components
 
-- **Button** (`components/ui/button.tsx`): `default` = gold gradient pill + `clay-glow`;
-  `goldOutline` / `iconOutline` = accent border, fills gold on hover; `destructive`, `outline`, `secondary`,
-  `ghost`, `link`. Effects: `shineHover` (primary CTAs, incl. header), `ringHover`, `shine`, `underline`.
-  Sizes: `default h-10`, `sm`, `lg h-11`, `icon`, `icon-sm`.
-- **Inputs** (`components/shared/FormField.tsx` + skinned `ui/input|select|textarea`): 44px (`h-11`),
-  `rounded-xl`, `border-white/10`, `bg-background`, `focus:border-accent` + `ring-accent/15`.
+- **Button** (`components/ui/button.tsx`): app variants `default` (flat gold, one per view), `outline`, `secondary`,
+  `ghost`, `destructive`, `link`; sizes `default h-9`, `sm h-8`, `lg h-10`, `icon`, `icon-sm`. Marketing-only variants
+  `brand` (old gold-gradient pill), `goldOutline`, `iconOutline` keep the clay look and original sizing via compound variants.
+- **App page building blocks** (`components/shared/`): `PageHeader` (title + `meta` " · " line + `back` link + actions;
+  replaces the old auto-breadcrumb), `PageTabs` (detail-page underline tabs with counts), `SlidingTabs` (small segmented
+  filter), `StatStrip`/`Stat` (one container split by hairlines — never a grid of KPI cards), `SectionHeader`/`SectionLink`,
+  `PropertyList`/`Property`/`RailSection` (Linear-style right rail, no card chrome), `AttentionList` ("Needs attention" /
+  "To do" rows: dot + sentence + action; one line "All caught up." when empty), `EmptyState` (one line, optional action, no illustration).
+  Admin `ProjectsList` = project rows; portal `ProjectCard` = flat card.
+- **Inputs** (`components/shared/FormField.tsx` + skinned `ui/select`, `DatePicker`, `TimePicker`): 36px (`h-9`),
+  `rounded-md`, `border-white/[0.08]` (`/[0.14]` hover), `bg-white/[0.03]`, focus `border-accent/50` + 3px `ring-accent/15`.
   All form selects use the shared `FieldSelect`/`FieldSelectItem` (`shared/FieldSelect.tsx`, Radix `ui/select`
   + popover) — never native `<select>`, whose OS chrome breaks the theme. Item highlight is white/10 + gold text.
 - **Dark-OS guardrail:** the app is dark-only and `dark:` Tailwind variants key off the OS setting, so stock
   shadcn `dark:`/`slate-*` classes were purged from `ui/*` (select, tooltip, sheet, tabs, alert-dialog,
   input-otp, scroll-area). Never add `dark:` or `slate-*` classes — this codebase has no light theme.
-  Labels: uppercase 12px `text-white/60`. Errors: danger border + shake + `role="alert"` message.
+  Labels: 12px sentence case `text-fg-2`. Errors: danger border + shake + `role="alert"` message.
   Date inputs add `[color-scheme:dark]`. `NativeSelect` has a custom chevron, options on `bg-popover`.
-- **Tabs:** marketing `ui/tabs` active = gold gradient; app sliding tabs = `SlidingTabs` — selected tab is a recessed gold-outline pill (transparent fill, gold border, gold text), slightly smaller than the bar, gliding between segments.
-- **Nav:** desktop active link `text-accent border-b-2`; sidebar active item `text-accent` on white/6 + gold spine.
-- **Breadcrumb** (`components/ui/breadcrumb.tsx`, auto-derived in `AppShell` topbar, hidden on mobile):
-  links `text-white/50 hover:text-accent`, current page white semibold. ID segments render as "Details".
+- **Tabs:** marketing `ui/tabs` active = gold gradient. App: `PageTabs` (underline, white) for sections; `SlidingTabs` for filters — hairline well, flat white/8% chip gliding between segments, white label.
+- **Nav:** marketing active link `text-accent border-b-2`. App sidebar (inset variant, 240px, groups Work/Billing): 32px items, active = white text on white/7%, counts as tertiary numbers (gold dot only when collapsed).
+- **Topbar:** 48px, hairline bottom border, sidebar trigger + right slot (TimerBar in admin, client name in portal). The auto-breadcrumb was removed (it could only show "Details" for IDs); `PageHeader.back` carries real names.
 - **Dialogs/Sheets/Dropdowns/Popover/Command/Avatar/Skeleton/Progress/Separator/Table/Tooltip/InputOTP/Sonner/Sidebar/ScrollArea/AlertDialog/Label:** shadcn, skinned to brand (cards get `clay`, focus rings accent).
-- **Badge** (`ui/badge`): `info`/`attention`/`success`/`danger`/`neutral` tone variants matching §6 + `StatusBadge`/`statusBadgeFor` helpers — icon + label always, never color-alone.
-- **Card** (`ui/card`): `Card` is `clay rounded-2xl bg-card`; `CardHeader` (border-b row) + `CardTitle`/`CardDescription`/`CardAction` + `CardContent` (defaults `p-5`). All portal/admin sections use these directly.
+- **Badge** (`ui/badge`): 20px, `rounded-md`. `StatusBadge`/`statusBadgeFor` = neutral chip + 6px tone dot + label (never colour alone); `danger` also tints. Admin project status uses `PROJECT_STATUS_ADMIN` ("Client review").
+- **Card** (`ui/card`): flat `rounded-lg border-line bg-surface`; `CardHeader` 48px hairline row, `CardContent` `p-4`. Never nest cards; prefer bare sections + `SectionHeader` and right rails over card stacks.
 - **Switch** (`ui/switch`, Radix): gold gradient when on; composed with `Label` (+ description `<p>`) at call sites.
 - **Checkbox** (`ui/checkbox`, Radix): gold checked state, keeps the `t-check` draw animation; `checked="indeterminate"` for select-all headers; `disabled` for readonly indicators (password checklist).
 - **Calendar** (`ui/calendar`, react-day-picker) + shared `DatePicker` (`shared/DatePicker.tsx`: popover + calendar for `yyyy-MM-dd` string state, optional `max`). Used for milestone due dates, project start/due, manual entry start/end dates.
@@ -102,7 +123,7 @@ Marketing container caps at 1200px at all sizes ≥1200px.
     shadow root, so it can't use Tailwind; `review-toolbar/styles.css` hand-mirrors the tokens (clay shadow, gold
     gradient pins/buttons, `#1b1b1f` cards, JetBrains Mono). Keep it in sync when brand tokens change. Install
     snippet + checklist live in Admin → Settings → "Site review toolbar".
-- **Tables:** `bg-[#1b1b1f]` rows, `border-white/5` dividers, sticky header, `tabular-nums`, right-aligned money.
+- **Tables:** the table is the page (bordered `surface` container, no extra card). 36px header (12px `fg-3`, sentence case), 44px rows, `line` dividers, no zebra, whole row clickable, row actions on hover, `tabular-nums`, right-aligned money.
 
 ---
 
@@ -113,30 +134,29 @@ Marketing container caps at 1200px at all sizes ≥1200px.
 
 ## 5. App density (portal/admin/auth)
 
-- Base text 14–15px; headings via `PageHeader` (never marketing `.h1`).
-- 4px spacing grid; content `max-w-[1200px]`; sidebar 260px, collapsible to icons.
+- Base text 13px; headings via `PageHeader` (never marketing `.h1`).
+- 4px spacing grid; content `max-w-[1200px]` inside an inset panel (8px gutter, hairline border); sidebar 240px, collapsible to icons.
 - Topbar: sidebar trigger + divider + breadcrumb + right-aligned `topbar` slot (TimerBar in admin).
-- Cards: `ui/card`'s `Card`; KPI tiles: clay + `AnimatedNumber` pop-in.
+- Layout: page header → stat strip → sections (`SectionHeader`), 32px between sections; detail pages = main column + ~280px right rail.
 
 ## 6. Semantic status colors
 
-Gold is the accent, so **warning/attention is gold but "in progress" is cyan** — never use gold for warnings.
+Desaturated and amber-free so nothing competes with the gold brand. Colour lives on a 6px dot; the chip stays neutral.
 
 | Meaning | Token | Use |
 |---|---|---|
-| Info / in progress | cyan `#00b4c8` (`info`) | Project in progress, running-timer pulse |
-| Due / attention | gold `#f3d076` (`accent`) | Open invoice, awaiting review |
-| Success | emerald `#34d399` (`success`) | Paid, completed, milestone done |
-| Danger | rose `#fb7185` (`danger`/`destructive`) | Overdue, failed payment, errors |
-| Neutral | white/40 on white/5 | Draft, planned, void, archived |
-
-Badges: `rounded-full` pill, tinted bg at ~10%, 1px border at ~30%, icon + label always.
+| Info / in progress | blue `#7aa2f7` (`info`) | Project/milestone in progress |
+| Due / attention | gold dot (`accent`) | Open invoice, awaiting review, new request |
+| Warning | orange `#ef8a5a` (`warning`) | Budget ≥80%, "fair" password, toast warnings |
+| Success | green `#5fb98d` (`success`) | Paid, completed, milestone done |
+| Danger | red `#e5686b` (`danger`/`destructive`) | Overdue, failed payment, errors (chip also tinted) |
+| Neutral | `fg-3` dot | Draft, planned, void, archived |
 Status maps live in `lib/status.ts` (`*_STATUS` + `serviceLabel`); render via `statusBadgeFor`.
-Chart slots: `--color-chart-1 #b8872c` (billable/gold), `--color-chart-2 #0098aa` (cyan) — validated for `#27272c` via the dataviz palette validator; see §7 before adding slots.
+Chart slots: `--color-chart-1 #d9b45f` (billable, gold), `--color-chart-2 #4b4b53` (no-charge, neutral gray).
 
 ## 7. Data display
 
-- Tables as §3. KPI tiles: clay + big `AnimatedNumber`.
+- Tables as §3. Stats: `StatStrip` cells with `AnimatedNumber`; colour a value only when it signals something (overdue = danger).
 - Charts: follow the `dataviz` skill. Single series = gold ramp; categorical = status palette (§6).
   Every chart ships an equivalent sr-only `<table>` (see `WeeklyHoursChart`).
 - Money: `formatMoney` (cents → `$x.xx`), hours: `formatHours`/`formatDuration`, dates in `America/Chicago` (`lib/format.ts`).
@@ -178,7 +198,9 @@ Chart slots: `--color-chart-1 #b8872c` (billable/gold), `--color-chart-2 #0098aa
 ## 11. Anti-pattern guardrails (no AI-slop look)
 
 Check new UI against this list before shipping:
-- No purple/blue gradients, no Inter/system fonts — gold ramp + JetBrains Mono are the brand.
+- No gradients, glows, inset/puffy shadows, or glassmorphism in the app shells (gold gradient = marketing only). No Inter/system fonts — JetBrains Mono is the brand.
+- No icon-in-coloured-circle decorations, no cards inside cards, no pill-shaped containers, nothing rounder than 12px.
+- One gold element per region. No uppercase-tracked eyebrows. No helper copy that explains the obvious.
 - No emojis in UI copy or email. Arrows (`→`) and Lucide icons only.
 - No lorem/placeholder copy, no "delve / game-changer / revolutionize / unlock / cutting-edge" marketing filler.
 - No generic icon-title-description card grids with interchangeable copy — every card shows real data.

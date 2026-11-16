@@ -23,7 +23,7 @@ export function OtpCodeField({
             <InputOTPSlot
               key={i}
               index={i}
-              className="h-12 flex-1 rounded-xl border border-white/10 bg-background text-lg font-semibold first:rounded-xl last:rounded-xl data-[active=true]:border-accent data-[active=true]:ring-accent/20"
+              className="h-11 flex-1 rounded-md border border-white/[0.08] bg-white/[0.03] text-base font-medium first:rounded-md last:rounded-md data-[active=true]:border-accent/50 data-[active=true]:ring-[3px] data-[active=true]:ring-accent/15"
             />
           ))}
         </InputOTPGroup>

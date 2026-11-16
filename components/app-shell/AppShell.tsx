@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useEffect } from "react";
+import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Briefcase,
@@ -22,15 +22,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { GoldLight } from "@/components/shared/GoldLight";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,14 +79,12 @@ function isActive(pathname: string, item: NavItem) {
 }
 
 function NavBadge({ count }: { count?: number }) {
-  // transitions.dev "Notification badge": slides + pops in when count > 0.
-  const open = !!count && count > 0;
+  if (!count || count <= 0) return null;
   return (
-    <span className="t-badge !static ml-auto group-data-[collapsible=icon]:!absolute group-data-[collapsible=icon]:!-right-1 group-data-[collapsible=icon]:!-top-1" data-open={open}>
-      <span className="t-badge-dot flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-background">
-        {open ? (count! > 99 ? "99+" : count) : ""}
-      </span>
-    </span>
+    <>
+      <span className="ml-auto text-xs tabular-nums text-fg-3 group-data-[collapsible=icon]:hidden">{count > 99 ? "99+" : count}</span>
+      <span aria-hidden className="absolute right-1.5 top-1.5 hidden size-1.5 rounded-full bg-accent group-data-[collapsible=icon]:block" />
+    </>
   );
 }
 
@@ -104,59 +95,6 @@ function CloseOnNavigate({ pathname }: { pathname: string }) {
     setOpenMobile(false);
   }, [pathname, setOpenMobile]);
   return null;
-}
-
-const CRUMB_LABELS: Record<string, string> = {
-  clients: "Clients",
-  new: "New",
-  projects: "Projects",
-  time: "Time",
-  hours: "Hours",
-  invoices: "Invoices",
-  requests: "Requests",
-  files: "Files",
-  settings: "Settings",
-};
-
-function prettySegment(seg: string) {
-  if (/^[0-9a-f]{8}-[0-9a-f-]*$/i.test(seg) || /^c[a-z0-9]{10,}$/i.test(seg)) return "Details";
-  return CRUMB_LABELS[seg] ?? seg.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-/** Auto-derived breadcrumb: Area / section / … — no per-page wiring needed. */
-function AreaBreadcrumb({ area, pathname }: { area: "Admin" | "Client Portal"; pathname: string }) {
-  const root = area === "Admin" ? "/admin" : "/portal";
-  const segs = pathname.replace(root, "").split("/").filter(Boolean);
-  if (segs.length === 0) return null;
-  return (
-    <Breadcrumb className="hidden min-w-0 sm:block">
-      <BreadcrumbList className="flex-nowrap whitespace-nowrap">
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href={root}>{area}</Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        {segs.map((seg, i) => {
-          const last = i === segs.length - 1;
-          const href = `${root}/${segs.slice(0, i + 1).join("/")}`;
-          return (
-            <Fragment key={`${seg}-${i}`}>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                {last ? (
-                  <BreadcrumbPage className="truncate">{prettySegment(seg)}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink asChild>
-                    <Link href={href}>{prettySegment(seg)}</Link>
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-            </Fragment>
-          );
-        })}
-      </BreadcrumbList>
-    </Breadcrumb>
-  );
 }
 
 export function AppShell({
@@ -187,26 +125,27 @@ export function AppShell({
   }
 
   return (
-    <SidebarProvider>
-      <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-        <SidebarHeader className="px-3 pb-2 pt-5">
-          <Link href={area === "Admin" ? "/admin" : "/portal"} className="flex items-center gap-2 overflow-hidden px-1">
-            <span className="text-2xl font-semibold leading-none">
+    <SidebarProvider className="leading-normal">
+      <Sidebar collapsible="icon" variant="inset" className="border-r-0">
+        <SidebarHeader className="px-2 pb-1 pt-3">
+          <Link
+            href={area === "Admin" ? "/admin" : "/portal"}
+            className="flex h-9 items-center gap-2 overflow-hidden rounded-md px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+          >
+            <span className="text-lg font-semibold leading-none">
               L<span className="group-data-[collapsible=icon]:hidden">uke</span>
               <span className="text-accent">.</span>
             </span>
-            <span className="mt-1 truncate rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent group-data-[collapsible=icon]:hidden">
-              {area}
-            </span>
+            <span className="truncate text-xs text-fg-3 group-data-[collapsible=icon]:hidden">{area === "Admin" ? "Admin" : "Client portal"}</span>
           </Link>
         </SidebarHeader>
 
-        <SidebarContent className="px-1">
+        <SidebarContent>
           {groups.map((group, gi) => (
-            <SidebarGroup key={gi}>
-              {group.label && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-white/30">{group.label}</SidebarGroupLabel>}
+            <SidebarGroup key={gi} className="py-1.5">
+              {group.label && <SidebarGroupLabel className="h-7 px-2 text-[11px] font-normal text-fg-3">{group.label}</SidebarGroupLabel>}
               <SidebarGroupContent>
-                <SidebarMenu className="gap-1">
+                <SidebarMenu className="gap-px">
                   {group.items.map((item) => {
                     const Icon = ICONS[item.icon];
                     const active = isActive(pathname, item);
@@ -217,12 +156,12 @@ export function AppShell({
                           isActive={active}
                           tooltip={item.title}
                           className={cn(
-                            "h-10 rounded-xl text-white/65 transition-all duration-200 hover:bg-white/5 hover:text-white",
-                            "data-[active=true]:bg-white/[0.06] data-[active=true]:font-semibold data-[active=true]:text-accent",
+                            "relative h-8 rounded-md text-[13px] text-fg-2 transition-colors hover:bg-white/[0.04] hover:text-white",
+                            "data-[active=true]:bg-white/[0.07] data-[active=true]:font-medium data-[active=true]:text-white",
                           )}
                         >
                           <Link href={item.href}>
-                            <Icon className="!size-[18px]" />
+                            <Icon className="!size-4" strokeWidth={1.75} />
                             <span>{item.title}</span>
                             <NavBadge count={item.badge} />
                           </Link>
@@ -236,42 +175,42 @@ export function AppShell({
           ))}
         </SidebarContent>
 
-        <SidebarFooter className="p-3">
+        <SidebarFooter className="p-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex w-full cursor-pointer items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0">
-                <Avatar className="size-8 border border-white/10">
+              <button className="flex w-full cursor-pointer items-center gap-2.5 rounded-md p-1.5 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0">
+                <Avatar className="size-7">
                   {user.image && <AvatarImage src={user.image} alt="" />}
-                  <AvatarFallback className="bg-accent/15 text-xs font-semibold text-accent">{initials(user.name)}</AvatarFallback>
+                  <AvatarFallback className="bg-white/[0.08] text-[11px] font-medium text-white">{initials(user.name)}</AvatarFallback>
                 </Avatar>
                 <span className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-                  <span className="block truncate text-sm font-medium text-white">{user.name}</span>
-                  <span className="block truncate text-xs text-white/40">{user.email}</span>
+                  <span className="block truncate text-[13px] text-white">{user.name}</span>
+                  <span className="block truncate text-xs text-fg-3">{user.email}</span>
                 </span>
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="start" className="w-60 rounded-xl border-white/10 bg-popover p-1.5">
-              <DropdownMenuLabel className="text-xs font-normal text-white/50">Signed in as {user.email}</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-white/5" />
-              <DropdownMenuItem asChild className="cursor-pointer rounded-lg focus:bg-white/5 focus:text-accent">
+            <DropdownMenuContent side="top" align="start" className="w-60">
+              <DropdownMenuLabel className="truncate text-xs font-normal text-fg-3">{user.email}</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-white/[0.06]" />
+              <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={area === "Admin" ? "/admin/settings" : "/portal/settings"}>
                   <Settings /> Settings
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer rounded-lg focus:bg-white/5 focus:text-accent">
+              <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href="/">
                   <Globe /> lukebaber.com
                 </Link>
               </DropdownMenuItem>
               {storageUrl && (
-                <DropdownMenuItem asChild className="cursor-pointer rounded-lg focus:bg-white/5 focus:text-accent">
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <a href={storageUrl} target="_blank" rel="noreferrer">
                     <HardDrive /> {new URL(storageUrl).host}
                   </a>
                 </DropdownMenuItem>
               )}
-              <DropdownMenuSeparator className="bg-white/5" />
-              <DropdownMenuItem onSelect={signOut} className="cursor-pointer rounded-lg text-danger focus:bg-danger/10 focus:text-danger">
+              <DropdownMenuSeparator className="bg-white/[0.06]" />
+              <DropdownMenuItem onSelect={signOut} className="cursor-pointer text-danger focus:bg-danger/10 focus:text-danger">
                 <LogOut className="text-danger" /> Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -280,16 +219,15 @@ export function AppShell({
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="min-w-0 bg-background">
+      <SidebarInset className="min-w-0 bg-background md:border md:border-line md:peer-data-[variant=inset]:rounded-lg md:peer-data-[variant=inset]:shadow-none">
         {banner}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-white/5 bg-background/80 px-4 backdrop-blur-md md:px-6">
-          <SidebarTrigger className="-ml-1 shrink-0 text-white/60 hover:text-accent" />
-          <div className="h-5 w-px shrink-0 bg-white/10" />
-          <AreaBreadcrumb area={area} pathname={pathname} />
+        <header className="sticky top-0 z-30 flex h-12 items-center gap-2 border-b border-line bg-background/90 px-3 backdrop-blur-sm md:rounded-t-lg md:px-4">
+          <SidebarTrigger className="size-8 shrink-0 text-fg-3 hover:bg-white/[0.06] hover:text-white" />
           <div className="flex min-w-0 flex-1 items-center justify-end gap-3">{topbar}</div>
         </header>
         <CloseOnNavigate pathname={pathname} />
-        <div key={pathname} className="app-enter mx-auto w-full max-w-[1200px] px-4 py-8 md:px-6 lg:px-8">
+        <GoldLight />
+        <div key={pathname} className="app-enter mx-auto w-full max-w-[1200px] px-4 py-6 md:px-8 md:py-8">
           {children}
         </div>
       </SidebarInset>

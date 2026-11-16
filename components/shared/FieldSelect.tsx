@@ -36,13 +36,13 @@ export function FieldSelect({
         id={id}
         aria-label={label}
         className={cn(
-          "h-11 text-sm text-white data-[placeholder]:text-white/35",
+          "text-sm text-white data-[placeholder]:text-fg-3",
           className,
         )}
       >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent className="border-white/10 bg-popover">{children}</SelectContent>
+      <SelectContent>{children}</SelectContent>
     </Select>
   );
 }

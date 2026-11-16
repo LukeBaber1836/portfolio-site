@@ -60,19 +60,19 @@ export function ContactsPanel({ clientId, members }: { clientId: string; members
 
   return (
     <div className="space-y-4">
-      <ul className="divide-y divide-white/5">
+      <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface">
         {members.map((m) => (
-          <li key={m.userId} className="flex flex-wrap items-center gap-3 py-3">
-            <Avatar className="size-9 border border-white/10">
-              <AvatarFallback className="bg-accent/10 text-xs text-accent">{initials(m.name)}</AvatarFallback>
+          <li key={m.userId} className="group flex flex-wrap items-center gap-3 px-4 py-2.5">
+            <Avatar className="size-7">
+              <AvatarFallback className="bg-white/[0.08] text-[11px] text-white">{initials(m.name)}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm text-white">
-                {m.name} {m.role === "owner" && <span className="text-xs text-white/35">· primary</span>}
+              <p className="truncate text-[13px] text-white">
+                {m.name} {m.role === "owner" && <span className="text-xs text-fg-3">· primary</span>}
               </p>
-              <p className="truncate text-xs text-white/40">{m.email}</p>
+              <p className="truncate text-xs text-fg-3">{m.email}</p>
             </div>
-            <StatusBadge tone={m.joinedAt ? "success" : "attention"} label={m.statusLabel} />
+            <StatusBadge tone={m.joinedAt ? "success" : "neutral"} label={m.statusLabel} />
             <div className="flex gap-1">
               <Button
                 variant="ghost"
@@ -97,7 +97,7 @@ export function ContactsPanel({ clientId, members }: { clientId: string; members
                   variant="ghost"
                   size="icon-sm"
                   aria-label={`Remove ${m.name}`}
-                  className="hover:text-danger"
+                  className="text-fg-3 hover:bg-danger/10 hover:text-danger"
                   action={() => removeContactAction(clientId, m.userId)}
                   confirm={{
                     title: `Remove ${m.name}?`,
@@ -122,8 +122,8 @@ export function ContactsPanel({ clientId, members }: { clientId: string; members
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-white">Add a contact</DialogTitle>
-            <DialogDescription className="text-white/50">They&apos;ll see the same projects, hours, and invoices.</DialogDescription>
+            <DialogTitle>Add a contact</DialogTitle>
+            <DialogDescription>They&apos;ll see the same projects, hours, and invoices.</DialogDescription>
           </DialogHeader>
           <form onSubmit={add} className="space-y-4">
             <FormField label="Name" htmlFor="contact-name" error={errors.name}>
@@ -134,7 +134,7 @@ export function ContactsPanel({ clientId, members }: { clientId: string; members
             </FormField>
             <div className="flex items-center gap-2">
               <Switch id="contact-invite" checked={sendInvite} onCheckedChange={setSendInvite} />
-              <Label htmlFor="contact-invite" className="text-sm font-normal text-white">
+              <Label htmlFor="contact-invite" className="text-[13px] font-normal text-white">
                 Send invite email
               </Label>
             </div>

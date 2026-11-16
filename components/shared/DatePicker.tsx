@@ -43,15 +43,15 @@ export function DatePicker({
           type="button"
           variant="outline"
           className={cn(
-            "h-11 w-full justify-start rounded-xl border-white/10 bg-background px-4 text-sm font-normal",
-            selected ? "text-white" : "text-white/35",
+            "h-9 w-full justify-start rounded-md border-white/[0.08] bg-white/[0.03] px-3 text-sm font-normal hover:border-white/[0.14] hover:bg-white/[0.03]",
+            selected ? "text-white" : "text-fg-3",
           )}
         >
-          <CalendarIcon className="mr-2 size-4 shrink-0 text-white/40" />
+          <CalendarIcon className="mr-1 size-4 shrink-0 text-fg-3" />
           {selected ? <span className="truncate">{format(selected, "MMM d")}</span> : <span className="truncate">{placeholder}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto rounded-2xl border-white/10 bg-popover p-0" align="start">
+      <PopoverContent className="w-auto rounded-lg border-white/[0.08] bg-popover p-0" align="start">
         <Calendar
           mode="single"
           selected={selected}

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import { Clock, Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { deleteEntryAction, setBillableAction } from "@/app/admin/_actions/time";
@@ -57,10 +57,10 @@ export function Timesheet({ rows, projects, today }: { rows: TimesheetRow[]; pro
 
   return (
     <>
-      <div className="flex min-h-14 flex-wrap items-center justify-between gap-3 border-b border-white/5 px-5 py-3">
+      <div className="flex min-h-12 flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-2">
         {selected.size > 0 ? (
           <div className="t-panel-slide flex flex-wrap items-center gap-2" data-open="true" style={{ ["--panel-translate-y" as string]: "4px" }}>
-            <span className="text-sm text-white">{selected.size} selected</span>
+            <span className="text-[13px] text-white">{selected.size} selected</span>
             <Button variant="outline" size="sm" onClick={() => bulk(true)}>
               Billable
             </Button>
@@ -72,7 +72,7 @@ export function Timesheet({ rows, projects, today }: { rows: TimesheetRow[]; pro
             </Button>
           </div>
         ) : (
-          <p className="text-sm text-white/50">{rows.length} entries</p>
+          <p className="text-[13px] text-fg-3">{rows.length} {rows.length === 1 ? "entry" : "entries"}</p>
         )}
         <Button size="sm" onClick={() => openDialog(null)}>
           <Plus /> Add time
@@ -80,7 +80,7 @@ export function Timesheet({ rows, projects, today }: { rows: TimesheetRow[]; pro
       </div>
 
       {rows.length === 0 ? (
-        <EmptyState icon={Clock} title="No time in this range" />
+        <EmptyState compact title="No time in this range" />
       ) : (
         <Table>
           <TableHeader>
@@ -113,23 +113,23 @@ export function Timesheet({ rows, projects, today }: { rows: TimesheetRow[]; pro
                     )}
                   </TableCell>
                   <TableCell className="align-top">
-                    <span className="block text-white/80">{r.dateLabel}</span>
-                    <span className="block text-xs text-white/35">{r.timeLabel}</span>
+                    <span className="block text-white">{r.dateLabel}</span>
+                    <span className="block text-xs text-fg-3">{r.timeLabel}</span>
                   </TableCell>
                   <TableCell className="max-w-md whitespace-normal align-top">
-                    <span className="block text-xs text-white/40">
+                    <span className="block text-[13px] leading-5 text-white">{r.description}</span>
+                    <span className="block text-xs text-fg-3">
                       {r.clientName} · {r.projectName}
                     </span>
-                    <span className="block text-sm leading-6 text-white/85">{r.description}</span>
                   </TableCell>
-                  <TableCell className="text-right align-top tabular-nums text-white/80">{r.durationLabel}</TableCell>
-                  <TableCell className="text-right align-top tabular-nums text-white/60">{r.amountLabel}</TableCell>
+                  <TableCell className="text-right align-top tabular-nums text-white">{r.durationLabel}</TableCell>
+                  <TableCell className="text-right align-top tabular-nums text-fg-2">{r.amountLabel}</TableCell>
                   <TableCell className="align-top">
                     <StatusBadge tone={def.tone} label={def.label} />
                   </TableCell>
                   <TableCell className="align-top">
                     {r.editable && (
-                      <div className="flex justify-end opacity-60 transition-opacity group-hover:opacity-100">
+                      <div className="flex justify-end opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
                         <Button variant="ghost" size="icon-sm" aria-label="Edit entry" onClick={() => openDialog(r)}>
                           <Pencil />
                         </Button>

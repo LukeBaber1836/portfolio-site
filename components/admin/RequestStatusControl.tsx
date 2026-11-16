@@ -16,7 +16,7 @@ export function RequestStatusControl({ id, status }: { id: string; status: strin
       label="Request status"
       defaultValue={status}
       disabled={pending}
-      className="h-9 w-36 rounded-full text-xs"
+      className="h-8 w-36 text-xs"
       onValueChange={(value) =>
         startTransition(async () => {
           const res = await setRequestStatusAction(id, value);

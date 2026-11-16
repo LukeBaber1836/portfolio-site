@@ -23,7 +23,7 @@ export default async function NewInvoicePage({ searchParams }: { searchParams: P
       <PageHeader
         back={{ href: "/admin/invoices", label: "Invoices" }}
         title="New invoice"
-        description="Pick unbilled hours and add any fixed charges. A draft is created in Stripe for you to review before sending."
+        description="Pick unbilled hours, add any fixed charges, then review the draft before sending."
       />
       <InvoiceBuilder clients={clients} initialClientId={client} roundingMinutes={settings.roundingMinutes} defaultRateCents={settings.defaultRateCents} />
     </>

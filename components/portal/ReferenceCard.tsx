@@ -32,10 +32,10 @@ export function ReferenceCard({ reference }: { reference: ProjectReference }) {
   }
 
   return (
-    <li className="group flex flex-col overflow-hidden rounded-2xl border bg-background/40 transition-all duration-300 hover:-translate-y-0.5">
+    <li className="group flex flex-col overflow-hidden rounded-lg border border-line bg-surface">
       <ReferencePreview reference={reference}>
         <TooltipProvider delayDuration={2000}>
-          <div className="clay absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-background/85 p-1 backdrop-blur-sm">
+          <div className="absolute top-2 right-2 flex items-center gap-0.5 rounded-md border border-white/[0.08] bg-popover/95 p-0.5">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -48,7 +48,7 @@ export function ReferenceCard({ reference }: { reference: ProjectReference }) {
                   aria-pressed={reference.status === "approved"}
                   className={cn(
                     "size-11 disabled:opacity-100 sm:size-8",
-                    reference.status === "approved" ? "bg-success/10 text-success" : "text-white/50 hover:text-success",
+                    reference.status === "approved" ? "bg-success/10 text-success" : "text-fg-2 hover:text-white",
                   )}
                 >
                   <ThumbsUp className="size-4" />
@@ -68,7 +68,7 @@ export function ReferenceCard({ reference }: { reference: ProjectReference }) {
                   aria-pressed={reference.status === "declined"}
                   className={cn(
                     "size-11 disabled:opacity-100 sm:size-8",
-                    reference.status === "declined" ? "bg-danger/10 text-danger" : "text-white/50 hover:text-danger",
+                    reference.status === "declined" ? "bg-danger/10 text-danger" : "text-fg-2 hover:text-white",
                   )}
                 >
                   <ThumbsDown className="size-4" />
@@ -85,7 +85,7 @@ export function ReferenceCard({ reference }: { reference: ProjectReference }) {
                   onClick={() => setFeedbackOpen(true)}
                   aria-label={reference.responseNote ? "Edit your feedback" : "Give feedback"}
                   aria-haspopup="dialog"
-                  className={cn("size-11 sm:size-8", reference.responseNote ? "text-accent" : "text-white/50 hover:text-accent")}
+                  className={cn("size-11 sm:size-8", reference.responseNote ? "text-white" : "text-fg-2 hover:text-white")}
                 >
                   <Pencil className="size-4" />
                 </Button>
@@ -97,8 +97,11 @@ export function ReferenceCard({ reference }: { reference: ProjectReference }) {
       </ReferencePreview>
 
       {reference.responseNote && (
-        <div className="p-4">
-          <p className="line-clamp-3 border-l-2 border-accent/30 pl-2.5 text-xs leading-5 whitespace-pre-wrap text-white/55">{reference.responseNote}</p>
+        <div className="border-t border-line px-3 py-2.5">
+          <p className="line-clamp-3 text-xs leading-5 whitespace-pre-wrap text-fg-2">
+            <span className="text-fg-3">You: </span>
+            {reference.responseNote}
+          </p>
         </div>
       )}
 

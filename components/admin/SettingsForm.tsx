@@ -8,7 +8,7 @@ import { updateSettingsAction } from "@/app/admin/_actions/settings";
 import { FormField, TextInput } from "@/components/shared/FormField";
 import { FieldSelect, FieldSelectItem } from "@/components/shared/FieldSelect";
 import { SubmitButton } from "@/components/shared/SubmitButton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SettingsSection } from "@/components/admin/SettingsSection";
 import type { Settings } from "@/lib/db/schema";
 
 export function SettingsForm({ settings }: { settings: Settings }) {
@@ -48,17 +48,13 @@ export function SettingsForm({ settings }: { settings: Settings }) {
   }
 
   return (
-    <form onSubmit={submit} className="max-w-3xl space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Billing defaults</CardTitle>
-        </CardHeader>
-        <CardContent>
-        <div className="grid gap-5 md:grid-cols-2">
+    <form onSubmit={submit}>
+      <SettingsSection title="Billing defaults" description="Used for new clients and invoices unless overridden.">
+        <div className="grid gap-4 sm:grid-cols-2">
           <FormField label="Default hourly rate" htmlFor="s-defaultRate" error={errors.defaultRate}>
             <div className="relative">
-              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-white/40">$</span>
-              <TextInput {...bind("defaultRate")} inputMode="decimal" className="pl-8" />
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-fg-3">$</span>
+              <TextInput {...bind("defaultRate")} inputMode="decimal" className="pl-6" />
             </div>
           </FormField>
           <FormField label="Default payment terms" htmlFor="s-defaultTermsDays" error={errors.defaultTermsDays}>
@@ -76,28 +72,15 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             error={errors.roundingMinutes}
             tooltip="Applied to each project's total on an invoice. Logged time is always stored exactly."
           >
-            <FieldSelect
-              id="s-roundingMinutes"
-              value={v.roundingMinutes}
-              onValueChange={(val) => setV((s) => ({ ...s, roundingMinutes: val }))}
-            >
+            <FieldSelect id="s-roundingMinutes" value={v.roundingMinutes} onValueChange={(val) => setV((s) => ({ ...s, roundingMinutes: val }))}>
               <FieldSelectItem value="0">Exact minutes</FieldSelectItem>
               <FieldSelectItem value="6">Nearest 6 minutes (0.1 h)</FieldSelectItem>
               <FieldSelectItem value="15">Nearest 15 minutes</FieldSelectItem>
               <FieldSelectItem value="30">Nearest 30 minutes</FieldSelectItem>
             </FieldSelect>
           </FormField>
-          <FormField
-            label="Long timer alert"
-            htmlFor="s-longTimerAlertHours"
-            error={errors.longTimerAlertHours}
-            tooltip="Email me if a timer runs longer than this."
-          >
-            <FieldSelect
-              id="s-longTimerAlertHours"
-              value={v.longTimerAlertHours}
-              onValueChange={(val) => setV((s) => ({ ...s, longTimerAlertHours: val }))}
-            >
+          <FormField label="Long timer alert" htmlFor="s-longTimerAlertHours" error={errors.longTimerAlertHours} tooltip="Email me if a timer runs longer than this.">
+            <FieldSelect id="s-longTimerAlertHours" value={v.longTimerAlertHours} onValueChange={(val) => setV((s) => ({ ...s, longTimerAlertHours: val }))}>
               {[4, 6, 8, 10, 12].map((h) => (
                 <FieldSelectItem key={h} value={String(h)}>
                   {h} hours
@@ -106,15 +89,10 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             </FieldSelect>
           </FormField>
         </div>
-        </CardContent>
-      </Card>
+      </SettingsSection>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Business</CardTitle>
-        </CardHeader>
-        <CardContent>
-        <div className="grid gap-5 md:grid-cols-2">
+      <SettingsSection title="Business" description="Shown on invoices and client emails.">
+        <div className="grid gap-4 sm:grid-cols-2">
           <FormField label="Business name" htmlFor="s-businessName" error={errors.businessName}>
             <TextInput {...bind("businessName")} />
           </FormField>
@@ -122,11 +100,9 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             <TextInput {...bind("businessEmail")} type="email" />
           </FormField>
         </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-end">
-        <SubmitButton state={state} pendingLabel="Saving…" successLabel="Saved">
+      </SettingsSection>
+      <div className="flex justify-end pb-8">
+        <SubmitButton state={state} size="sm" pendingLabel="Saving…" successLabel="Saved">
           Save settings
         </SubmitButton>
       </div>

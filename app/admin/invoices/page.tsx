@@ -1,27 +1,26 @@
 import Link from "next/link";
-import { AlertTriangle, DollarSign, Receipt } from "lucide-react";
 
 import { InvoicesTable } from "@/components/admin/InvoicesTable";
-import { KpiTile } from "@/components/shared/KpiTile";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SlidingTabs } from "@/components/shared/SlidingTabs";
+import { Stat, StatStrip } from "@/components/shared/StatStrip";
 import { Button } from "@/components/ui/button";
 import type { AgingBucket } from "@/lib/billing";
 import { listInvoices, receivablesSummary } from "@/lib/dal/admin/invoices";
 import type { InvoiceStatus } from "@/lib/db/schema";
-import { formatMoney } from "@/lib/format";
+import { formatHours, formatMoney } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Invoices" };
 
 const FILTERS = ["all", "open", "overdue", "draft", "paid", "void"] as const;
 type Filter = (typeof FILTERS)[number];
 
-const AGING: { key: AgingBucket; label: string }[] = [
-  { key: "current", label: "Not yet due" },
-  { key: "1-30", label: "1–30 days late" },
-  { key: "31-60", label: "31–60 days late" },
-  { key: "60+", label: "60+ days late" },
+const AGING: { key: AgingBucket; label: string; className: string }[] = [
+  { key: "current", label: "Not yet due", className: "bg-fg-3" },
+  { key: "1-30", label: "1–30 days late", className: "bg-danger/50" },
+  { key: "31-60", label: "31–60 days late", className: "bg-danger/75" },
+  { key: "60+", label: "60+ days late", className: "bg-danger" },
 ];
 
 export default async function InvoicesPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
@@ -31,7 +30,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
     receivablesSummary(),
     listInvoices({ status: filter === "all" ? undefined : (filter as InvoiceStatus | "overdue") }),
   ]);
-  const agingMax = Math.max(1, ...Object.values(ar.aging));
+  const late = ar.outstandingCents - ar.aging.current;
 
   return (
     <>
@@ -44,53 +43,42 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <KpiTile label="Outstanding" value={formatMoney(ar.outstandingCents)} icon={DollarSign} href="/admin/invoices?status=open" />
-        <KpiTile
+      <StatStrip>
+        <Stat label="Outstanding" value={formatMoney(ar.outstandingCents)} hint={`${ar.openCount} open`} href="/admin/invoices?status=open" />
+        <Stat
           label="Overdue"
           value={formatMoney(ar.overdueCents)}
-          icon={AlertTriangle}
           tone={ar.overdueCount ? "danger" : "default"}
+          hint={ar.overdueCount ? `${ar.overdueCount} ${ar.overdueCount === 1 ? "invoice" : "invoices"}` : "None"}
           href="/admin/invoices?status=overdue"
         />
-        <KpiTile label="Paid this month" value={formatMoney(ar.paidThisMonthCents)} icon={Receipt} tone="success" href="/admin/invoices?status=paid" />
-      </div>
+        <Stat label="Paid this month" value={formatMoney(ar.paidThisMonthCents)} href="/admin/invoices?status=paid" />
+        <Stat label="Unbilled" value={formatMoney(ar.unbilledCents)} hint={formatHours(ar.unbilledSeconds, 1)} href="/admin/invoices/new" />
+      </StatStrip>
 
-      {ar.outstandingCents > 0 && (
-        <Card className="mt-6">
-          <CardHeader>
-            <div className="min-w-0">
-              <CardTitle>Receivables aging</CardTitle>
-              <CardDescription>Open balances by how late they are.</CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <dl className="space-y-3">
-            {AGING.map(({ key, label }) => {
-              const cents = ar.aging[key];
-              const pct = (cents / agingMax) * 100;
-              return (
-                <div key={key} className="grid grid-cols-[9rem_1fr_6rem] items-center gap-3 text-sm">
-                  <dt className="text-white/60">{label}</dt>
-                  <dd className="h-2.5 rounded-full bg-white/[0.06]" aria-hidden>
-                    {cents > 0 && (
-                      <div
-                        className="h-full rounded-full"
-                        style={{ width: `${Math.max(2, pct)}%`, background: key === "current" ? "var(--color-chart-2)" : "var(--color-chart-1)" }}
-                      />
-                    )}
-                  </dd>
-                  <dd className="text-right tabular-nums text-white">{formatMoney(cents)}</dd>
-                </div>
-              );
-            })}
-            </dl>
-          </CardContent>
-        </Card>
+      {/* Aging: one stacked bar + legend, only when something is late. */}
+      {late > 0 && (
+        <div className="mt-3 rounded-lg border border-line bg-surface px-4 py-3">
+          <div className="flex h-1.5 overflow-hidden rounded-full bg-white/[0.06]" aria-hidden>
+            {AGING.map(({ key, className }) =>
+              ar.aging[key] > 0 ? <div key={key} className={className} style={{ width: `${(ar.aging[key] / ar.outstandingCents) * 100}%` }} /> : null,
+            )}
+          </div>
+          <dl className="mt-2.5 flex flex-wrap gap-x-6 gap-y-1 text-xs">
+            {AGING.map(({ key, label, className }) => (
+              <div key={key} className="flex items-center gap-2">
+                <span aria-hidden className={cn("size-1.5 rounded-full", className)} />
+                <dt className="text-fg-3">{label}</dt>
+                <dd className="tabular-nums text-fg-2">{formatMoney(ar.aging[key])}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       )}
 
-      <div className="mb-4 mt-8 overflow-x-auto scrollbar-hide">
+      <div className="mb-3 mt-8 overflow-x-auto scrollbar-hide">
         <SlidingTabs
+          size="sm"
           value={filter}
           items={FILTERS.map((f) => ({
             value: f,
@@ -99,22 +87,20 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
           }))}
         />
       </div>
-      <Card>
-        <CardContent className="p-0">
-          <InvoicesTable
-            rows={rows}
-            hrefBase="/admin/invoices"
-            showClient
-            emptyAction={
-              filter === "all" && (
-                <Button asChild size="sm">
-                  <Link href="/admin/invoices/new">Create your first invoice</Link>
-                </Button>
-              )
-            }
-          />
-        </CardContent>
-      </Card>
+      <div className="overflow-hidden rounded-lg border border-line bg-surface">
+        <InvoicesTable
+          rows={rows}
+          hrefBase="/admin/invoices"
+          showClient
+          emptyAction={
+            filter === "all" && (
+              <Button asChild size="sm">
+                <Link href="/admin/invoices/new">Create your first invoice</Link>
+              </Button>
+            )
+          }
+        />
+      </div>
     </>
   );
 }

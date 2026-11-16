@@ -17,7 +17,7 @@ export function FilesWorkspace({ projects, initialProjectId }: { projects: Uploa
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <UploadDropbox projects={projects} initialProjectId={initialProjectId} onUploaded={onUploaded} />
       <ProjectFilesBrowser projects={projects} uploaded={uploaded} />
     </div>

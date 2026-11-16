@@ -1,9 +1,8 @@
-import { Clock, Download } from "lucide-react";
+import { Download } from "lucide-react";
 
 import { PortalTimeTable } from "@/components/portal/PortalTimeTable";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SlidingTabs } from "@/components/shared/SlidingTabs";
 import { Button } from "@/components/ui/button";
 import { portalHourMonths, portalHours } from "@/lib/dal/portal";
@@ -47,48 +46,38 @@ export default async function PortalHoursPage({ searchParams }: { searchParams: 
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>{range.label}</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-          {entries.length === 0 ? (
-            <EmptyState icon={Clock} title="No hours this month" description="Time I log on your projects will appear here." />
-          ) : (
+      {entries.length === 0 ? (
+        <div className="rounded-lg border border-line bg-surface">
+          <EmptyState title={`No hours in ${range.label}`} description="Time I log on your projects shows up here." />
+        </div>
+      ) : (
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_272px]">
+          <div className="min-w-0 overflow-hidden rounded-lg border border-line bg-surface">
             <PortalTimeTable entries={entries} showProject />
-          )}
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card className="self-start">
-          <CardHeader>
-            <CardTitle>Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-          <p className="text-4xl font-bold text-white">{formatHours(total, 1)}</p>
-          <p className="mt-1 text-xs text-white/45">
-            logged in {range.label}
-            {noCharge > 0 && ` · ${formatHours(noCharge, 1)} at no charge`}
-          </p>
-          {byProject.size > 0 && (
-            <ul className="mt-6 space-y-3 border-t border-white/5 pt-4">
-              {[...byProject.entries()].map(([name, seconds]) => (
-                <li key={name}>
-                  <div className="mb-1.5 flex justify-between text-sm">
-                    <span className="truncate text-white/80">{name}</span>
-                    <span className="tabular-nums text-white">{formatHours(seconds, 1)}</span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-white/[0.06]" aria-hidden>
-                    <div className="h-full rounded-full" style={{ width: `${Math.max(3, (seconds / total) * 100)}%`, background: "var(--color-chart-1)" }} />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-          </CardContent>
-        </Card>
-      </div>
+          <aside className="self-start">
+            <p className="text-xs text-fg-3">Total for {range.label}</p>
+            <p className="mt-1 text-2xl font-medium tabular-nums text-white">{formatHours(total, 1)}</p>
+            {noCharge > 0 && <p className="mt-1 text-xs text-fg-3">{formatHours(noCharge, 1)} of that at no charge</p>}
+            {byProject.size > 1 && (
+              <ul className="mt-6 space-y-3 border-t border-line pt-5">
+                {[...byProject.entries()].map(([name, seconds]) => (
+                  <li key={name}>
+                    <div className="mb-1.5 flex justify-between gap-3 text-[13px]">
+                      <span className="truncate text-fg-2">{name}</span>
+                      <span className="tabular-nums text-white">{formatHours(seconds, 1)}</span>
+                    </div>
+                    <div className="h-1 rounded-full bg-white/[0.06]" aria-hidden>
+                      <div className="gold-brushed h-full rounded-full" style={{ width: `${Math.max(3, (seconds / total) * 100)}%` }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </aside>
+        </div>
+      )}
     </>
   );
 }

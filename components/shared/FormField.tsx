@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/lib/utils";
 
 const inputBase =
-  "flex h-11 w-full rounded-xl border border-white/10 bg-background px-4 text-sm text-white placeholder:text-white/35 outline-none transition-[border-color,box-shadow] focus:border-accent focus:ring-2 focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-50";
+  "flex h-9 w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 text-sm text-white placeholder:text-fg-3 outline-none transition-[border-color,box-shadow] hover:border-white/[0.14] focus:border-accent/50 focus:ring-[3px] focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const fieldInputClass = inputBase;
 
@@ -61,8 +61,8 @@ export function FormField({
   }, [error, errorKey]);
 
   return (
-    <div ref={wrapRef} className={cn("t-input-wrap space-y-2", className)}>
-      <Label htmlFor={htmlFor} className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-white/60">
+    <div ref={wrapRef} className={cn("t-input-wrap space-y-1.5", className)}>
+      <Label htmlFor={htmlFor} className="flex items-center gap-2 text-xs font-medium text-fg-2">
         {label}
         {tooltip && (
           <Tooltip>
@@ -75,14 +75,14 @@ export function FormField({
                 <Info className="size-3.5" aria-hidden />
               </button>
             </TooltipTrigger>
-            <TooltipContent className="max-w-[250px] border-white/10 bg-popover text-xs font-normal normal-case leading-5 tracking-normal text-white/70">
+            <TooltipContent className="max-w-[250px] text-xs font-normal leading-5">
               {tooltip}
             </TooltipContent>
           </Tooltip>
         )}
-        {optional && <span className="normal-case tracking-normal text-white/30">optional</span>}
+        {optional && <span className="font-normal text-fg-3">optional</span>}
       </Label>
-      <div ref={shakeRef} className={cn("t-input rounded-xl", error && "[&_input]:border-danger [&_textarea]:border-danger [&_button[role=combobox]]:border-danger")}>
+      <div ref={shakeRef} className={cn("t-input rounded-md", error && "[&_input]:border-danger [&_textarea]:border-danger [&_button[role=combobox]]:border-danger")}>
         {children}
       </div>
       {error ? (
@@ -90,7 +90,7 @@ export function FormField({
           {error}
         </p>
       ) : (
-        hint && <p className="text-xs leading-5 text-white/40">{hint}</p>
+        hint && <p className="text-xs leading-5 text-fg-3">{hint}</p>
       )}
     </div>
   );
@@ -101,5 +101,5 @@ export function TextInput({ className, ...props }: React.ComponentProps<"input">
 }
 
 export function TextArea({ className, ...props }: React.ComponentProps<"textarea">) {
-  return <textarea className={cn(inputBase, "h-auto min-h-24 py-3 leading-6", className)} {...props} />;
+  return <textarea className={cn(inputBase, "h-auto min-h-24 py-2 leading-6", className)} {...props} />;
 }

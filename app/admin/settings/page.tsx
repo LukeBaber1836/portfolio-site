@@ -1,9 +1,8 @@
-import { CheckCircle2, CircleAlert } from "lucide-react";
-
 import { SettingsForm } from "@/components/admin/SettingsForm";
+import { SettingsSection } from "@/components/admin/SettingsSection";
 import { SiteReviewDocs } from "@/components/admin/SiteReviewDocs";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/badge";
 import { env } from "@/lib/env";
 import { getSettings } from "@/lib/services/settings";
 
@@ -13,7 +12,7 @@ export default async function SettingsPage() {
   const settings = await getSettings();
   const testMode = env.STRIPE_SECRET_KEY.startsWith("sk_test_");
   const checks = [
-    { label: "Stripe", ok: true, detail: testMode ? "Sandbox (test mode) — no real charges" : "Live mode" },
+    { label: "Stripe", ok: true, detail: testMode ? "Test mode — no real charges" : "Live mode" },
     { label: "Stripe webhooks", ok: !!env.STRIPE_WEBHOOK_SECRET, detail: env.STRIPE_WEBHOOK_SECRET ? "Signing secret configured" : "Missing STRIPE_WEBHOOK_SECRET" },
     { label: "Email sender", ok: !env.RESEND_FROM.includes("resend.dev"), detail: env.RESEND_FROM },
     { label: "Scheduled jobs", ok: !!env.CRON_SECRET, detail: env.CRON_SECRET ? "Reminders, timer alerts, weekly digests" : "Missing CRON_SECRET" },
@@ -21,40 +20,28 @@ export default async function SettingsPage() {
 
   return (
     <>
-      <PageHeader title="Settings" description="Defaults for billing and time tracking." />
-      <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
+      <PageHeader title="Settings" />
+      <div className="max-w-4xl">
         <SettingsForm settings={settings} />
-        <Card className="self-start">
-          <CardHeader>
-            <CardTitle>Integrations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-4">
+
+        <SettingsSection title="Integrations" description="Read from environment variables.">
+          <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface">
             {checks.map((c) => (
-              <li key={c.label} className="flex gap-3">
-                {c.ok ? <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" /> : <CircleAlert className="mt-0.5 size-4 shrink-0 text-danger" />}
+              <li key={c.label} className="flex items-center justify-between gap-4 px-4 py-3">
                 <div className="min-w-0">
-                  <p className="text-sm text-white">{c.label}</p>
-                  <p className="break-words text-xs text-white/45">{c.detail}</p>
+                  <p className="text-[13px] text-white">{c.label}</p>
+                  <p className="break-words text-xs text-fg-3">{c.detail}</p>
                 </div>
+                <StatusBadge tone={c.ok ? "success" : "danger"} label={c.ok ? "Connected" : "Needs setup"} />
               </li>
             ))}
           </ul>
-          </CardContent>
-        </Card>
-      </div>
+        </SettingsSection>
 
-      <Card id="site-review" className="mt-6 scroll-mt-24">
-        <CardHeader>
-          <div className="min-w-0">
-            <CardTitle>Site review toolbar</CardTitle>
-            <CardDescription>Lets clients pin comments directly on the sites you build.</CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent className="max-w-3xl">
+        <SettingsSection id="site-review" title="Site review toolbar" description="Lets clients pin comments directly on the sites you build.">
           <SiteReviewDocs devOrigin={process.env.NODE_ENV === "development" ? env.APP_URL : null} />
-        </CardContent>
-      </Card>
+        </SettingsSection>
+      </div>
     </>
   );
 }

@@ -64,7 +64,7 @@ export function RequestForm({ onDone }: { onDone?: () => void }) {
       <FormField label="Details" htmlFor="rq-body" error={errors.body} errorKey={errorKey} hint="Links, deadlines, and examples you like are all helpful.">
         <TextArea id="rq-body" rows={6} value={body} onChange={(e) => setBody(e.target.value)} maxLength={5000} />
       </FormField>
-      <SubmitButton state={state} className="w-full" pendingLabel="Sending…" successLabel="Sent!">
+      <SubmitButton state={state} className="w-full" pendingLabel="Sending…" successLabel="Sent">
         Send request
       </SubmitButton>
     </form>

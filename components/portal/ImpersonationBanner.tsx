@@ -12,17 +12,15 @@ export function ImpersonationBanner({ clientName, userName }: { clientName: stri
   const router = useRouter();
   const [pending, setPending] = useState(false);
   return (
-    <div className="flex items-center justify-center gap-2 px-4 pt-3">
-      <div className="flex w-fit max-w-full items-center gap-2.5 rounded-full border border-accent/40 bg-accent/[0.07] px-4 py-1.5 text-sm text-accent">
-        <Eye className="size-4 shrink-0" aria-hidden />
-        <span className="truncate">
-          Viewing as {userName} ({clientName})
-        </span>
-      </div>
+    <div className="flex min-h-10 items-center justify-center gap-3 border-b border-line bg-surface px-4 py-1.5 text-[13px] md:rounded-t-lg">
+      <Eye className="size-4 shrink-0 text-fg-3" aria-hidden />
+      <span className="min-w-0 truncate text-fg-2">
+        Viewing as <span className="text-white">{userName}</span> · {clientName}
+      </span>
       <Button
         size="sm"
         variant="outline"
-        className="h-8 shrink-0 rounded-full border-accent/40 text-xs text-accent hover:border-accent hover:bg-accent/10 hover:text-accent"
+        className="h-7 shrink-0"
         disabled={pending}
         onClick={async () => {
           setPending(true);

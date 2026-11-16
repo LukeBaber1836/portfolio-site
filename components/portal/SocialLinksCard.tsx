@@ -10,7 +10,6 @@ import { SocialIcon, SocialLinkItem } from "@/components/shared/SocialLinks";
 import { TextInput } from "@/components/shared/FormField";
 import { SubmitButton } from "@/components/shared/SubmitButton";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MAX_SOCIAL_LINKS, detectPlatform } from "@/lib/socials";
 
@@ -80,7 +79,7 @@ export function SocialLinksCard({ links: initial }: { links: string[] }) {
     >
       <div className="relative">
         {/* Live preview of the logo we'll pair with the link. */}
-        <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-white/60" aria-hidden>
+        <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-fg-2" aria-hidden>
           <SocialIcon url={draft} />
         </span>
         <TextInput
@@ -109,7 +108,7 @@ export function SocialLinksCard({ links: initial }: { links: string[] }) {
             type="button"
             variant="ghost"
             size="sm"
-            className="mr-auto px-2 text-white/50 hover:text-danger"
+            className="mr-auto px-2 text-fg-3 hover:bg-danger/10 hover:text-danger"
             disabled={state === "pending"}
             onClick={() => remove(index)}
           >
@@ -128,17 +127,16 @@ export function SocialLinksCard({ links: initial }: { links: string[] }) {
 
   return (
     <TooltipProvider delayDuration={600}>
-      <Card>
-        <CardHeader className={links.length === 0 && editing !== "new" ? "border-b-0" : undefined}>
-          <CardTitle>Socials</CardTitle>
-          <CardAction>
+      <section>
+        <div className="mb-2 flex min-h-7 items-center justify-between gap-2">
+          <h3 className="text-xs font-medium text-fg-2">Your socials</h3>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon-sm"
                   aria-label="Add a social link"
-                  className="text-white/60 hover:text-accent"
+                  className="size-7 text-fg-3 hover:text-white"
                   disabled={editing !== null || links.length >= MAX_SOCIAL_LINKS}
                   onClick={() => open("new")}
                 >
@@ -147,12 +145,11 @@ export function SocialLinksCard({ links: initial }: { links: string[] }) {
               </TooltipTrigger>
               <TooltipContent>Add a social link</TooltipContent>
             </Tooltip>
-          </CardAction>
-        </CardHeader>
-        {/* Empty card is just the header — the body appears once there's a link or the add form is open. */}
-        {(links.length > 0 || editing === "new") && (
-          <CardContent>
-            <ul className="space-y-2">
+        </div>
+        {links.length === 0 && editing !== "new" ? (
+          <p className="text-[13px] text-fg-3">Add your Instagram, Facebook, or others so I can link them from your site.</p>
+        ) : (
+            <ul className="space-y-1">
               {links.map((url, i) =>
                 editing === i ? (
                   <li key={url}>{editor(i)}</li>
@@ -170,7 +167,7 @@ export function SocialLinksCard({ links: initial }: { links: string[] }) {
                             onClick={() => open(i)}
                             disabled={editing !== null}
                             aria-label={`Edit ${detectPlatform(url).label} link`}
-                            className="text-white/50 hover:text-accent"
+                            className="text-fg-3 hover:text-white"
                           >
                             <Pencil className="size-4" />
                           </Button>
@@ -183,9 +180,8 @@ export function SocialLinksCard({ links: initial }: { links: string[] }) {
               )}
               {editing === "new" && <li>{editor("new")}</li>}
             </ul>
-          </CardContent>
         )}
-      </Card>
+      </section>
     </TooltipProvider>
   );
 }

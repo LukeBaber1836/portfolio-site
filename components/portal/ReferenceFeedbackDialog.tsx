@@ -15,8 +15,8 @@ import { cn } from "@/lib/utils";
 type Vote = "approved" | "declined";
 
 const VOTES: { value: Vote; label: string; icon: typeof ThumbsUp; active: string; hover: string }[] = [
-  { value: "approved", label: "I like it", icon: ThumbsUp, active: "border-success/40 bg-success/10 text-success", hover: "hover:text-success" },
-  { value: "declined", label: "Not for me", icon: ThumbsDown, active: "border-danger/40 bg-danger/10 text-danger", hover: "hover:text-danger" },
+  { value: "approved", label: "I like it", icon: ThumbsUp, active: "border-success/40 bg-success/10 text-success", hover: "hover:text-white" },
+  { value: "declined", label: "Not for me", icon: ThumbsDown, active: "border-danger/40 bg-danger/10 text-danger", hover: "hover:text-white" },
 ];
 
 /** Mounted only while the dialog is open, so it starts from the saved values every time. */
@@ -58,8 +58,8 @@ function FeedbackForm({ reference, onDone }: { reference: ProjectReference; onDo
             disabled={pending}
             onClick={() => setVote(value)}
             className={cn(
-              "flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:outline-none disabled:cursor-not-allowed",
-              vote === value ? active : cn("border-white/10 bg-background text-white/60", hover),
+              "flex h-10 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 text-[13px] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:outline-none disabled:cursor-not-allowed",
+              vote === value ? active : cn("border-white/[0.08] bg-white/[0.03] text-fg-2 hover:border-white/[0.14]", hover),
             )}
           >
             <Icon className="size-4" aria-hidden /> {label}
@@ -72,7 +72,7 @@ function FeedbackForm({ reference, onDone }: { reference: ProjectReference; onDo
         placeholder="What do you think? Anything you'd change?"
         maxLength={2000}
         aria-label="Your feedback"
-        className="min-h-28 text-sm"
+        className="min-h-28"
       />
       <DialogFooter>
         <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={onDone}>
@@ -99,8 +99,8 @@ export function ReferenceFeedbackDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white">Your feedback</DialogTitle>
-          <DialogDescription className="line-clamp-2 text-white/50">{reference.title}</DialogDescription>
+          <DialogTitle>Your feedback</DialogTitle>
+          <DialogDescription className="line-clamp-2">{reference.title}</DialogDescription>
         </DialogHeader>
         <FeedbackForm reference={reference} onDone={() => onOpenChange(false)} />
       </DialogContent>

@@ -117,7 +117,7 @@ export function ProjectForm({
       </div>
 
       <div className="space-y-3">
-        <p className="text-xs font-medium uppercase tracking-wider text-white/60">Billing</p>
+        <p className="text-sm font-medium text-white">Billing</p>
         <SlidingTabs
           size="sm"
           value={v.billingType}
@@ -131,15 +131,15 @@ export function ProjectForm({
           {v.billingType === "hourly" ? (
             <FormField label="Rate override" htmlFor="p-rate" optional error={errors.rate} errorKey={errorKey} hint={`Blank uses the client's rate (or $${defaultRateCents / 100}/h).`}>
               <div className="relative">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-white/40">$</span>
-                <TextInput id="p-rate" inputMode="decimal" className="pl-8" value={v.rate} onChange={(e) => set("rate", e.target.value)} />
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-fg-3">$</span>
+                <TextInput id="p-rate" inputMode="decimal" className="pl-7" value={v.rate} onChange={(e) => set("rate", e.target.value)} />
               </div>
             </FormField>
           ) : (
             <FormField label="Fixed price" htmlFor="p-fixed" optional error={errors.fixedPrice} errorKey={errorKey} hint="For reference; invoice it as a line item.">
               <div className="relative">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-white/40">$</span>
-                <TextInput id="p-fixed" inputMode="decimal" className="pl-8" value={v.fixedPrice} onChange={(e) => set("fixedPrice", e.target.value)} />
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-fg-3">$</span>
+                <TextInput id="p-fixed" inputMode="decimal" className="pl-7" value={v.fixedPrice} onChange={(e) => set("fixedPrice", e.target.value)} />
               </div>
             </FormField>
           )}
@@ -165,18 +165,18 @@ export function ProjectForm({
             step={5}
             value={v.progressPct}
             onChange={(e) => set("progressPct", Number(e.target.value))}
-            className="h-11 w-full cursor-pointer accent-[#f3d076]"
+            className="h-9 w-full cursor-pointer accent-[#f3d076]"
           />
         </FormField>
       </div>
 
-      <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+      <div className="rounded-lg border border-line p-3">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <Label htmlFor="p-visible" className="text-sm font-normal text-white">
               Visible in client portal
             </Label>
-            <p className="mt-0.5 text-xs leading-5 text-white/50">Turn off for internal projects. Hidden projects&apos; time still appears on invoices you send.</p>
+            <p className="mt-0.5 text-xs leading-5 text-fg-3">Turn off for internal projects. Hidden projects&apos; time still appears on invoices you send.</p>
           </div>
           <Switch id="p-visible" checked={v.clientVisible} onCheckedChange={(c) => set("clientVisible", c)} />
         </div>

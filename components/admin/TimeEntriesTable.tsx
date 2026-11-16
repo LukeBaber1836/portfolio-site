@@ -1,5 +1,3 @@
-import { Clock } from "lucide-react";
-
 import { EmptyState } from "@/components/shared/EmptyState";
 import { StatusBadge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -40,7 +38,7 @@ export function TimeEntriesTable({
   actions?: (entry: EntryRow) => React.ReactNode;
 }) {
   if (!entries.length) {
-    return <EmptyState compact icon={Clock} title="No time logged yet" description="Clock in from the top bar to start tracking." />;
+    return <EmptyState compact title="No time logged yet" description="Clock in from the top bar to start tracking." />;
   }
   return (
     <Table>
@@ -62,21 +60,21 @@ export function TimeEntriesTable({
           return (
             <TableRow key={e.id}>
               <TableCell className="align-top">
-                <span className="block text-white/80">{formatDate(e.startedAt, "EEE, MMM d")}</span>
-                <span className="block text-xs text-white/35">
+                <span className="block text-white">{formatDate(e.startedAt, "EEE, MMM d")}</span>
+                <span className="block text-xs text-fg-3">
                   {formatTime(e.startedAt)}–{e.endedAt ? formatTime(e.endedAt) : "now"}
                 </span>
               </TableCell>
               <TableCell className="max-w-md whitespace-normal align-top">
-                <span className="block text-xs text-white/40">
+                <span className="block text-[13px] leading-5 text-white">{e.description || <span className="text-fg-3">No description</span>}</span>
+                <span className="block text-xs text-fg-3">
                   {showClient && e.clientName ? `${e.clientName} · ` : ""}
                   {e.projectName}
                 </span>
-                <span className="block text-sm leading-6 text-white/85">{e.description || <span className="text-white/30">No description</span>}</span>
               </TableCell>
-              <TableCell className="text-right align-top tabular-nums text-white/80">{formatDuration(seconds)}</TableCell>
+              <TableCell className="text-right align-top tabular-nums text-white">{formatDuration(seconds)}</TableCell>
               {showAmount && (
-                <TableCell className="text-right align-top tabular-nums text-white/60">
+                <TableCell className="text-right align-top tabular-nums text-fg-2">
                   {e.billable && e.rateCents != null ? formatMoney(Math.round((seconds / 3600) * e.rateCents)) : "—"}
                 </TableCell>
               )}

@@ -1,9 +1,7 @@
-import { FolderKanban } from "lucide-react";
-
 import { ProjectCard } from "@/components/portal/ProjectCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent } from "@/components/ui/card";
+import { SectionHeader } from "@/components/shared/SectionHeader";
 import { portalProjects } from "@/lib/dal/portal";
 
 export const metadata = { title: "Projects" };
@@ -21,20 +19,18 @@ export default async function PortalProjectsPage() {
 
   return (
     <>
-      <PageHeader title="Projects" description="Progress, milestones, and updates for everything we're working on." />
+      <PageHeader title="Projects" />
       {rows.length === 0 ? (
-        <Card>
-          <CardContent>
-          <EmptyState icon={FolderKanban} title="No projects yet" />
-          </CardContent>
-        </Card>
+        <div className="rounded-lg border border-line bg-surface">
+          <EmptyState title="No projects yet" description="Once we kick things off, your projects and progress will show up here." />
+        </div>
       ) : (
         <div className="space-y-10">
-          {current.length > 0 && <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{current.map(card)}</div>}
+          {current.length > 0 && <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{current.map(card)}</div>}
           {past.length > 0 && (
             <section>
-              <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-white/40">Completed</h2>
-              <div className="grid gap-4 opacity-80 md:grid-cols-2 xl:grid-cols-3">{past.map(card)}</div>
+              <SectionHeader title="Completed" count={past.length} />
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{past.map(card)}</div>
             </section>
           )}
         </div>

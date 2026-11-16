@@ -73,7 +73,7 @@ export function SocialIcon({ url, className }: { url: string; className?: string
   return <Icon className={cn("size-4", className)} aria-hidden />;
 }
 
-/** One saved link as a clickable row: logo chip, platform name, and handle. */
+/** One saved link as a compact clickable row: platform logo, name (or domain), external arrow. */
 export function SocialLinkItem({ url, className }: { url: string; className?: string }) {
   const platform = detectPlatform(url);
   return (
@@ -82,18 +82,16 @@ export function SocialLinkItem({ url, className }: { url: string; className?: st
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-white/10 px-3 py-2.5 transition-colors hover:border-accent/40 hover:bg-accent/5",
+        "group flex h-8 min-w-0 flex-1 items-center gap-2.5 rounded-md px-2 text-[13px] text-fg-2 transition-colors hover:bg-white/[0.04] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
         className,
       )}
     >
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/5 text-white/70 group-hover:text-accent">
-        <SocialIcon url={url} />
-      </span>
+      <SocialIcon url={url} className="size-3.5 shrink-0 text-fg-3 group-hover:text-white" />
       {/* Unrecognised sites show their domain so two "Website" rows stay distinguishable. */}
-      <span className="min-w-0 flex-1 truncate text-sm text-white group-hover:text-accent">
+      <span className="min-w-0 flex-1 truncate">
         {platform.id === "website" ? (hostOf(url)?.replace(/^www\./, "") ?? platform.label) : platform.label}
       </span>
-      <ArrowUpRight className="size-4 shrink-0 text-white/30 group-hover:text-accent" aria-hidden />
+      <ArrowUpRight className="size-3.5 shrink-0 text-fg-3 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
     </a>
   );
 }

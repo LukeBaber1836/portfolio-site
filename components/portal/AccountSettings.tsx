@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { Info, Laptop, LogOut, Smartphone } from "lucide-react";
+import { Laptop, LogOut, Smartphone } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 
@@ -10,11 +10,9 @@ import { updatePreferencesAction } from "@/app/portal/_actions";
 import { FormField, TextInput } from "@/components/shared/FormField";
 import { PasswordField } from "@/components/shared/PasswordField";
 import { SubmitButton } from "@/components/shared/SubmitButton";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { authClient } from "@/lib/auth/client";
 import { readOAuthError, stripOAuthErrorParams, OAUTH_ERROR_PARAM } from "@/lib/auth/oauth-error";
 
@@ -114,196 +112,197 @@ export function AccountSettings({
   }
 
   return (
-    <div className="grid max-w-5xl gap-6 lg:grid-cols-2">
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile</CardTitle>
-          </CardHeader>
-          <CardContent>
-          <form onSubmit={saveName} className="space-y-4">
-            <FormField label="Name" htmlFor="acct-name">
-              <TextInput id="acct-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
+    <div className="max-w-4xl divide-y divide-line">
+      <SettingsSection title="Profile" description="How your name appears to me and on invoices.">
+        <form onSubmit={saveName} className="space-y-4">
+          <FormField label="Name" htmlFor="acct-name">
+            <TextInput id="acct-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
+          </FormField>
+          <FormField label="Email" htmlFor="acct-email" hint="Contact Luke to change your login email.">
+            <TextInput id="acct-email" value={user.email} disabled />
+          </FormField>
+          <div className="flex justify-end">
+            <SubmitButton state={nameState} size="sm" disabled={!name.trim() || name.trim() === user.name} successLabel="Saved">
+              Save
+            </SubmitButton>
+          </div>
+        </form>
+      </SettingsSection>
+
+      <SettingsSection title="Email notifications" description="Invoices, receipts, and security emails are always sent.">
+        <div className="divide-y divide-line rounded-lg border border-line bg-surface">
+          <PrefRow
+            id="pref-updates"
+            label="Project updates & milestones"
+            hint="When I post an update or finish a milestone."
+            checked={emailPrefs.emailUpdates}
+            onChange={(v) => savePrefs({ emailUpdates: v })}
+          />
+          <PrefRow
+            id="pref-weekly"
+            label="Weekly summary"
+            hint="Monday recap of hours logged the week before."
+            checked={emailPrefs.emailWeeklySummary}
+            onChange={(v) => savePrefs({ emailWeeklySummary: v })}
+          />
+        </div>
+      </SettingsSection>
+
+      {hasPassword && (
+        <SettingsSection title="Password" description="Changing it signs you out on your other devices.">
+          <form onSubmit={changePassword} className="space-y-4">
+            <FormField label="Current password" htmlFor="acct-current" error={pwError?.includes("current") ? pwError : null} errorKey={pwErrorKey}>
+              <TextInput id="acct-current" type="password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} />
             </FormField>
-            <FormField label="Email" htmlFor="acct-email" hint="Contact Luke to change your login email.">
-              <TextInput id="acct-email" value={user.email} disabled />
-            </FormField>
+            <PasswordField
+              name="new-password"
+              label="New password"
+              value={next}
+              onChange={setNext}
+              context={{ email: user.email, name: user.name }}
+              onValidityChange={onValidity}
+              error={pwError && !pwError.includes("current") ? pwError : null}
+            />
             <div className="flex justify-end">
-              <SubmitButton state={nameState} size="sm" disabled={!name.trim() || name.trim() === user.name} successLabel="Saved">
-                Save
+              <SubmitButton state={pwState} size="sm" disabled={!current || !next} pendingLabel="Updating…" successLabel="Updated">
+                Update password
               </SubmitButton>
             </div>
           </form>
-          </CardContent>
-        </Card>
+        </SettingsSection>
+      )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Email notifications</CardTitle>
-          </CardHeader>
-          <CardContent>
-          <div className="space-y-5">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <Label htmlFor="pref-updates" className="flex items-center gap-1.5 text-sm font-normal text-white">
-                  Project updates & milestones
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        aria-label="More info: project updates and milestones"
-                        className="cursor-help text-white/35 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
-                      >
-                        <Info className="size-3.5" aria-hidden />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[250px] border-white/10 bg-popover text-xs font-normal normal-case leading-5 tracking-normal text-white/70">
-                      When I post an update or finish a milestone.
-                    </TooltipContent>
-                  </Tooltip>
-                </Label>
-              </div>
-              <Switch id="pref-updates" checked={emailPrefs.emailUpdates} onCheckedChange={(v) => savePrefs({ emailUpdates: v })} />
-            </div>
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <Label htmlFor="pref-weekly" className="flex items-center gap-1.5 text-sm font-normal text-white">
-                  Weekly summary
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        aria-label="More info: weekly summary"
-                        className="cursor-help text-white/35 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
-                      >
-                        <Info className="size-3.5" aria-hidden />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[250px] border-white/10 bg-popover text-xs font-normal normal-case leading-5 tracking-normal text-white/70">
-                      Monday recap of hours logged the week before.
-                    </TooltipContent>
-                  </Tooltip>
-                </Label>
-              </div>
-              <Switch id="pref-weekly" checked={emailPrefs.emailWeeklySummary} onCheckedChange={(v) => savePrefs({ emailWeeklySummary: v })} />
-            </div>
-            <p className="text-xs text-white/35">Invoices, receipts, and security emails are always sent.</p>
-          </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="space-y-6">
-        {hasPassword && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Change password</CardTitle>
-            </CardHeader>
-            <CardContent>
-            <form onSubmit={changePassword} className="space-y-4">
-              <FormField label="Current password" htmlFor="acct-current" error={pwError?.includes("current") ? pwError : null} errorKey={pwErrorKey}>
-                <TextInput id="acct-current" type="password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} />
-              </FormField>
-              <PasswordField
-                name="new-password"
-                label="New password"
-                value={next}
-                onChange={setNext}
-                context={{ email: user.email, name: user.name }}
-                onValidityChange={onValidity}
-                error={pwError && !pwError.includes("current") ? pwError : null}
-              />
-              <div className="flex justify-end">
-                <SubmitButton state={pwState} size="sm" disabled={!current || !next} pendingLabel="Updating…" successLabel="Updated">
-                  Update password
-                </SubmitButton>
-              </div>
-            </form>
-            </CardContent>
-          </Card>
-        )}
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign-in methods</CardTitle>
-          </CardHeader>
-          <CardContent>
-          <div className="flex items-center justify-between gap-3">
-            <span className="flex items-center gap-3 text-sm text-white">
-              <FcGoogle className="size-5" /> Google
-            </span>
-            {googleLinked ? (
-              <span className="text-xs text-success">Connected</span>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={async () => {
-                  try {
-                    const { error } = await authClient.linkSocial({
-                      provider: "google",
-                      callbackURL: "/portal/settings",
-                      errorCallbackURL: `${window.location.origin}/portal/settings?${OAUTH_ERROR_PARAM}=1`,
-                    });
-                    if (error) toast.error("Couldn't start Google sign-in.");
-                    // On success this never resolves before the browser navigates away.
-                  } catch {
-                    toast.error("Couldn't start Google sign-in. Please try again.");
-                  }
-                }}
-              >
-                Connect
-              </Button>
-            )}
-          </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="min-w-0">
-              <CardTitle>Where you&apos;re signed in</CardTitle>
-            </div>
-            <CardAction>{sessions.length > 1 && (<Button variant="ghost" size="sm" className="hover:text-danger" onClick={async () => { await authClient.revokeOtherSessions(); toast.success("Signed out of other devices"); loadSecurity(); }}><LogOut /> Sign out others</Button>)}</CardAction>
-          </CardHeader>
-          <CardContent>
-          {sessions.length === 0 ? (
-            <p className="text-sm text-white/40">No active sessions found.</p>
+      <SettingsSection title="Sign-in methods">
+        <div className="flex min-h-12 items-center justify-between gap-3 rounded-lg border border-line bg-surface px-4 py-2">
+          <span className="flex items-center gap-3 text-[13px] text-white">
+            <FcGoogle className="size-4" /> Google
+          </span>
+          {googleLinked ? (
+            <span className="text-xs text-fg-2">Connected</span>
           ) : (
-            <ul className="space-y-3">
-              {sessions.map((s) => {
-                const mobile = /Mobile|iPhone|Android/.test(s.userAgent ?? "");
-                return (
-                  <li key={s.id} className="flex items-center gap-3">
-                    <span className="flex size-9 items-center justify-center rounded-full bg-white/5 text-white/60">
-                      {mobile ? <Smartphone className="size-4" /> : <Laptop className="size-4" />}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm text-white">{deviceLabel(s.userAgent)}</span>
-                      <span className="block text-xs text-white/40">
-                        {s.current ? "This device" : `Active ${new Date(s.updatedAt).toLocaleDateString()}`}
-                      </span>
-                    </span>
-                    {!s.current && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={async () => {
-                          await authClient.revokeSession({ token: s.token });
-                          loadSecurity();
-                        }}
-                      >
-                        Sign out
-                      </Button>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  const { error } = await authClient.linkSocial({
+                    provider: "google",
+                    callbackURL: "/portal/settings",
+                    errorCallbackURL: `${window.location.origin}/portal/settings?${OAUTH_ERROR_PARAM}=1`,
+                  });
+                  if (error) toast.error("Couldn't start Google sign-in.");
+                  // On success this never resolves before the browser navigates away.
+                } catch {
+                  toast.error("Couldn't start Google sign-in. Please try again.");
+                }
+              }}
+            >
+              Connect
+            </Button>
           )}
-          </CardContent>
-        </Card>
+        </div>
+      </SettingsSection>
+
+      <SettingsSection
+        title="Where you're signed in"
+        action={
+          sessions.length > 1 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-ml-3 hover:text-danger"
+              onClick={async () => {
+                await authClient.revokeOtherSessions();
+                toast.success("Signed out of other devices");
+                loadSecurity();
+              }}
+            >
+              <LogOut /> Sign out others
+            </Button>
+          )
+        }
+      >
+        {sessions.length === 0 ? (
+          <p className="text-[13px] text-fg-3">No active sessions found.</p>
+        ) : (
+          <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
+            {sessions.map((s) => {
+              const mobile = /Mobile|iPhone|Android/.test(s.userAgent ?? "");
+              return (
+                <li key={s.id} className="flex min-h-12 items-center gap-3 px-4 py-2">
+                  {mobile ? <Smartphone className="size-4 shrink-0 text-fg-3" aria-hidden /> : <Laptop className="size-4 shrink-0 text-fg-3" aria-hidden />}
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[13px] text-white">{deviceLabel(s.userAgent)}</span>
+                    <span className="block text-xs text-fg-3">{s.current ? "This device" : `Active ${new Date(s.updatedAt).toLocaleDateString()}`}</span>
+                  </span>
+                  {!s.current && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={async () => {
+                        await authClient.revokeSession({ token: s.token });
+                        loadSecurity();
+                      }}
+                    >
+                      Sign out
+                    </Button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </SettingsSection>
+    </div>
+  );
+}
+
+/** Vercel-style settings row: title + description on the left third, controls on the right. */
+function SettingsSection({
+  title,
+  description,
+  action,
+  children,
+}: {
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="grid gap-4 py-8 first:pt-0 md:grid-cols-[220px_minmax(0,1fr)] md:gap-10">
+      <div>
+        <h2 className="text-sm font-semibold text-white">{title}</h2>
+        {description && <p className="mt-1 text-[13px] leading-5 text-fg-3">{description}</p>}
+        {action && <div className="mt-2">{action}</div>}
       </div>
+      <div className="min-w-0">{children}</div>
+    </section>
+  );
+}
+
+function PrefRow({
+  id,
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  hint: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 px-4 py-3">
+      <div className="min-w-0">
+        <Label htmlFor={id} className="text-[13px] font-normal text-white">
+          {label}
+        </Label>
+        <p className="text-xs text-fg-3">{hint}</p>
+      </div>
+      <Switch id={id} checked={checked} onCheckedChange={onChange} />
     </div>
   );
 }

@@ -12,8 +12,8 @@ function Checkbox({ className, ...props }: React.ComponentProps<typeof CheckboxP
       className={cn(
         "t-check peer flex size-[18px] shrink-0 cursor-pointer items-center justify-center rounded-[5px] border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/50 disabled:cursor-not-allowed disabled:opacity-50",
         "data-[state=unchecked]:border-white/25 data-[state=unchecked]:bg-transparent hover:data-[state=unchecked]:border-accent",
-        "data-[state=checked]:border-accent data-[state=checked]:bg-accent data-[state=checked]:text-background",
-        "data-[state=indeterminate]:border-accent data-[state=indeterminate]:bg-accent data-[state=indeterminate]:text-background",
+        "data-[state=checked]:border-accent data-[state=checked]:gold-brushed data-[state=checked]:text-background",
+        "data-[state=indeterminate]:border-accent data-[state=indeterminate]:gold-brushed data-[state=indeterminate]:text-background",
         className,
       )}
       {...props}

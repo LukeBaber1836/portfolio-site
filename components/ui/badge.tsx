@@ -1,25 +1,26 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { AlertTriangle, CheckCircle2, CircleDashed, CircleDot, Clock, type LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { Tone } from "@/lib/status";
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium leading-5 transition-colors [&_svg]:size-3.5 [&_svg]:shrink-0",
+  "inline-flex h-5 items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2 text-xs font-medium transition-colors [&_svg]:size-3 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground",
-        secondary: "border-transparent bg-secondary text-secondary-foreground",
-        destructive: "border-transparent bg-destructive/15 text-danger",
-        outline: "border-white/15 text-white/70",
-        info: "border-info/30 bg-info/10 text-info",
-        attention: "border-accent/30 bg-accent/10 text-accent",
-        success: "border-success/30 bg-success/10 text-success",
-        danger: "border-danger/30 bg-danger/10 text-danger",
-        neutral: "border-white/10 bg-white/5 text-white/60",
+        default: "gold-brushed text-background",
+        secondary: "bg-white/[0.06] text-fg-2",
+        destructive: "bg-danger/10 text-danger",
+        outline: "border border-line-strong text-fg-2",
+        // Status tones: neutral chip; the colour rides on a 6px dot (see StatusBadge).
+        info: "bg-white/[0.05] text-fg-2",
+        attention: "bg-white/[0.05] text-fg-2",
+        success: "bg-white/[0.05] text-fg-2",
+        danger: "bg-danger/10 text-danger",
+        neutral: "bg-white/[0.05] text-fg-3",
       },
     },
     defaultVariants: {
@@ -38,45 +39,50 @@ function Badge({
   return <Comp data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />;
 }
 
-const TONE_ICONS: Record<Tone, LucideIcon> = {
-  info: CircleDot,
-  attention: Clock,
-  success: CheckCircle2,
-  danger: AlertTriangle,
-  neutral: CircleDashed,
+const TONE_DOT: Record<Tone, string> = {
+  info: "bg-info",
+  attention: "bg-accent",
+  success: "bg-success",
+  danger: "bg-danger",
+  neutral: "bg-fg-3",
 };
 
-/** Status is never conveyed by color alone — every badge carries an icon and label. */
+/**
+ * Status chip: coloured dot + label (never colour alone). `icon` swaps the dot for
+ * a glyph (e.g. a thumb for yes/no answers); `null` renders the label only.
+ */
 function StatusBadge({
   label,
   tone,
   className,
   pulse,
-  icon,
+  icon: Icon,
 }: {
   label: string;
   tone: Tone;
   className?: string;
   pulse?: boolean;
-  /** Replaces the tone's default icon (e.g. a thumb for a yes/no answer); `null` renders no icon. */
   icon?: LucideIcon | null;
 }) {
-  const Icon = icon === undefined ? TONE_ICONS[tone] : icon;
   return (
     <Badge variant={tone} className={className}>
-      {Icon && <Icon aria-hidden className={cn(pulse && "animate-pulse")} />}
+      {Icon ? (
+        <Icon aria-hidden />
+      ) : Icon === undefined ? (
+        <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", TONE_DOT[tone], pulse && "animate-pulse")} />
+      ) : null}
       {label}
     </Badge>
   );
 }
 
 function statusBadgeFor(
-  map: Record<string, { label: string; tone: Tone; plain?: boolean }>,
+  map: Record<string, { label: string; tone: Tone }>,
   status: string,
   props: { className?: string; pulse?: boolean; icon?: LucideIcon } = {},
 ) {
   const def = map[status] ?? { label: status, tone: "neutral" as Tone };
-  return <StatusBadge label={def.label} tone={def.tone} icon={def.plain ? null : undefined} {...props} />;
+  return <StatusBadge label={def.label} tone={def.tone} {...props} />;
 }
 
 export { Badge, StatusBadge, badgeVariants, statusBadgeFor };

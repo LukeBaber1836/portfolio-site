@@ -37,6 +37,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
       />
       <div className="mb-4">
         <SlidingTabs
+          size="sm"
           value={view}
           items={[
             { value: "active", label: "Active", href: "/admin/projects" },
@@ -50,7 +51,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
         showClient
         emptyAction={
           !clients.length ? (
-            <Button asChild size="sm">
+            <Button asChild size="sm" variant="outline">
               <Link href="/admin/clients/new">Add a client first</Link>
             </Button>
           ) : undefined

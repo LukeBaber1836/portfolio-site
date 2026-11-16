@@ -64,16 +64,16 @@ export function VerifyEmailForm({ initialEmail = "", next }: { initialEmail?: st
   }
 
   return (
-    <div className="clay overflow-hidden rounded-3xl bg-card">
+    <div className="overflow-hidden rounded-xl border border-line bg-surface">
       <div
         className="grid w-[200%] grid-cols-2 transition-transform duration-[var(--page-slide-dur)] ease-[var(--page-slide-ease)] motion-reduce:transition-none"
         style={{ transform: step === 1 ? "translateX(0)" : "translateX(-50%)" }}
       >
         {/* Step 1 */}
-        <section className="p-8 sm:p-10" aria-hidden={step !== 1} inert={step !== 1}>
-          <div className="mb-8 space-y-2">
-            <h1 className="text-2xl font-semibold text-white">Verify your email</h1>
-            <p className="text-sm leading-6 text-white/60">
+        <section className="p-6 sm:p-8" aria-hidden={step !== 1} inert={step !== 1}>
+          <div className="mb-6 space-y-1.5">
+            <h1 className="text-xl font-semibold tracking-[-0.01em] text-white">Verify your email</h1>
+            <p className="text-[13px] leading-5 text-fg-2">
               Enter the email on your account and we&apos;ll send you a 6-digit code.
             </p>
           </div>
@@ -89,36 +89,34 @@ export function VerifyEmailForm({ initialEmail = "", next }: { initialEmail?: st
                 placeholder="you@company.com"
               />
             </FormField>
-            <SubmitButton state={state} className="h-11 w-full" disabled={!/.+@.+\..+/.test(email)} pendingLabel="Sending code…">
+            <SubmitButton state={state} className="h-10 w-full" disabled={!/.+@.+\..+/.test(email)} pendingLabel="Sending code…">
               Email me a code
             </SubmitButton>
           </form>
-          <p className="mt-8 text-center text-xs text-white/40">
-            <Link href="/login" className="text-accent hover:underline">
+          <p className="mt-8 text-center text-xs text-fg-3">
+            <Link href="/login" className="text-white underline-offset-4 hover:underline">
               Back to sign in
             </Link>
           </p>
         </section>
 
         {/* Step 2 */}
-        <section className="p-8 sm:p-10" aria-hidden={step !== 2} inert={step !== 2}>
+        <section className="p-6 sm:p-8" aria-hidden={step !== 2} inert={step !== 2}>
           <button
             type="button"
             onClick={() => {
               setStep(1);
               setError(null);
             }}
-            className="mb-6 inline-flex cursor-pointer items-center gap-1 text-sm text-white/50 transition-colors hover:text-accent"
+            className="mb-5 inline-flex cursor-pointer items-center gap-1 text-[13px] text-fg-3 transition-colors hover:text-white"
           >
             <ArrowLeft className="size-4" /> Back
           </button>
           <div className="mb-6 flex items-start gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
-              <MailCheck className="size-5" />
-            </span>
+            <MailCheck className="mt-0.5 size-5 shrink-0 text-fg-3" aria-hidden />
             <div>
-              <h2 className="text-lg font-semibold text-white">Check your email</h2>
-              <p className="text-sm leading-6 text-white/60">
+              <h2 className="text-[15px] font-semibold text-white">Check your email</h2>
+              <p className="text-[13px] leading-5 text-fg-2">
                 If <span className="text-white">{email}</span> has an account, a 6-digit code is on its way.
               </p>
             </div>
@@ -129,7 +127,7 @@ export function VerifyEmailForm({ initialEmail = "", next }: { initialEmail?: st
             <div className="text-right">
               <button
                 type="button"
-                className="cursor-pointer text-xs text-white/50 transition-colors hover:text-accent disabled:cursor-default disabled:hover:text-white/50"
+                className="cursor-pointer text-xs text-fg-3 transition-colors hover:text-white disabled:cursor-default disabled:hover:text-fg-3"
                 disabled={resent}
                 onClick={async () => {
                   await sendCode();
@@ -143,7 +141,7 @@ export function VerifyEmailForm({ initialEmail = "", next }: { initialEmail?: st
 
             <SubmitButton
               state={state}
-              className="h-11 w-full"
+              className="h-10 w-full"
               disabled={otp.length !== 6}
               pendingLabel="Verifying…"
               successLabel="Verified!"

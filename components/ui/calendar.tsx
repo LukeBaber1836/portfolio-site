@@ -23,24 +23,24 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: D
         nav: "absolute inset-x-3 z-10 flex items-center justify-between",
         button_previous: cn(
           buttonVariants({ variant: "outline", size: "icon-sm" }),
-          "text-white/60 hover:text-accent",
+          "text-fg-2 hover:text-white",
         ),
-        button_next: cn(buttonVariants({ variant: "outline", size: "icon-sm" }), "text-white/60 hover:text-accent"),
+        button_next: cn(buttonVariants({ variant: "outline", size: "icon-sm" }), "text-fg-2 hover:text-white"),
         month_grid: "w-full border-collapse",
         weekdays: "flex",
         weekday: "w-9 rounded-md text-[11px] font-normal text-white/40",
         week: "flex w-full mt-1",
         day: "relative size-9 p-0 text-center text-sm focus-within:relative focus-within:z-20",
         day_button:
-          "inline-flex size-9 cursor-pointer items-center justify-center rounded-full p-0 font-normal text-white transition-colors outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-accent/50 aria-selected:opacity-100",
+          "inline-flex size-9 cursor-pointer items-center justify-center rounded-md p-0 font-normal text-white transition-colors outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-accent/50 aria-selected:opacity-100",
         range_start: "",
         range_end: "",
         range_middle: "",
         // Modifier classes land on the day cell, so the gold fill is rounded here
         // and the inner button's own text/hover colors are overridden.
         selected:
-          "rounded-full bg-gradient-to-br from-gold-d1 via-gold-l1 to-gold-d2 [&>button]:font-semibold [&>button]:text-background [&>button]:hover:bg-transparent",
-        today: "rounded-full ring-1 ring-inset ring-accent/60 [&>button]:font-semibold [&>button]:text-accent [&>button]:aria-selected:text-background",
+          "rounded-md gold-brushed [&>button]:font-semibold [&>button]:text-background [&>button]:hover:bg-transparent",
+        today: "rounded-md bg-white/[0.06] [&>button]:font-semibold [&>button]:text-white [&>button]:aria-selected:text-background",
         outside: "text-white/25 aria-selected:text-white/25",
         disabled: "text-white/25 opacity-50 cursor-not-allowed hover:bg-transparent",
         hidden: "invisible",

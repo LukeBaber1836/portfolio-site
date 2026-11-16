@@ -67,9 +67,9 @@ export function ClientForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-8" noValidate>
+    <form onSubmit={onSubmit} className="space-y-8 [&>fieldset+fieldset]:border-t [&>fieldset+fieldset]:border-line [&>fieldset+fieldset]:pt-6" noValidate>
       <fieldset className="grid gap-5 md:grid-cols-2">
-        <legend className="mb-4 text-sm font-semibold text-white">Contact</legend>
+        <legend className="mb-3 text-sm font-medium text-white">Contact</legend>
         <FormField label="Contact name" htmlFor="name" error={errors.name} errorKey={errorKey}>
           <TextInput {...bind("name")} autoComplete="off" placeholder="Sarah Jones" required />
         </FormField>
@@ -91,11 +91,11 @@ export function ClientForm({
       </fieldset>
 
       <fieldset className="grid gap-5 md:grid-cols-2">
-        <legend className="mb-4 text-sm font-semibold text-white">Billing</legend>
+        <legend className="mb-3 text-sm font-medium text-white">Billing</legend>
         <FormField label="Hourly rate" htmlFor="defaultRate" optional error={errors.defaultRate} errorKey={errorKey} hint={`Leave blank to use your default ($${defaults.rateCents / 100}/h).`}>
           <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-white/40">$</span>
-            <TextInput {...bind("defaultRate")} inputMode="decimal" placeholder={String(defaults.rateCents / 100)} className="pl-8" />
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-fg-3">$</span>
+            <TextInput {...bind("defaultRate")} inputMode="decimal" placeholder={String(defaults.rateCents / 100)} className="pl-7" />
           </div>
         </FormField>
         <FormField label="Payment terms (days)" htmlFor="termsDays" optional error={errors.termsDays} errorKey={errorKey} hint={`Blank = Net ${defaults.termsDays}.`}>
@@ -104,7 +104,7 @@ export function ClientForm({
       </fieldset>
 
       <fieldset className="grid gap-5 md:grid-cols-2">
-        <legend className="mb-4 text-sm font-semibold text-white">File storage</legend>
+        <legend className="mb-3 text-sm font-medium text-white">File storage</legend>
         <FormField label="Storage username" htmlFor="storageUsername" optional hint={`Only if they have their own login on ${defaults.storageUrl.replace("https://", "")}.`}>
           <TextInput {...bind("storageUsername")} placeholder="acme" autoComplete="off" />
         </FormField>
@@ -123,13 +123,13 @@ export function ClientForm({
       </FormField>
 
       {!client && (
-        <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+        <div className="rounded-lg border border-line p-3">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <Label htmlFor="send-invite" className="text-sm font-normal text-white">
                 Email a portal invite now
               </Label>
-              <p className="mt-0.5 text-xs leading-5 text-white/50">Creates their login and sends a branded welcome email with a set-password link. A Stripe customer is created either way.</p>
+              <p className="mt-0.5 text-xs leading-5 text-fg-3">Creates their login and sends a branded welcome email with a set-password link. A Stripe customer is created either way.</p>
             </div>
             <Switch id="send-invite" checked={sendInvite} onCheckedChange={setSendInvite} />
           </div>

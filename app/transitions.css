@@ -823,16 +823,31 @@
 :root {
   --tabs-text-muted: rgba(255, 255, 255, 0.6);
   --tabs-text-active: #f3d076;
-  --tabs-bar-bg: #1b1b1f;
+  --tabs-bar-bg: rgba(255, 255, 255, 0.02);
   --tabs-pill-bg: transparent;
   --shimmer-base: rgba(255, 255, 255, 0.35);
   --shimmer-highlight: #f3d076;
 }
 
-/* Selected tab: gold outline pill (transparent fill), recessed into the bar. */
+/* App segmented control: flat. Bar is a hairline-bordered well, the
+   selected pill a lighter flat chip; selected label is white (gold is
+   reserved for primary actions). */
+.t-tabs {
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  gap: 2px;
+  padding: 2px;
+}
+.t-tab {
+  border-radius: 8px;
+}
+.t-tab:not([aria-selected="true"]):hover,
+.t-tab[aria-selected="true"] {
+  color: #ffffff;
+}
 .t-tabs-pill {
-  border: 1px solid rgba(243, 208, 118, 0.5);
-  box-shadow:
-    inset 2px 2px 5px rgba(0, 0, 0, 0.45),
-    inset -1px -1px 3px rgba(243, 208, 118, 0.25);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: none;
 }

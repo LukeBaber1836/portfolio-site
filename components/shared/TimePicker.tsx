@@ -68,15 +68,15 @@ export function TimePicker({
           type="button"
           variant="outline"
           className={cn(
-            "h-11 w-full justify-start rounded-xl border-white/10 bg-background px-4 text-sm font-normal tabular-nums",
-            current ? "text-white" : "text-white/35",
+            "h-9 w-full justify-start rounded-md border-white/[0.08] bg-white/[0.03] px-3 text-sm font-normal tabular-nums hover:border-white/[0.14] hover:bg-white/[0.03]",
+            current ? "text-white" : "text-fg-3",
           )}
         >
-          <ClockIcon className="mr-2 size-4 shrink-0 text-white/40" />
+          <ClockIcon className="mr-1 size-4 shrink-0 text-fg-3" />
           <span className="truncate">{formatTime12(value) ?? placeholder}</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto rounded-2xl border-white/10 bg-popover p-2" align="start">
+      <PopoverContent className="w-auto rounded-lg border-white/[0.08] bg-popover p-2" align="start">
         <div className="flex h-56 gap-1">
           <Column label="Hour" items={HOURS} selected={sel.hour} render={(h) => String(h)} onSelect={(hour) => set({ hour })} />
           <Column label="Minute" items={minutes} selected={sel.minute} render={(m) => String(m).padStart(2, "0")} onSelect={(minute) => set({ minute })} />
@@ -127,7 +127,7 @@ function Column<T extends number | boolean>({
             className={cn(
               "h-9 shrink-0 cursor-pointer snap-center rounded-lg text-sm tabular-nums transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
               active
-                ? "bg-gradient-to-br from-gold-d1 via-gold-l1 to-gold-d2 font-semibold text-background"
+                ? "gold-brushed font-semibold text-background"
                 : "text-white hover:bg-white/10",
             )}
           >

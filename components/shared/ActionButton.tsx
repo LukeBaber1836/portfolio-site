@@ -65,7 +65,7 @@ export function ActionButton({ action, confirm, onDone, refresh = true, children
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>{button}</AlertDialogTrigger>
-      <AlertDialogContent className="clay rounded-2xl border-white/10 bg-popover">
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="text-white">{confirm.title}</AlertDialogTitle>
           <AlertDialogDescription className="text-sm leading-6 text-white/60">{confirm.description}</AlertDialogDescription>

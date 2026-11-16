@@ -17,7 +17,7 @@ export function GoogleButton({ callbackURL, label = "Continue with Google" }: { 
       <Button
         type="button"
         variant="outline"
-        className="h-11 w-full"
+        className="h-10 w-full"
         disabled={pending}
         onClick={async () => {
           setPending(true);
@@ -57,10 +57,10 @@ export function GoogleButton({ callbackURL, label = "Continue with Google" }: { 
 
 export function OrDivider() {
   return (
-    <div className="flex items-center gap-3 text-xs uppercase tracking-wider text-white/30">
-      <span className="h-px flex-1 bg-white/10" />
+    <div className="flex items-center gap-3 text-xs text-fg-3">
+      <span className="h-px flex-1 bg-line" />
       or
-      <span className="h-px flex-1 bg-white/10" />
+      <span className="h-px flex-1 bg-line" />
     </div>
   );
 }

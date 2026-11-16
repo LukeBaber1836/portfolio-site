@@ -87,7 +87,7 @@ export function DomainsForm({
           e.preventDefault();
           void save({ ...values, featured });
         }}
-        className="space-y-4"
+        className="space-y-3"
       >
         {rows.map(({ kind, label, placeholder, errorField }) => {
           const savedUrl = saved[kind];
@@ -102,12 +102,12 @@ export function DomainsForm({
                     href={savedUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-white/10 px-3 py-2.5 transition-colors hover:border-accent/40 hover:bg-accent/5"
+                    className="group flex h-9 min-w-0 flex-1 items-center gap-2 rounded-md border border-line px-2.5 transition-colors hover:border-line-strong hover:bg-white/[0.03]"
                   >
-                    <Globe className="size-4 shrink-0 text-white/40 group-hover:text-accent" aria-hidden />
-                    <span className="min-w-0 flex-1 truncate text-sm text-white group-hover:text-accent">{hostOf(savedUrl)}</span>
-                    {isFeatured && <Badge variant="attention">Preview</Badge>}
-                    <ArrowUpRight className="size-4 shrink-0 text-white/30 group-hover:text-accent" aria-hidden />
+                    <Globe className="size-3.5 shrink-0 text-fg-3" aria-hidden />
+                    <span className="min-w-0 flex-1 truncate text-[13px] text-white">{hostOf(savedUrl)}</span>
+                    {isFeatured && <Badge variant="secondary">Preview</Badge>}
+                    <ArrowUpRight className="size-3.5 shrink-0 text-fg-3 group-hover:text-white" aria-hidden />
                   </a>
                 ) : (
                   <TextInput
@@ -142,9 +142,9 @@ export function DomainsForm({
                           size="icon-sm"
                           onClick={() => setEditing((e) => ({ ...e, [kind]: true }))}
                           aria-label={`Edit ${label.toLowerCase()} domain`}
-                          className="text-white/50 hover:text-accent"
+                          className="size-7 text-fg-3"
                         >
-                          <Pencil className="size-4" />
+                          <Pencil className="size-3.5" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Edit</TooltipContent>

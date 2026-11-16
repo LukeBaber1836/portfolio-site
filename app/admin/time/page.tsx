@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Timesheet, type TimesheetRow } from "@/components/admin/Timesheet";
 import { timeStatusKey } from "@/components/admin/TimeEntriesTable";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SlidingTabs } from "@/components/shared/SlidingTabs";
 import { Button } from "@/components/ui/button";
 import { listProjectOptions } from "@/lib/dal/admin/projects";
@@ -79,91 +78,92 @@ export default async function TimePage({ searchParams }: { searchParams: Promise
     <>
       <PageHeader
         title="Time"
+        meta={[`${formatHours(weekTotal, 1)} this week`]}
         actions={
           <div className="flex items-center gap-1">
-            <Button asChild variant="outline" size="sm" className={cn("mr-2", isCurrentWeek && "pointer-events-none invisible")}>
-              <Link href="/admin/time">This week</Link>
-            </Button>
-            <Button asChild variant="ghost" size="icon-sm" aria-label="Previous week">
-              <Link href={href({ week: prevWeek })}>
-                <ChevronLeft />
-              </Link>
-            </Button>
-            <span className="min-w-44 text-center text-sm text-white">
-              {formatDate(days[0]!, "MMM d")} – {formatDate(days[6]!, "MMM d, yyyy")}
-            </span>
-            <Button asChild variant="ghost" size="icon-sm" aria-label="Next week">
-              <Link href={href({ week: nextWeek })}>
-                <ChevronRight />
-              </Link>
-            </Button>
+            {!isCurrentWeek && (
+              <Button asChild variant="ghost" size="sm" className="mr-1">
+                <Link href="/admin/time">This week</Link>
+              </Button>
+            )}
+            <div className="flex items-center rounded-md border border-line">
+              <Button asChild variant="ghost" size="icon-sm" className="rounded-r-none" aria-label="Previous week">
+                <Link href={href({ week: prevWeek })}>
+                  <ChevronLeft />
+                </Link>
+              </Button>
+              <span className="min-w-40 border-x border-line px-3 text-center text-[13px] leading-8 tabular-nums text-white">
+                {formatDate(days[0]!, "MMM d")} – {formatDate(days[6]!, "MMM d, yyyy")}
+              </span>
+              <Button asChild variant="ghost" size="icon-sm" className="rounded-l-none" aria-label="Next week">
+                <Link href={href({ week: nextWeek })}>
+                  <ChevronRight />
+                </Link>
+              </Button>
+            </div>
           </div>
         }
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Week at a glance</CardTitle>
-        </CardHeader>
-        <CardContent className="overflow-x-auto p-0">
-          <table className="w-full min-w-[720px] text-sm">
+      {/* Week grid */}
+      <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+        <table className="w-full min-w-[720px] text-[13px]">
           <thead>
-            <tr className="border-b border-white/5 text-[11px] uppercase tracking-wider text-white/40">
-              <th className="px-5 py-3 text-left font-medium">Project</th>
+            <tr className="border-b border-line text-xs text-fg-3">
+              <th className="h-9 px-4 text-left font-medium">Project</th>
               {days.map((d) => (
-                <th key={d} className={cn("px-2 py-3 text-center font-medium", d === today && "text-accent")}>
-                  <span className="block">{formatDate(d, "EEE")}</span>
-                  <span className="block text-white/30">{formatDate(d, "d")}</span>
+                <th key={d} className={cn("h-9 px-2 text-center font-medium", d === today && "text-white")}>
+                  {formatDate(d, "EEE d")}
                 </th>
               ))}
-              <th className="px-5 py-3 text-right font-medium">Total</th>
+              <th className="h-9 px-4 text-right font-medium">Total</th>
             </tr>
           </thead>
           <tbody>
             {byProject.size === 0 ? (
               <tr>
-                <td colSpan={9} className="px-5 py-8 text-center text-sm text-white/40">
-                  Nothing logged this week yet.
+                <td colSpan={9} className="px-4 py-8 text-center text-fg-3">
+                  Nothing logged this week.
                 </td>
               </tr>
             ) : (
               [...byProject.entries()].map(([id, row]) => (
-                <tr key={id} className="border-b border-white/5">
-                  <td className="px-5 py-3">
-                    <Link href={`/admin/projects/${id}`} className="block text-white hover:text-accent">
+                <tr key={id} className="border-b border-line transition-colors hover:bg-white/[0.025]">
+                  <td className="h-9 px-4">
+                    <Link href={`/admin/projects/${id}`} className="text-white hover:underline">
                       {row.name}
                     </Link>
-                    <span className="text-xs text-white/40">{row.client}</span>
+                    <span className="ml-2 text-xs text-fg-3">{row.client}</span>
                   </td>
                   {days.map((d) => (
-                    <td key={d} className="px-2 py-3 text-center tabular-nums">
-                      {row.days[d] ? <span className="text-white/85">{(row.days[d]! / 3600).toFixed(1)}</span> : <span className="text-white/15">·</span>}
+                    <td key={d} className={cn("h-9 px-2 text-center tabular-nums", d === today && "bg-white/[0.02]")}>
+                      {row.days[d] ? <span className="text-fg-2">{(row.days[d]! / 3600).toFixed(1)}</span> : <span className="text-white/15">·</span>}
                     </td>
                   ))}
-                  <td className="px-5 py-3 text-right font-medium tabular-nums text-white">{formatHours(row.total, 1)}</td>
+                  <td className="h-9 px-4 text-right tabular-nums text-white">{formatHours(row.total, 1)}</td>
                 </tr>
               ))
             )}
           </tbody>
           {byProject.size > 0 && (
             <tfoot>
-              <tr className="text-white/60">
-                <td className="px-5 py-3 text-xs uppercase tracking-wider">Daily total</td>
+              <tr className="text-fg-2">
+                <td className="h-9 px-4 text-xs text-fg-3">Total</td>
                 {dayTotals.map((s, i) => (
-                  <td key={days[i]} className="px-2 py-3 text-center tabular-nums">
+                  <td key={days[i]} className={cn("h-9 px-2 text-center tabular-nums", days[i] === today && "bg-white/[0.02]")}>
                     {s ? (s / 3600).toFixed(1) : ""}
                   </td>
                 ))}
-                <td className="px-5 py-3 text-right font-semibold tabular-nums text-accent">{formatHours(weekTotal, 1)}</td>
+                <td className="h-9 px-4 text-right font-medium tabular-nums text-white">{formatHours(weekTotal, 1)}</td>
               </tr>
             </tfoot>
           )}
         </table>
-        </CardContent>
-      </Card>
+      </div>
 
-      <div className="mb-4 mt-8">
+      <div className="mb-3 mt-8 overflow-x-auto scrollbar-hide">
         <SlidingTabs
+          size="sm"
           value={status}
           items={[
             { value: "all", label: "All", href: href({ status: "all" }) },
@@ -173,11 +173,9 @@ export default async function TimePage({ searchParams }: { searchParams: Promise
           ]}
         />
       </div>
-      <Card>
-        <CardContent className="overflow-hidden p-0">
-          <Timesheet rows={rows} projects={projects} today={today} />
-        </CardContent>
-      </Card>
+      <div className="overflow-hidden rounded-lg border border-line bg-surface">
+        <Timesheet rows={rows} projects={projects} today={today} />
+      </div>
     </>
   );
 }

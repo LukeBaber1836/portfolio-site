@@ -20,7 +20,7 @@ export default async function PortalFilesPage({ searchParams }: { searchParams: 
 
   return (
     <>
-      <PageHeader title="Files" description="Send pictures, videos, and files for your projects." />
+      <PageHeader title="Files" description="Send me pictures, videos, and documents for your projects." />
       {uploadsEnabled ? (
         <FilesWorkspace projects={projects} initialProjectId={params.project} />
       ) : (
