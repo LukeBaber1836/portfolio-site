@@ -66,7 +66,9 @@ lightness steps and 1px hairlines, never shadows.** Claymorphism (`.clay*`, gold
   The glare follows the pointer via the shared `<GoldLight />` (mounted in `AppShell` and the auth layout), which eases
   `--gx/--gy/--gnear/--ga` per on-screen element (offset measured against the element's own size, so sweeping across a button
   sweeps the light) and sleeps when idle. No timed sweep. Touch = static; reduced motion = tracks instantly, no easing.
-  Gold buttons also get `gold-ring`: a reflective 1px metal rim (conic highlight that turns to face the pointer via `--ga`).
+  Gold buttons also get `gold-ring`: a subtle reflective 1px metal rim (one soft conic highlight that turns to face the
+  pointer via `--ga`). The rim angle eases slower than the glare, along the shortest arc, and holds its heading while the
+  pointer is near the element's centre, so sweeping across never flips it. Easing is time-based (same feel at any refresh rate).
   `Progress` is gold by default; pass `indicatorClassName` (e.g. `bg-danger`) to replace the fill. Tiny status dots stay flat `bg-accent`.
 - **Gold is for:** the one primary action per view, focus rings, checked controls, progress fills, the running-timer dot, the main chart series, dropzone drag-over. **Not** for nav active state, headings, icons, borders, tabs, hovers, or table links.
 - **Type:** 13px body, 12px meta/labels (sentence case, `fg-2`), page title 20px/600, section title 14px/600, stat values 24px/500 tabular. No uppercase-tracked eyebrows.
