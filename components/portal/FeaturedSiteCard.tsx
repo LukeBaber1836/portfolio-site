@@ -5,9 +5,11 @@ import { useState } from "react";
 import { ArrowRight, Globe } from "lucide-react";
 
 import { statusBadgeFor } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { faviconForUrl, hostOf } from "@/lib/references/preview";
 import { PROJECT_STATUS } from "@/lib/status";
+import { cn } from "@/lib/utils";
 
 /**
  * Overview hero: a framed preview of the site being built. The whole card opens the
@@ -82,7 +84,7 @@ export function FeaturedSiteCard({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`View website: ${host} (opens in a new tab)`}
-          className="relative z-10 inline-flex h-9 shrink-0 items-center gap-2 rounded-md border border-line-strong px-3.5 text-[13px] font-medium text-white transition-colors hover:border-accent/60 hover:bg-accent/10 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 [&:hover>svg]:translate-x-0.5"
+          className={cn(buttonVariants({ variant: "outlineGold" }), "relative z-10 shrink-0 text-[13px] [&:hover>svg]:translate-x-0.5")}
         >
           View website
           <ArrowRight className="size-4 transition-transform duration-150" aria-hidden />

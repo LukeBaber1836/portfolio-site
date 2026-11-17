@@ -70,7 +70,7 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
               <li key={s.key} aria-current={state === "current" ? "step" : undefined}>
                 <span
                   aria-hidden
-                  className={cn("block h-1 rounded-full", state === "done" ? "gold-brushed" : state === "current" ? "bg-white" : "bg-white/[0.08]")}
+                  className={cn("block h-1 rounded-full", state === "done" ? "gold-bar" : state === "current" ? "bg-white" : "bg-white/[0.08]")}
                 />
                 <span className={cn("mt-2 block truncate text-xs", state === "todo" ? "text-fg-3" : state === "current" ? "font-medium text-white" : "text-fg-2")}>
                   {s.label}

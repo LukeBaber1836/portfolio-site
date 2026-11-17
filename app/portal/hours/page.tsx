@@ -69,7 +69,7 @@ export default async function PortalHoursPage({ searchParams }: { searchParams: 
                       <span className="tabular-nums text-white">{formatHours(seconds, 1)}</span>
                     </div>
                     <div className="h-1 rounded-full bg-white/[0.06]" aria-hidden>
-                      <div className="gold-brushed h-full rounded-full" style={{ width: `${Math.max(3, (seconds / total) * 100)}%` }} />
+                      <div className="gold-bar h-full rounded-full" style={{ width: `${Math.max(3, (seconds / total) * 100)}%` }} />
                     </div>
                   </li>
                 ))}

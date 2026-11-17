@@ -373,3 +373,70 @@
     mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
   }
 }
+
+/* Outline button that turns to polished gold on hover: the reflective rim fades in over
+   the hairline border (turning to face the light like gold-ring) and a faint gold glare
+   follows the pointer inside. At rest it's a plain outline button. */
+@utility gold-outline {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    padding: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: conic-gradient(
+      from calc((var(--ga, 315) - 110) * 1deg),
+      #8a6526 0deg,
+      #c49640 50deg,
+      color-mix(in srgb, #fff6dc calc(var(--gnear, 0) * 100%), #f3d076) 110deg,
+      #c49640 170deg,
+      #8a6526 220deg,
+      #a8803a 290deg,
+      #8a6526 360deg
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    opacity: 0;
+    transition: opacity 220ms ease-out;
+  }
+  &:hover,
+  &:focus-visible {
+    border-color: transparent;
+    color: var(--color-accent-strong);
+    background-image: radial-gradient(
+      circle 90px at calc(50% + var(--gx, -0.35) * 85%) calc(50% + var(--gy, -0.3) * 70%),
+      rgb(243 208 118 / 0.16),
+      rgb(243 208 118 / 0.04) 55%,
+      transparent 80%
+    );
+  }
+  &:hover::before,
+  &:focus-visible::before {
+    opacity: 1;
+  }
+}
+
+/* Brushed gold for thin bars, progress fills and chart columns. The button glare is far
+   too small to read on a 6px bar, so this uses a pointer-anchored spotlight (--gpx/--gpy:
+   pointer position in the element's own box) plus a higher-contrast band that drifts with
+   the light. GoldLight drives both. */
+@utility gold-bar {
+  background-color: #e9c46e;
+  background-image:
+    radial-gradient(
+      circle 120px at calc(var(--gpx, 0.25) * 100%) calc(var(--gpy, 0.5) * 100%),
+      rgb(255 252 236 / calc(0.14 + var(--gnear, 0) * 0.76)),
+      rgb(255 246 214 / calc(0.04 + var(--gnear, 0) * 0.3)) 40%,
+      transparent 72%
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9 0.08' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.32 0 0 0 0 0.08 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(100deg, #b38b3b 0%, #d8af55 20%, #f4d685 42%, #fff0c4 50%, #f1cf78 58%, #d1a850 80%, #ae8738 100%);
+  background-size: 100% 100%, 160px 160px, 240% 100%;
+  background-position: 0 0, 0 0, calc(50% - var(--gx, -0.35) * 60%) 0;
+  background-repeat: no-repeat, repeat, no-repeat;
+  background-blend-mode: normal, multiply, normal;
+  box-shadow: inset 0 1px 0 rgb(255 250 225 / 0.5);
+}

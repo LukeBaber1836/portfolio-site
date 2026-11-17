@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-const SELECTOR = '[class*="gold-brushed"], [class*="gold-ring"]';
+const SELECTOR = '[class*="gold-brushed"], [class*="gold-ring"], [class*="gold-outline"], [class*="gold-bar"]';
 // Time constants (ms) for the exponential ease: frame-rate independent, so it feels
 // the same at 60Hz and 144Hz. The rim angle is deliberately slower than the glare.
 const TAU_POS = 140;
@@ -15,9 +15,11 @@ const REACH_PX = 160; // beyond the element's half-size, offset saturates to ±1
 const SETTLE = 0.0015;
 const SETTLE_DEG = 0.2;
 // Resting light (no pointer): from the top-left. Matches the CSS var fallbacks.
-const REST = { x: -0.35, y: -0.3 };
+const REST = { x: -0.35, y: -0.3, px: 0.25, py: 0.5 };
 
-type S = { x: number; y: number; n: number; a: number; ta: number };
+// x/y: normalised offset of the pointer from the centre (−1..1); px/py: pointer position
+// in the element's own box (0..1 inside it) for gold-bar's spotlight; n: proximity.
+type S = { x: number; y: number; px: number; py: number; n: number; a: number; ta: number };
 
 const angleOf = (x: number, y: number) => (((Math.atan2(x, -y) * 180) / Math.PI) + 360) % 360;
 const REST_ANGLE = angleOf(REST.x, REST.y);
@@ -54,11 +56,11 @@ export function GoldLight() {
       const els = document.querySelectorAll<HTMLElement>(SELECTOR);
       const vh = window.innerHeight;
       // Read all rects first, then write — no layout thrash.
-      const work: { el: HTMLElement; tx: number; ty: number; tn: number }[] = [];
+      const work: { el: HTMLElement; tx: number; ty: number; tpx: number; tpy: number; tn: number }[] = [];
       els.forEach((el) => {
         const r = el.getBoundingClientRect();
         if (r.bottom < 0 || r.top > vh || r.width === 0) return;
-        if (px === null || py === null) return work.push({ el, tx: REST.x, ty: REST.y, tn: 0 });
+        if (px === null || py === null) return work.push({ el, tx: REST.x, ty: REST.y, tpx: REST.px, tpy: REST.py, tn: 0 });
         const cx = r.left + r.width / 2;
         const cy = r.top + r.height / 2;
         // Distance from the element's edge (0 when the pointer is on it).
@@ -67,14 +69,18 @@ export function GoldLight() {
           el,
           tx: clamp((px - cx) / (r.width / 2 + REACH_PX)),
           ty: clamp((py - cy) / (r.height / 2 + REACH_PX)),
+          tpx: (px - r.left) / r.width,
+          tpy: (py - r.top) / r.height,
           tn: Math.max(0, 1 - gap / NEAR_PX),
         });
       });
       let moving = false;
-      for (const { el, tx, ty, tn } of work) {
-        const s = state.get(el) ?? { x: REST.x, y: REST.y, n: 0, a: REST_ANGLE, ta: REST_ANGLE };
+      for (const { el, tx, ty, tpx, tpy, tn } of work) {
+        const s = state.get(el) ?? { x: REST.x, y: REST.y, px: REST.px, py: REST.py, n: 0, a: REST_ANGLE, ta: REST_ANGLE };
         s.x += (tx - s.x) * kPos;
         s.y += (ty - s.y) * kPos;
+        s.px += (tpx - s.px) * kPos;
+        s.py += (tpy - s.py) * kPos;
         s.n += (tn - s.n) * kPos;
         // Rim heading (0deg = top, clockwise): only retarget when the pointer gives a
         // clear direction, then ease along the shortest arc so it never spins.
@@ -85,12 +91,16 @@ export function GoldLight() {
         if (
           Math.abs(tx - s.x) > SETTLE ||
           Math.abs(ty - s.y) > SETTLE ||
+          Math.abs(tpx - s.px) > SETTLE ||
+          Math.abs(tpy - s.py) > SETTLE ||
           Math.abs(tn - s.n) > SETTLE ||
           Math.abs(dA) > SETTLE_DEG
         )
           moving = true;
         el.style.setProperty("--gx", s.x.toFixed(4));
         el.style.setProperty("--gy", s.y.toFixed(4));
+        el.style.setProperty("--gpx", s.px.toFixed(4));
+        el.style.setProperty("--gpy", s.py.toFixed(4));
         el.style.setProperty("--gnear", s.n.toFixed(4));
         el.style.setProperty("--ga", s.a.toFixed(2));
       }

@@ -69,7 +69,11 @@ lightness steps and 1px hairlines, never shadows.** Claymorphism (`.clay*`, gold
   Gold buttons also get `gold-ring`: a subtle reflective 1px metal rim (one soft conic highlight that turns to face the
   pointer via `--ga`). The rim angle eases slower than the glare, along the shortest arc, and holds its heading while the
   pointer is near the element's centre, so sweeping across never flips it. Easing is time-based (same feel at any refresh rate).
-  `Progress` is gold by default; pass `indicatorClassName` (e.g. `bg-danger`) to replace the fill. Tiny status dots stay flat `bg-accent`.
+  Thin gold (progress fills, hours bars, stage segments, chart columns) uses `gold-bar` instead: higher-contrast band plus a
+  pointer-anchored spotlight (`--gpx/--gpy`), because the button glare is invisible at 6px tall. Every gold chart series uses it.
+  Secondary actions that should feel premium use `Button variant="outlineGold"` (`gold-outline`): a plain outline at rest; on
+  hover the reflective rim fades in over the border, a faint gold glare follows the pointer, and the text turns gold.
+  `Progress` is gold (`gold-bar`) by default; pass `indicatorClassName` (e.g. `bg-danger`) to replace the fill. Tiny status dots stay flat `bg-accent`.
 - **Gold is for:** the one primary action per view, focus rings, checked controls, progress fills, the running-timer dot, the main chart series, dropzone drag-over. **Not** for nav active state, headings, icons, borders, tabs, hovers, or table links.
 - **Type:** 13px body, 12px meta/labels (sentence case, `fg-2`), page title 20px/600, section title 14px/600, stat values 24px/500 tabular. No uppercase-tracked eyebrows.
 

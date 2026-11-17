@@ -7,8 +7,9 @@ import { formatDate, formatHours } from "@/lib/format";
 import type { Week } from "@/lib/charts";
 
 const SERIES = [
-  { key: "billable", label: "Billable", color: "var(--color-chart-1)" },
-  { key: "nonBillable", label: "No charge", color: "var(--color-chart-2)" },
+  // Gold series uses the shared brushed-gold bar texture (pointer-following shine, see GoldLight).
+  { key: "billable", label: "Billable", swatch: "gold-bar" },
+  { key: "nonBillable", label: "No charge", swatch: "bg-chart-2" },
 ] as const;
 
 function niceMax(maxHours: number) {
@@ -33,7 +34,7 @@ export function WeeklyHoursChart({ weeks }: { weeks: Week[] }) {
       <div className="flex flex-wrap items-center gap-4 text-xs text-fg-2" aria-hidden>
         {SERIES.map((s) => (
           <span key={s.key} className="inline-flex items-center gap-2">
-            <span className="size-2.5 rounded-[3px]" style={{ background: s.color }} />
+            <span className={`size-2.5 rounded-[3px] ${s.swatch}`} />
             {s.label}
           </span>
         ))}
@@ -76,12 +77,12 @@ export function WeeklyHoursChart({ weeks }: { weeks: Week[] }) {
                   <div className={`flex w-full max-w-6 flex-col-reverse gap-[2px] transition-[filter] duration-150 ${isActive ? "brightness-125" : ""}`}>
                     {billablePx > 0 && (
                       <div
-                        style={{ height: Math.max(2, billablePx), background: SERIES[0].color }}
-                        className={nonPx > 0 ? "" : "rounded-t-[2px]"}
+                        style={{ height: Math.max(2, billablePx) }}
+                        className={`${SERIES[0].swatch} ${nonPx > 0 ? "" : "rounded-t-[2px]"}`}
                       />
                     )}
                     {nonPx > 0 && (
-                      <div style={{ height: Math.max(2, nonPx), background: SERIES[1].color }} className="rounded-t-[2px]" />
+                      <div style={{ height: Math.max(2, nonPx) }} className={`rounded-t-[2px] ${SERIES[1].swatch}`} />
                     )}
                   </div>
 
@@ -91,7 +92,7 @@ export function WeeklyHoursChart({ weeks }: { weeks: Week[] }) {
                       {SERIES.map((s) => (
                         <p key={s.key} className="flex items-center justify-between gap-4">
                           <span className="inline-flex items-center gap-2 text-fg-2">
-                            <span className="h-0.5 w-3 rounded-full" style={{ background: s.color }} />
+                            <span className={`h-0.5 w-3 rounded-full ${s.swatch}`} />
                             {s.label}
                           </span>
                           <strong className="tabular-nums text-white">{formatHours(w[s.key], 1)}</strong>

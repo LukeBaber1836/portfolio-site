@@ -11,6 +11,8 @@ const buttonVariants = cva(
         // App (admin/portal) variants — flat, hairline, gold only for the primary action.
         default: "gold-brushed gold-ring text-background hover:brightness-[1.04]",
         outline: "border border-line-strong bg-transparent text-white hover:bg-white/[0.05]",
+        // Outline at rest; reflective gold rim + pointer glare + gold text on hover (globals.css gold-outline).
+        outlineGold: "gold-outline border border-line-strong bg-transparent text-white",
         secondary: "bg-white/[0.06] text-white hover:bg-white/[0.1]",
         ghost: "text-white/70 hover:bg-white/[0.06] hover:text-white",
         destructive: "bg-danger/10 text-danger hover:bg-danger/20",
