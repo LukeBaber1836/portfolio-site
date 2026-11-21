@@ -1,7 +1,9 @@
 import { auth } from "@/lib/auth/server";
 import { validatePasswordServer } from "@/lib/validation/password-breach";
 
-const upstream = auth.handler();
+// Built on first request so the build doesn't need auth secrets.
+let handler: ReturnType<typeof auth.handler> | undefined;
+const getUpstream = () => (handler ??= auth.handler());
 
 type Ctx = { params: Promise<{ path: string[] }> };
 
@@ -49,9 +51,10 @@ async function guard(request: Request, ctx: Ctx) {
       headers: request.headers,
       body: raw,
     });
-    return upstream.POST(forwarded, ctx);
+    return getUpstream().POST(forwarded, ctx);
   }
 
+  const upstream = getUpstream();
   const method = request.method as keyof typeof upstream;
   return upstream[method](request, ctx);
 }
